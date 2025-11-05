@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="flex bg-gray-100">
+
+    <%- include('../partials/admin_sidebar.ejs') %>
+
+    <main class="flex-1 p-10">
+        <%- include('../partials/flash.ejs') %>
+
+        <h1 class="text-3xl font-bold text-gray-800 mb-6">Admin Dashboard</h1>
+        
+        <div class="bg-white p-6 rounded-lg shadow-lg">
+            <h2 class="text-xl font-semibold mb-4">Selamat Datang, <%= currentUser.Nama %>!</h2>
+            <p class="text-gray-700">
+                Anda login sebagai <span class="font-medium text-blue-600"><%= currentUser.Role %></span>.
+            </p>
+            <p class="text-gray-700 mt-2">
+                Dari panel ini, Anda dapat mengelola seluruh konten website Bausasran.
+            </p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+            <div class="bg-white p-6 rounded-lg shadow-lg">
+                <h3 class="text-lg font-semibold text-gray-700">Total Pengguna</h3>
+                <p class="text-3xl font-bold text-blue-600 mt-2">150</p>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow-lg">
+                <h3 class="text-lg font-semibold text-gray-700">Total Produk</h3>
+                <p class="text-3xl font-bold text-green-600 mt-2">25</p>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow-lg">
+                <h3 class="text-lg font-semibold text-gray-700">Kegiatan Mendatang</h3>
+                <p class="text-3xl font-bold text-yellow-600 mt-2">3</p>
+            </div>
+        </div>
+
+    </main>
+</body>
+</html>

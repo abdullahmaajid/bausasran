@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tambah Prestasi Baru</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="flex bg-gray-100">
+    <%- include('../../partials/admin_sidebar.ejs') %>
+    <main class="flex-1 p-10">
+        <%- include('../../partials/flash.ejs') %>
+        <h1 class="text-3xl font-bold text-gray-800 mb-6">Tambah Prestasi Baru</h1>
+        <div class="bg-white p-8 rounded-lg shadow-lg max-w-2xl mx-auto">
+            <form action="/admin/prestasi" method="POST" enctype="multipart/form-data">
+                
+                <div class="mb-4">
+                    <label for="Judul" class="block text-gray-700 text-sm font-semibold mb-2">Judul Prestasi/Penghargaan*</label>
+                    <input type="text" id="Judul" name="Judul" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700" required>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label for="Tanggal" class="block text-gray-700 text-sm font-semibold mb-2">Tanggal Diraih*</label>
+                        <input type="date" id="Tanggal" name="Tanggal" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700" required>
+                    </div>
+                    <div>
+                        <label for="Kategori" class="block text-gray-700 text-sm font-semibold mb-2">Kategori</label>
+                        <input type="text" id="Kategori" name="Kategori" placeholder="Cth: Nasional, Lokal" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700">
+                    </div>
+                </div>
+
+                <div class="mb-6">
+                    <label for="fotoPrestasi" class="block text-gray-700 text-sm font-semibold mb-2">Galeri Foto (Sertifikat/Dokumentasi)</label>
+                    <input 
+                        type="file" 
+                        id="fotoPrestasi" 
+                        name="fotoPrestasi" 
+                        accept="image/png, image/jpeg, image/jpg" 
+                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700"
+                        multiple 
+                    >
+                    <p class="text-xs text-gray-500 mt-1">Bisa lebih dari 1 file. Maks 5MB per file.</p>
+                </div>
+
+                <div id="foto-preview-container" class="mt-4 grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4">
+                    </div>
+
+
+                <div class="flex items-center space-x-4 mt-6">
+                    <button type="submit" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
+                        Simpan Data Prestasi
+                    </button>
+                    <a href="/admin/prestasi" class="w-full text-center bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded">
+                        Batal
+                    </a>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <script>
+        function setupImagePreview(inputId, containerId) {
+            const inputElement = document.getElementById(inputId);
+            const previewContainer = document.getElementById(containerId);
+
+            if (!inputElement || !previewContainer) return;
+
+            inputElement.addEventListener('change', function(event) {
+                previewContainer.innerHTML = ''; 
+                if (!this.files || this.files.length === 0) return;
+
+                Array.from(this.files).forEach(file => {
+                    
+                    // === INI YANG DIUBAH ===
+                    // 'continue;' diganti menjadi 'return;'
+                    if (!file.type.startsWith('image/')) return; 
+                    // ======================
+
+                    const reader = new FileReader();
+
+                    reader.onload = function(e) {
+                        const img = document.createElement('img');
+                        img.src = e.target.result;
+                        img.className = 'h-24 w-full object-cover rounded-md shadow-md'; 
+                        previewContainer.appendChild(img);
+                    }
+                    reader.readAsDataURL(file);
+                });
+            });
+        }
+
+        // Panggil fungsi untuk halaman ini
+        setupImagePreview('fotoPrestasi', 'foto-preview-container');
+    </script>
+</body>
+</html>

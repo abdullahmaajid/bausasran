@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tambah Anggota Baru</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="flex bg-gray-100">
+
+    <%- include('../../partials/admin_sidebar.ejs') %>
+
+    <main class="flex-1 p-10">
+        <%- include('../../partials/flash.ejs') %>
+
+        <h1 class="text-3xl font-bold text-gray-800 mb-6">Tambah Anggota Baru</h1>
+        
+        <div class="bg-white p-8 rounded-lg shadow-lg max-w-2xl mx-auto">
+            <form action="/admin/anggota" method="POST" enctype="multipart/form-data">
+                
+                <div class="mb-4">
+                    <label for="nama" class="block text-gray-700 text-sm font-semibold mb-2">Nama Lengkap*</label>
+                    <input type="text" id="nama" name="nama" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700" required>
+                </div>
+                <div class="mb-4">
+                    <label for="jabatan" class="block text-gray-700 text-sm font-semibold mb-2">Jabatan</label>
+                    <input type="text" id="jabatan" name="jabatan" placeholder="Cth: Ketua Pokdarwis" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700">
+                </div>
+                <div class="mb-4">
+                    <label for="deskripsi" class="block text-gray-700 text-sm font-semibold mb-2">Deskripsi (Bio)</label>
+                    <textarea id="deskripsi" name="deskripsi" rows="3" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700"></textarea>
+                </div>
+
+                <div class="mb-4">
+                    <label for="fotoAnggota" class="block text-gray-700 text-sm font-semibold mb-2">Foto Profil (Opsional)</label>
+                    <input type="file" id="fotoAnggota" name="fotoAnggota" accept="image/png, image/jpeg, image/jpg" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700">
+                    <p class="text-xs text-gray-500 mt-1">Hanya .png, .jpg, .jpeg. Maks 5MB.</p>
+                </div>
+                
+                <hr class="my-6">
+                
+                <div class="mb-4">
+                    <label for="username" class="block text-gray-700 text-sm font-semibold mb-2">Username (untuk login)*</label>
+                    <input type="text" id="username" name="username" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700" required>
+                </div>
+                <div class="mb-4">
+                    <label for="password" class="block text-gray-700 text-sm font-semibold mb-2">Password (untuk login)*</label>
+                    <input type="password" id="password" name="password" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700" required>
+                </div>
+                <div class="mb-6">
+                    <label for="role" class="block text-gray-700 text-sm font-semibold mb-2">Role (Hak Akses)*</label>
+                    <select id="role" name="role" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700" required>
+                        <option value="User">User (Anggota Biasa)</option>
+                        <option value="Admin">Admin (Bisa Kelola Sistem)</option>
+                    </select>
+                </div>
+
+                <div class="flex items-center space-x-4">
+                    <button type="submit" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
+                        Simpan Data Anggota
+                    </button>
+                    <a href="/admin/anggota" class="w-full text-center bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded">
+                        Batal
+                    </a>
+                </div>
+            </form>
+        </div>
+    </main>
+</body>
+</html>

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Produk</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .param-info { font-size: 0.75rem; color: #6b7280; margin-top: 0.25rem; }
+        .price-preview { font-size: 0.875rem; font-weight: 600; color: #1d4ed8; }
+    </style>
+</head>
+<body class="flex bg-gray-100">
+
+    <%- include('../../partials/admin_sidebar.ejs') %>
+
+    <main class="flex-1 p-10">
+        <%- include('../../partials/flash.ejs') %>
+        <h1 class="text-3xl font-bold text-gray-800 mb-6">Edit Produk: <%= product.Nama %></h1>
+        <div class="bg-white p-8 rounded-lg shadow-lg max-w-4xl mx-auto">
+             <form id="edit-product-form" action="/admin/produk/<%= product.ID_Product %>/edit" method="POST" enctype="multipart/form-data">
+
+                <h2 class="text-xl font-semibold mb-4 text-gray-700">Detail Produk</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div> <label for="Nama" class="block text-sm font-medium text-gray-700">Nama Produk*</label> <input type="text" id="Nama" name="Nama" value="<%= product.Nama %>" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required> </div>
+                    <div> <label for="Kategori" class="block text-sm font-medium text-gray-700">Kategori</label> <input type="text" id="Kategori" name="Kategori" value="<%= product.Kategori || '' %>" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm"> </div>
+                </div>
+                <div class="mb-4"> <label for="Deskripsi" class="block text-sm font-medium text-gray-700">Deskripsi</label> <textarea id="Deskripsi" name="Deskripsi" rows="3" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm"><%= product.Deskripsi || '' %></textarea> </div>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4 items-end">
+                    <div> <label for="Harga" class="block text-sm font-medium text-gray-700">Harga Jual (Rp)*</label> <input type="number" id="Harga" name="Harga" value="<%= product.Harga %>" step="1" min="0" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required> </div>
+                    <div> <label for="Diskon" class="block text-sm font-medium text-gray-700">Diskon (%)</label> <input type="number" id="Diskon" name="Diskon" value="<%= product.Diskon ? (product.Diskon * 100).toFixed(0) : 0 %>" step="1" min="0" max="100" placeholder="Cth: 10" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm"> </div>
+                    <div> <label class="block text-sm font-medium text-gray-500">Harga Setelah Diskon</label> <span id="final-price-preview" class="price-preview mt-2 block h-[38px] flex items-center">Rp 0</span> </div>
+                </div>
+
+                <div class="mb-4 border-t pt-4">
+                    <div class="flex flex-wrap justify-between items-center gap-2 mb-2">
+                         <label class="block text-sm font-medium text-gray-700">Manajemen Foto Produk</label>
+                         <div class="flex items-center space-x-2">
+                             <button type="button" id="edit-photo-btn" class="text-xs bg-blue-100 hover:bg-blue-200 text-blue-700 font-medium py-1 px-2.5 rounded disabled:opacity-50 disabled:cursor-not-allowed" disabled>Ganti Foto Terpilih</button>
+                             <button type="button" id="delete-photos-btn" class="text-xs bg-red-100 hover:bg-red-200 text-red-700 font-medium py-1 px-2.5 rounded disabled:opacity-50 disabled:cursor-not-allowed" disabled>Hapus Foto Terpilih</button>
+                         </div>
+                    </div>
+                    <div id="photo-list-container" class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
+                        <% if (existingPhotos && existingPhotos.length > 0) { %>
+                            <% existingPhotos.forEach(photo => { %>
+                                <div class="relative group photo-item border p-1 rounded border-gray-200">
+                                    <img id="img-<%= photo.ID_Foto %>" src="/images/produk/<%= photo.Foto %>" alt="Foto Produk <%= photo.ID_Foto %>" class="h-24 w-full object-cover rounded ">
+                                    <input type="radio" name="selectPhotoToEdit" value="<%= photo.ID_Foto %>" id="edit_select_<%= photo.ID_Foto %>" class="edit-photo-radio absolute top-1 left-1 h-4 w-4 text-blue-600 border-gray-400 focus:ring-blue-500 cursor-pointer opacity-70 group-hover:opacity-100">
+                                    <input type="checkbox" name="deletePhotos" value="<%= photo.ID_Foto %>" id="delete_<%= photo.ID_Foto %>" class="delete-photo-checkbox absolute top-1 right-1 h-4 w-4 text-red-600 border-gray-400 rounded focus:ring-red-500 cursor-pointer opacity-70 group-hover:opacity-100">
+                                </div>
+                            <% }) %>
+                        <% } else { %>
+                            <p class="text-sm text-gray-500 italic col-span-full no-photos-msg">Belum ada foto produk.</p>
+                        <% } %>
+                    </div>
+                     <p id="edit-status" class="text-xs mt-2"></p>
+                     <p id="delete-status" class="text-xs mt-1"></p>
+                     <input type="file" id="edit-photo-input" accept="image/png, image/jpeg, image/jpg" class="hidden">
+                </div>
+
+                <div class="mb-4 border-t pt-4">
+                    <label for="productImages" class="block text-sm font-medium text-gray-700">Tambah Foto Baru (Maks 10)</label>
+                    <input type="file" id="productImages" name="productImages" multiple accept="image/png, image/jpeg, image/jpg" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                    <p class="text-xs text-gray-500 mt-1">Hanya .png, .jpg, .jpeg. Maks 5MB per file.</p>
+                </div>
+                 <hr class="my-6">
+
+                 <h2 class="text-xl font-semibold mb-4 text-gray-700">Parameter Optimal (Untuk Analisis)</h2>
+                <div id="parameter-container" class="space-y-4 mb-4">
+                    <% if (existingParameters && existingParameters.length > 0) { %>
+                        <% existingParameters.forEach(param => { %>
+                            <div class="parameter-row grid grid-cols-12 gap-x-3 items-start border p-3 rounded bg-gray-50">
+                                <div class="col-span-4"><label class="block text-xs font-medium text-gray-600">Nama Parameter</label><select name="paramNama[]" class="param-select mt-1 text-sm block w-full border-gray-300 rounded-md shadow-sm" data-selected-value="<%= param.Nama %>"><option value="">-- Pilih --</option></select></div>
+                                <div class="col-span-3"><p class="param-info text-xs text-gray-500 mt-1 h-8"><span class="param-unit block">Unit: -</span><span class="param-desc block">Deskripsi: -</span></p></div>
+                                <div class="col-span-2"><label class="block text-xs font-medium text-gray-600">Min Optimal</label><input type="number" step="any" name="paramMin[]" value="<%= param.Minimal %>" placeholder="Min" class="mt-1 text-sm block w-full border-gray-300 rounded-md shadow-sm"></div>
+                                <div class="col-span-2"><label class="block text-xs font-medium text-gray-600">Max Optimal</label><input type="number" step="any" name="paramMax[]" value="<%= param.Maksimal %>" placeholder="Max" class="mt-1 text-sm block w-full border-gray-300 rounded-md shadow-sm"></div>
+                                <div class="col-span-1 flex items-end h-full"><button type="button" class="remove-parameter-btn text-sm bg-red-100 hover:bg-red-200 text-red-700 font-medium py-1 px-2 rounded w-full h-[34px] mt-1">Hapus</button></div>
+                            </div>
+                        <% }) %>
+                    <% } else { %> <p class="text-sm text-gray-500 placeholder-message">Klik "Tambah Parameter".</p> <% } %>
+                </div>
+                <button type="button" id="add-parameter-btn" class="mb-6 text-sm bg-green-100 hover:bg-green-200 text-green-700 font-medium py-1 px-3 rounded"> + Tambah Parameter </button>
+
+                <div class="flex items-center space-x-4 mt-6 border-t pt-6">
+                    <button type="submit" form="edit-product-form" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"> Simpan Detail & Foto Baru </button>
+                    <a href="/admin/produk" class="w-full text-center bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded"> Batal </a>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <template id="parameter-row-template">
+        <div class="parameter-row grid grid-cols-12 gap-x-3 items-start border p-3 rounded bg-gray-50">
+            <div class="col-span-4"><label class="block text-xs font-medium text-gray-600">Nama Parameter</label><select name="paramNama[]" class="param-select mt-1 text-sm block w-full border-gray-300 rounded-md shadow-sm"><option value="">-- Pilih --</option></select></div>
+            <div class="col-span-3"><p class="param-info text-xs text-gray-500 mt-1 h-8"><span class="param-unit block">Unit: -</span><span class="param-desc block">Deskripsi: -</span></p></div>
+            <div class="col-span-2"><label class="block text-xs font-medium text-gray-600">Min Optimal</label><input type="number" step="any" name="paramMin[]" placeholder="Min" class="mt-1 text-sm block w-full border-gray-300 rounded-md shadow-sm"></div>
+            <div class="col-span-2"><label class="block text-xs font-medium text-gray-600">Max Optimal</label><input type="number" step="any" name="paramMax[]" placeholder="Max" class="mt-1 text-sm block w-full border-gray-300 rounded-md shadow-sm"></div>
+            <div class="col-span-1 flex items-end h-full"><button type="button" class="remove-parameter-btn text-sm bg-red-100 hover:bg-red-200 text-red-700 font-medium py-1 px-2 rounded w-full h-[34px] mt-1">Hapus</button></div>
+        </div>
+    </template>
+
+    <script>
+        const parameterDetails = { 'Suhu Rata-rata': { unit: '°C', desc: 'Temperatur udara rata-rata.' }, 'Kelembaban Relatif': { unit: '%', desc: 'Persentase uap air di udara.' }, 'Curah Hujan': { unit: 'mm', desc: 'Jumlah hujan harian.' }, 'Kecepatan Angin': { unit: 'm/s', desc: 'Kecepatan angin permukaan.' }, 'Radiasi Matahari': { unit: 'MJ/m²/day', desc: 'Energi radiasi matahari harian.' }, 'Evapotranspirasi': { unit: 'mm/day', desc: 'Penguapan air dari tanah & tanaman.' }, 'Suhu Tanah (0-7cm)': { unit: '°C', desc: 'Temperatur tanah lapisan atas.' }, 'Kelembaban Tanah (0-7cm)': { unit: 'm³/m³', desc: 'Kandungan air tanah lapisan atas.' }, 'pH Tanah': { unit: 'pH', desc: 'Tingkat keasaman tanah.' }, 'Kandungan Organik': { unit: '%', desc: 'Persentase bahan organik tanah.' } };
+        const predefinedParameters = Object.keys(parameterDetails);
+        const container = document.getElementById('parameter-container'); const addButton = document.getElementById('add-parameter-btn'); const template = document.getElementById('parameter-row-template'); const placeholder = container.querySelector('.placeholder-message');
+        function getSelectedValues() { const selects = container.querySelectorAll('.param-select'); const values = new Set(); selects.forEach(select => { if (select.value) values.add(select.value); }); return values; }
+        function updateAllDropdowns() { const selectedValues = getSelectedValues(); const allSelects = container.querySelectorAll('.param-select'); allSelects.forEach(currentSelect => { const currentValue = currentSelect.value; Array.from(currentSelect.options).forEach(option => { if (option.value && option.value !== currentValue && selectedValues.has(option.value)) { option.disabled = true; } else { option.disabled = false; } }); }); }
+        function updateParameterInfo(rowElement, selectedValue) { const unitElement = rowElement.querySelector('.param-unit'); const descElement = rowElement.querySelector('.param-desc'); const details = parameterDetails[selectedValue]; if (details) { if(unitElement) unitElement.textContent = `Unit: ${details.unit}`; if(descElement) descElement.textContent = `Deskripsi: ${details.desc}`; } else { if(unitElement) unitElement.textContent = 'Unit: -'; if(descElement) descElement.textContent = 'Deskripsi: -'; } }
+        function populateDropdown(selectElement, selectedValue = '') { selectElement.innerHTML = '<option value="">-- Pilih --</option>'; predefinedParameters.forEach(paramName => { const option = document.createElement('option'); option.value = paramName; option.textContent = paramName; if (paramName === selectedValue) { option.selected = true; } selectElement.appendChild(option); }); }
+        function addParamRow() { if (placeholder) placeholder.style.display = 'none'; const clone = template.content.cloneNode(true); const newRow = clone.querySelector('.parameter-row'); const selectElement = newRow.querySelector('.param-select'); const removeButton = newRow.querySelector('.remove-parameter-btn'); populateDropdown(selectElement); updateAllDropdowns(); selectElement.addEventListener('change', (e) => { updateAllDropdowns(); updateParameterInfo(newRow, e.target.value); }); removeButton.addEventListener('click', (e) => { e.target.closest('.parameter-row').remove(); updateAllDropdowns(); if (container.querySelectorAll('.parameter-row').length === 0 && placeholder) { placeholder.style.display = 'block'; } }); container.appendChild(clone); }
+        container.querySelectorAll('.parameter-row').forEach(row => { const selectElement = row.querySelector('.param-select'); const selectedValue = selectElement.dataset.selectedValue; populateDropdown(selectElement, selectedValue); updateParameterInfo(row, selectedValue); selectElement.addEventListener('change', (e) => { updateAllDropdowns(); updateParameterInfo(row, e.target.value); }); const removeButton = row.querySelector('.remove-parameter-btn'); removeButton.addEventListener('click', (e) => { e.target.closest('.parameter-row').remove(); updateAllDropdowns(); if (container.querySelectorAll('.parameter-row').length === 0 && placeholder) { placeholder.style.display = 'block'; } }); });
+        addButton.addEventListener('click', addParamRow);
+        if (container.querySelectorAll('.parameter-row').length > 0 && placeholder) { placeholder.style.display = 'none'; }
+        updateAllDropdowns();
+
+        const hargaInput = document.getElementById('Harga'); const diskonInput = document.getElementById('Diskon'); const pricePreview = document.getElementById('final-price-preview'); const formatter = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 });
+        function updatePricePreview() { const harga = parseFloat(hargaInput.value) || 0; let diskonPersen = parseFloat(diskonInput.value) || 0; if (diskonPersen < 0) diskonPersen = 0; if (diskonPersen > 100) diskonPersen = 100; const diskonNilai = harga * (diskonPersen / 100); const hargaAkhir = harga - diskonNilai; pricePreview.textContent = formatter.format(hargaAkhir); }
+        hargaInput.addEventListener('input', updatePricePreview); diskonInput.addEventListener('input', updatePricePreview); updatePricePreview();
+    </script>
+
+    <script>
+        const deleteBtn = document.getElementById('delete-photos-btn'); const editBtn = document.getElementById('edit-photo-btn'); const photoContainer = document.getElementById('photo-list-container'); const checkboxes = photoContainer.querySelectorAll('.delete-photo-checkbox'); const radios = photoContainer.querySelectorAll('.edit-photo-radio'); const editPhotoInput = document.getElementById('edit-photo-input'); const deleteStatus = document.getElementById('delete-status'); const editStatus = document.getElementById('edit-status'); const productId = '<%= product.ID_Product %>';
+        function checkSelectedForDelete() { const selectedIds = Array.from(checkboxes).filter(cb => cb.checked).map(cb => cb.value); deleteBtn.disabled = selectedIds.length === 0; return selectedIds; }
+        function checkSelectedForEdit() { const selectedRadio = photoContainer.querySelector('.edit-photo-radio:checked'); editBtn.disabled = !selectedRadio; return selectedRadio ? selectedRadio.value : null; }
+        checkboxes.forEach(cb => cb.addEventListener('change', checkSelectedForDelete)); radios.forEach(rb => rb.addEventListener('change', checkSelectedForEdit));
+        deleteBtn.addEventListener('click', async () => { const photoIdsToDelete = checkSelectedForDelete(); if (photoIdsToDelete.length === 0 || !confirm(`Hapus ${photoIdsToDelete.length} foto terpilih?`)) return; deleteBtn.disabled = true; deleteBtn.textContent = 'Menghapus...'; deleteStatus.textContent = ''; deleteStatus.className = 'text-xs mt-1'; try { const response = await fetch(`/admin/produk/${productId}/delete-photos`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ photoIds: photoIdsToDelete }) }); const result = await response.json(); if (response.ok && result.success) { deleteStatus.textContent = result.message; deleteStatus.classList.add('text-green-600'); photoIdsToDelete.forEach(id => { document.getElementById(`delete_${id}`)?.closest('.photo-item')?.remove(); }); if (photoContainer.querySelectorAll('.photo-item').length === 0 && !photoContainer.querySelector('.no-photos-msg')) { photoContainer.innerHTML = '<p class="text-sm text-gray-500 italic col-span-full no-photos-msg">Belum ada foto.</p>'; } } else { throw new Error(result.message || response.statusText); } } catch (error) { deleteStatus.textContent = `Gagal: ${error.message}`; deleteStatus.classList.add('text-red-600'); } finally { deleteBtn.textContent = 'Hapus Foto Terpilih'; checkSelectedForDelete(); } });
+        editBtn.addEventListener('click', () => { const photoIdToEdit = checkSelectedForEdit(); if (photoIdToEdit) { editPhotoInput.click(); } });
+        editPhotoInput.addEventListener('change', async (event) => { const file = event.target.files[0]; const photoIdToReplace = checkSelectedForEdit(); if (!file || !photoIdToReplace) { editPhotoInput.value = ''; return; } editBtn.disabled = true; editBtn.textContent = 'Mengganti...'; editStatus.textContent = `Mengupload ${file.name}...`; editStatus.className = 'text-xs mt-2 text-blue-600'; const formData = new FormData(); formData.append('editedPhoto', file); formData.append('photoIdToReplace', photoIdToReplace); try { const response = await fetch(`/admin/produk/${productId}/edit-photo`, { method: 'POST', body: formData }); const result = await response.json(); if (response.ok && result.success) { editStatus.textContent = result.message; editStatus.classList.replace('text-blue-600', 'text-green-600'); const imgElement = document.getElementById(`img-${result.photoId}`); if (imgElement) { imgElement.src = `/images/produk/${result.newFilename}?t=${Date.now()}`; } const radio = document.getElementById(`edit_select_${result.photoId}`); if(radio) radio.checked = false; checkSelectedForEdit(); } else { throw new Error(result.message || response.statusText); } } catch (error) { editStatus.textContent = `Gagal: ${error.message}`; editStatus.classList.replace('text-blue-600', 'text-red-600'); } finally { editBtn.textContent = 'Ganti Foto Terpilih'; checkSelectedForEdit(); editPhotoInput.value = ''; } });
+        checkSelectedForDelete(); checkSelectedForEdit();
+    </script>
+
+</body>
+</html>

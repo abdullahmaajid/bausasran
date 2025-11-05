@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Prestasi</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        dialog { border: none; padding: 2rem; border-radius: 0.5rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06); }
+        dialog::backdrop { background: rgba(0, 0, 0, 0.5); }
+    </style>
+</head>
+<body class="flex bg-gray-100">
+    <%- include('../../partials/admin_sidebar.ejs') %>
+    <main class="flex-1 p-10">
+        <%- include('../../partials/flash.ejs') %>
+        <h1 class="text-3xl font-bold text-gray-800 mb-6">Edit Prestasi: <%= prestasi.Judul %></h1>
+        
+        <div class="bg-white p-8 rounded-lg shadow-lg max-w-2xl mx-auto mb-10">
+            <form action="/admin/prestasi/<%= prestasi.ID_Prestasi %>/edit" method="POST" enctype="multipart/form-data">
+                
+                <div class="mb-4">
+                    <label for="Judul" class="block text-gray-700 text-sm font-semibold mb-2">Judul Prestasi*</label>
+                    <input type="text" id="Judul" name="Judul" value="<%= prestasi.Judul %>" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700" required>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label for="Tanggal" class="block text-gray-700 text-sm font-semibold mb-2">Tanggal Diraih*</label>
+                        <input type="date" id="Tanggal" name="Tanggal" value="<%= prestasi.Tanggal %>" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700" required>
+                    </div>
+                    <div>
+                        <label for="Kategori" class="block text-gray-700 text-sm font-semibold mb-2">Kategori</label>
+                        <input type="text" id="Kategori" name="Kategori" value="<%= prestasi.Kategori || '' %>" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700">
+                    </div>
+                </div>
+                <hr class="my-6">
+                
+                <div class="mb-6">
+                    <label for="fotoPrestasi" class="block text-gray-700 text-sm font-semibold mb-2">Tambah Foto ke Galeri</label>
+                    <input type="file" id="fotoPrestasi" name="fotoPrestasi" accept="image/png, image/jpeg, image/jpg" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700" multiple>
+                    <p class="text-xs text-gray-500 mt-1">Kosongkan jika tidak ingin menambah foto.</p>
+                </div>
+                
+                <div id="foto-preview-container" class="mt-4 grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4">
+                    </div>
+
+                <div class="flex items-center space-x-4 mt-6">
+                    <button type="submit" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
+                        Simpan Perubahan
+                    </button>
+                    <a href="/admin/prestasi" class="w-full text-center bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded">
+                        Batal
+                    </a>
+                </div>
+            </form>
+        </div>
+
+        <div class="bg-white p-8 rounded-lg shadow-lg max-w-2xl mx-auto">
+            <h2 class="text-xl font-bold text-gray-800 mb-4">Kelola Galeri Foto Saat Ini</h2>
+            
+            <% if (fotoList && fotoList.length > 0) { %>
+                <form action="/admin/prestasi/<%= prestasi.ID_Prestasi %>/bulk-delete-fotos" method="POST" id="bulk-foto-form">
+                    
+                    <div class="mb-4 flex justify-between items-center">
+                        <button type="submit" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg">
+                            Hapus Foto yang Dipilih
+                        </button>
+                        <div class="flex items-center space-x-2">
+                            <input type="checkbox" id="select-all-fotos">
+                            <label for="select-all-fotos">Pilih Semua</label>
+                        </div>
+                    </div>
+                    
+                    <div id="gallery-container" class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4">
+                        <% fotoList.forEach(foto => { %>
+                            <div class="relative group" id="foto-wrapper-<%= foto.ID_Foto %>">
+                                <label for="foto-<%= foto.ID_Foto %>" class="cursor-pointer">
+                                    <img src="/images/prestasi/<%= foto.Foto %>" alt="Foto Prestasi" class="h-24 w-full object-cover rounded-md border-2 border-transparent peer-checked:border-blue-500">
+                                    <input type="checkbox" name="fotoIds" value="<%= foto.ID_Foto %>" id="foto-<%= foto.ID_Foto %>" class="absolute top-2 left-2 peer row-foto-checkbox">
+                                </label>
+                                
+                                <% if (foto.ID_Foto === thumbnailId) { %>
+                                    <span class="absolute top-1 right-1 bg-green-600 text-white text-xs px-2 py-0.5 rounded-full font-semibold">Thumbnail</span>
+                                <% } else { %>
+                                    <button type="button" class="absolute top-1 right-1 bg-blue-500 hover:bg-blue-600 text-white text-xs px-2 py-0.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity" title="Jadikan Thumbnail"
+                                        onclick="setThumbnail('<%= prestasi.ID_Prestasi %>', '<%= foto.ID_Foto %>')">
+                                        Set Cover
+                                    </button>
+                                <% } %>
+
+                                <button type="button" 
+                                        class="absolute bottom-1 right-1 bg-yellow-500 hover:bg-yellow-600 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity"
+                                        onclick="openReplaceModal('<%= prestasi.ID_Prestasi %>', '<%= foto.ID_Foto %>')">
+                                    Ganti
+                                </button>
+                            </div>
+                        <% }) %>
+                    </div>
+                </form>
+            <% } else { %>
+                <p class="text-sm text-gray-500 italic">Belum ada foto di galeri.</p>
+            <% } %>
+        </div>
+
+        <dialog id="replace-foto-modal" class="p-6 rounded-lg shadow-xl w-full max-w-md">
+            <h3 class="text-xl font-bold mb-4">Ganti Foto</h3>
+            <form id="replace-foto-form" method="POST" enctype="multipart/form-data">
+                <input type="hidden" name="_method" value="POST"> 
+                <div class="mb-4">
+                    <label for="newFoto" class="block text-gray-700 text-sm font-semibold mb-2">Pilih Foto Baru</label>
+                    <input type="file" id="newFoto" name="newFoto" accept="image/png, image/jpeg, image/jpg" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700" required>
+                </div>
+                <div class="flex justify-end space-x-3">
+                    <button type="button" onclick="closeReplaceModal()" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded">
+                        Batal
+                    </button>
+                    <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
+                        Ganti Foto
+                    </button>
+                </div>
+            </form>
+        </dialog>
+    </main>
+
+    <script>
+        // Script Hapus Massal
+        document.getElementById('select-all-fotos').addEventListener('change', function(e) {
+            const checkboxes = document.querySelectorAll('.row-foto-checkbox');
+            checkboxes.forEach(cb => { cb.checked = e.target.checked; });
+        });
+        document.getElementById('bulk-foto-form').addEventListener('submit', function(e) {
+            const checkedBoxes = document.querySelectorAll('.row-foto-checkbox:checked').length;
+            if (checkedBoxes === 0) {
+                e.preventDefault();
+                alert('Tidak ada foto yang dipilih untuk dihapus.');
+            } else if (!confirm(`Apakah Anda yakin ingin menghapus ${checkedBoxes} foto yang dipilih?`)) {
+                e.preventDefault();
+            }
+        });
+
+        // Script Set Thumbnail
+        function setThumbnail(prestasiId, fotoId) {
+            if (confirm('Jadikan foto ini sebagai thumbnail?')) {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = `/admin/prestasi/${prestasiId}/foto/${fotoId}/set-thumbnail`;
+                form.style.display = 'none';
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
+
+        // Script Modal "Ganti Foto"
+        const replaceModal = document.getElementById('replace-foto-modal');
+        const replaceForm = document.getElementById('replace-foto-form');
+
+        function openReplaceModal(prestasiId, fotoId) {
+            replaceForm.action = `/admin/prestasi/${prestasiId}/foto/${fotoId}/replace`;
+            replaceModal.showModal();
+        }
+
+        function closeReplaceModal() {
+            replaceModal.close();
+            replaceForm.reset();
+        }
+
+        // Script Preview Gambar
+        function setupImagePreview(inputId, containerId) {
+            const inputElement = document.getElementById(inputId);
+            const previewContainer = document.getElementById(containerId);
+            if (!inputElement || !previewContainer) return;
+
+            inputElement.addEventListener('change', function(event) {
+                previewContainer.innerHTML = ''; 
+                if (!this.files || this.files.length === 0) return;
+                Array.from(this.files).forEach(file => {
+                    if (!file.type.startsWith('image/')) return;
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const img = document.createElement('img');
+                        img.src = e.target.result;
+                        img.className = 'h-24 w-full object-cover rounded-md shadow-md'; 
+                        previewContainer.appendChild(img);
+                    }
+                    reader.readAsDataURL(file);
+                });
+            });
+        }
+
+        // Panggil fungsi preview untuk input 'Tambah Foto'
+        setupImagePreview('fotoPrestasi', 'foto-preview-container');
+    </script>
+</body>
+</html>

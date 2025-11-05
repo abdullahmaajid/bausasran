@@ -1,0 +1,79 @@
+<!-- views/admin/anggota/edit.ejs -->
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Anggota</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="flex bg-gray-100">
+    <%- include('../../partials/admin_sidebar.ejs') %>
+    <main class="flex-1 p-10">
+        <%- include('../../partials/flash.ejs') %>
+        <h1 class="text-3xl font-bold text-gray-800 mb-6">Edit Anggota: <%= anggota.Nama %></h1>
+        <div class="bg-white p-8 rounded-lg shadow-lg max-w-2xl mx-auto">
+            <form action="/admin/anggota/<%= anggota.ID_Pengguna %>/edit" method="POST" enctype="multipart/form-data">
+                
+                <!-- ... (Input Nama, Jabatan, Deskripsi) ... -->
+                <div class="mb-4">
+                    <label for="nama" class="block text-gray-700 text-sm font-semibold mb-2">Nama Lengkap*</label>
+                    <input type="text" id="nama" name="nama" value="<%= anggota.Nama %>" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700" required>
+                </div>
+                <div class="mb-4">
+                    <label for="jabatan" class="block text-gray-700 text-sm font-semibold mb-2">Jabatan</label>
+                    <input type="text" id="jabatan" name="jabatan" value="<%= anggota.Jabatan || '' %>" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700">
+                </div>
+                <div class="mb-4">
+                    <label for="deskripsi" class="block text-gray-700 text-sm font-semibold mb-2">Deskripsi (Bio)</label>
+                    <textarea id="deskripsi" name="deskripsi" rows="3" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700"><%= anggota.Deskripsi || '' %></textarea>
+                </div>
+
+                <!-- 
+                  PERBAIKAN:
+                  Menggunakan 'anggota.dataValues.fotoFile'
+                -->
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-semibold mb-2">Foto Profil Saat Ini</label>
+                    <% if (anggota.dataValues.fotoFile) { %>
+                        <img src="/images/anggota/<%= anggota.dataValues.fotoFile %>" alt="<%= anggota.Nama %>" class="h-20 w-20 rounded-full object-cover mb-2">
+                    <% } else { %>
+                        <p class="text-sm text-gray-500 italic mb-2">Belum ada foto.</p>
+                    <% } %>
+
+                    <label for="fotoAnggota" class="block text-gray-700 text-sm font-semibold mb-2">Upload Foto Baru (Opsional)</label>
+                    <input type="file" id="fotoAnggota" name="fotoAnggota" accept="image/png, image/jpeg, image/jpg" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700">
+                    <p class="text-xs text-gray-500 mt-1">Hanya .png, .jpg, .jpeg. Maks 5MB. Kosongkan jika tidak ingin mengubah foto.</p>
+                </div>
+                <hr class="my-6">
+                
+                <!-- ... (Input Username, Password, Role, dan Tombol) ... -->
+                <div class="mb-4">
+                    <label for="username" class="block text-gray-700 text-sm font-semibold mb-2">Username (untuk login)*</label>
+                    <input type="text" id="username" name="username" value="<%= anggota.username %>" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700" required>
+                </div>
+                <div class="mb-4">
+                    <label for="password" class="block text-gray-700 text-sm font-semibold mb-2">Password Baru</label>
+                    <input type="password" id="password" name="password" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700">
+                    <p class="text-xs text-gray-500 mt-1">Kosongkan jika Anda tidak ingin mengubah password.</p>
+                </div>
+                <div class="mb-6">
+                    <label for="role" class="block text-gray-700 text-sm font-semibold mb-2">Role (Hak Akses)*</label>
+                    <select id="role" name="role" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700" required>
+                        <option value="User" <%= anggota.Role === 'User' ? 'selected' : '' %>>User (Anggota Biasa)</option>
+                        <option value="Admin" <%= anggota.Role === 'Admin' ? 'selected' : '' %>>Admin (Bisa Kelola Sistem)</option>
+                    </select>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button type="submit" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
+                        Simpan Perubahan
+                    </button>
+                    <a href="/admin/anggota" class="w-full text-center bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded">
+                        Batal
+                    </a>
+                </div>
+            </form>
+        </div>
+    </main>
+</body>
+</html>

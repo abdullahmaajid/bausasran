@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Testimoni Saya</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="bg-gray-100">
+
+    <%- include('../partials/navbar.ejs') %>
+
+    <main class="container mx-auto p-6 md:p-12">
+        <%- include('../partials/flash.ejs') %>
+
+        <h1 class="text-3xl font-bold text-gray-800 mb-6">Halaman Testimoni</h1>
+        
+        <div class="bg-white p-6 rounded-lg shadow-lg mb-8">
+            <h2 class="text-xl font-semibold mb-4">Selamat Datang, <%= currentUser.Nama %>!</h2>
+            <p class="text-gray-700">
+                Ini adalah halaman khusus Member (User). Di sini Anda dapat menambahkan atau melihat riwayat testimoni Anda.
+            </p>
+            <a href="/user/testimoni/tambah" class="mt-4 inline-block bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
+                + Tambah Testimoni Baru
+            </a>
+        </div>
+
+        <div class="bg-white p-6 rounded-lg shadow-lg">
+            <h2 class="text-xl font-semibold mb-4">Riwayat Testimoni Saya</h2>
+            <% if(myTestimoni && myTestimoni.length > 0) { %>
+                <div class="space-y-4">
+                    <% for(let review of myTestimoni) { %>
+                        <div class="border border-gray-200 p-4 rounded-lg">
+                            <p class="font-semibold text-gray-800">Review untuk: <%= review.Kategori %></p>
+                            <p class="text-gray-600 mt-2">"<%= review.Ulasan %>"</p>
+                            <p class="text-yellow-500 font-bold mt-1">Rating: <%= review.Rating %> / 5</p>
+                        </div>
+                    <% } %>
+                </div>
+            <% } else { %>
+                <p class="text-gray-500">Anda belum pernah memberikan testimoni.</p>
+            <% } %>
+        </div>
+    </main>
+
+</body>
+</html>

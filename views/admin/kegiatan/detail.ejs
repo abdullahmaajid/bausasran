@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detail Kegiatan</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="flex bg-gray-100">
+
+    <%- include('../../partials/admin_sidebar.ejs') %>
+
+    <main class="flex-1 p-10">
+        <%- include('../../partials/flash.ejs') %>
+
+        <div class="flex justify-between items-center mb-6">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-800"><%= kegiatan.Judul %></h1>
+                <p class="text-gray-600">Detail data kegiatan</p>
+            </div>
+            <div class="flex space-x-2">
+                <a href="/admin/kegiatan" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-lg">
+                    &larr; Kembali
+                </a>
+                <a href="/admin/kegiatan/<%= kegiatan.ID_Kegiatan %>/edit" class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded-lg">
+                    Edit Data Ini
+                </a>
+            </div>
+        </div>
+        
+        <div class="bg-white p-8 rounded-lg shadow-lg">
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6 pb-6 border-b">
+                <div>
+                    <h3 class="text-sm font-semibold text-gray-500 uppercase">Tanggal</h3>
+                    <p class="text-lg text-gray-800">
+                        <%= new Date(kegiatan.Tanggal).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' }) %>
+                    </p>
+                </div>
+                <div>
+                    <h3 class="text-sm font-semibold text-gray-500 uppercase">Status</h3>
+                    <p class="text-lg font-medium <%= kegiatan.Status === 'Upcoming' ? 'text-green-600' : 'text-gray-600' %>">
+                        <%= kegiatan.Status %>
+                    </p>
+                </div>
+                <div>
+                    <h3 class="text-sm font-semibold text-gray-500 uppercase">Kategori</h3>
+                    <p class="text-lg text-gray-800"><%= kegiatan.Kategori || '-' %></p>
+                </div>
+            </div>
+
+            <div class="mb-6 pb-6 border-b">
+                <h3 class="text-xl font-semibold text-gray-800 mb-4">Deskripsi / Konten</h3>
+                <div class="prose max-w-none text-gray-700">
+                    <% if (sections && sections.length > 0) { %>
+                        <% sections.forEach(section => { %>
+                            <p><%- section.Deskripsi.replace(/\n/g, '<br>') %></p>
+                        <% }) %>
+                    <% } else { %>
+                        <p class="italic text-gray-500">Belum ada deskripsi untuk kegiatan ini.</p>
+                    <% } %>
+                </div>
+            </div>
+
+            <div>
+                <h3 class="text-xl font-semibold text-gray-800 mb-4">Galeri Foto</h3>
+                <% if (fotoList && fotoList.length > 0) { %>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                        <% fotoList.forEach(foto => { %>
+                            <div class="relative group">
+                                <img src="/images/kegiatan/<%= foto.Foto %>" alt="Foto Kegiatan" class="h-48 w-full object-cover rounded-md shadow-md">
+                            </div>
+                        <% }) %>
+                    </div>
+                <% } else { %>
+                    <p class="italic text-gray-500">Belum ada foto di galeri untuk kegiatan ini.</p>
+                <% } %>
+            </div>
+
+        </div>
+    </main>
+</body>
+</html>

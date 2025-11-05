@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detail Prestasi</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="flex bg-gray-100">
+    <%- include('../../partials/admin_sidebar.ejs') %>
+    <main class="flex-1 p-10">
+        <%- include('../../partials/flash.ejs') %>
+
+        <div class="flex justify-between items-center mb-6">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-800"><%= prestasi.Judul %></h1>
+                <p class="text-gray-600">Detail data prestasi</p>
+            </div>
+            <div class="flex space-x-2">
+                <a href="/admin/prestasi" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-lg">
+                    &larr; Kembali
+                </a>
+                <a href="/admin/prestasi/<%= prestasi.ID_Prestasi %>/edit" class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded-lg">
+                    Edit Data Ini
+                </a>
+            </div>
+        </div>
+        
+        <div class="bg-white p-8 rounded-lg shadow-lg">
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6 pb-6 border-b">
+                <div>
+                    <h3 class="text-sm font-semibold text-gray-500 uppercase">Tanggal Diraih</h3>
+                    <p class="text-lg text-gray-800">
+                        <%= new Date(prestasi.Tanggal).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' }) %>
+                    </p>
+                </div>
+                <div>
+                    <h3 class="text-sm font-semibold text-gray-500 uppercase">Kategori</h3>
+                    <p class="text-lg text-gray-800"><%= prestasi.Kategori || '-' %></p>
+                </div>
+                <div>
+                    <h3 class="text-sm font-semibold text-gray-500 uppercase">ID Prestasi</h3>
+                    <p class="text-lg text-gray-800 font-mono"><%= prestasi.ID_Prestasi %></p>
+                </div>
+            </div>
+
+            <div>
+                <h3 class="text-xl font-semibold text-gray-800 mb-4">Galeri Foto</h3>
+                <% if (fotoList && fotoList.length > 0) { %>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                        
+                        <% fotoList.forEach((foto, index) => { %>
+                            <div class="relative group">
+                                <img src="/images/prestasi/<%= foto.Foto %>" alt="Foto Prestasi" class="h-48 w-full object-cover rounded-md shadow-md">
+                                
+                                <% if (index === 0) { %>
+                                    <span class="absolute top-2 right-2 bg-green-600 text-white text-xs px-2 py-0.5 rounded-full font-semibold z-10">
+                                        Thumbnail
+                                    </span>
+                                <% } %>
+                                </div>
+                        <% }) %>
+                    </div>
+                <% } else { %>
+                    <p class="italic text-gray-500">Belum ada foto di galeri untuk prestasi ini.</p>
+                <% } %>
+            </div>
+
+        </div>
+    </main>
+</body>
+</html>

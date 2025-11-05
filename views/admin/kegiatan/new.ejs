@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tambah Kegiatan Baru</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="flex bg-gray-100">
+
+    <%- include('../../partials/admin_sidebar.ejs') %>
+
+    <main class="flex-1 p-10">
+        <%- include('../../partials/flash.ejs') %>
+
+        <h1 class="text-3xl font-bold text-gray-800 mb-6">Tambah Kegiatan Baru</h1>
+        
+        <div class="bg-white p-8 rounded-lg shadow-lg max-w-2xl mx-auto">
+            <form action="/admin/kegiatan" method="POST" enctype="multipart/form-data">
+                
+                <div class="mb-4">
+                    <label for="Judul" class="block text-gray-700 text-sm font-semibold mb-2">Judul Kegiatan*</label>
+                    <input type="text" id="Judul" name="Judul" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700" required>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label for="Tanggal" class="block text-gray-700 text-sm font-semibold mb-2">Tanggal Pelaksanaan*</label>
+                        <input type="date" id="Tanggal" name="Tanggal" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700" required>
+                    </div>
+                    <div>
+                        <label for="Kategori" class="block text-gray-700 text-sm font-semibold mb-2">Kategori</label>
+                        <input type="text" id="Kategori" name="Kategori" placeholder="Cth: Event, Berita" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700">
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label for="Status" class="block text-gray-700 text-sm font-semibold mb-2">Status*</label>
+                    <select id="Status" name="Status" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700" required>
+                        <option value="Upcoming">Upcoming (Akan Datang)</option>
+                        <option value="Past">Past (Selesai)</option>
+                    </select>
+                </div>
+
+                <div class="mb-4">
+                    <label for="Deskripsi" class="block text-gray-700 text-sm font-semibold mb-2">Deskripsi (Konten)</label>
+                    <textarea id="Deskripsi" name="Deskripsi" rows="5" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700" placeholder="Tulis deskripsi atau konten utama kegiatan di sini..."></textarea>
+                </div>
+
+                <div class="mb-6">
+                    <label for="fotoKegiatan" class="block text-gray-700 text-sm font-semibold mb-2">Galeri Foto (Bisa lebih dari 1)</label>
+                    <input 
+                        type="file" 
+                        id="fotoKegiatan" 
+                        name="fotoKegiatan" 
+                        accept="image/png, image/jpeg, image/jpg" 
+                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700"
+                        multiple 
+                    >
+                    <p class="text-xs text-gray-500 mt-1">Hanya .png, .jpg, .jpeg. Maks 5MB per file.</p>
+                </div>
+
+                <div class="flex items-center space-x-4">
+                    <button type="submit" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
+                        Simpan Data Kegiatan
+                    </button>
+                    <a href="/admin/kegiatan" class="w-full text-center bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded">
+                        Batal
+                    </a>
+                </div>
+            </form>
+        </div>
+    </main>
+</body>
+</html>

@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kelola Kegiatan</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="flex bg-gray-100">
+    <%- include('../../partials/admin_sidebar.ejs') %>
+    <main class="flex-1 p-10">
+        <%- include('../../partials/flash.ejs') %>
+        
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-3xl font-bold text-gray-800">Kelola Kegiatan</h1>
+            <a href="/admin/kegiatan/new" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg">
+                + Tambah Kegiatan
+            </a>
+        </div>
+        
+        <form action="/admin/kegiatan/bulk-action" method="POST" id="bulk-form">
+            <input type="hidden" name="action" value="delete">
+            <div class="mb-4">
+                <button type="submit" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg">
+                    Hapus yang Dipilih
+                </button>
+            </div>
+            
+            <div class="bg-white p-6 rounded-lg shadow-lg overflow-x-auto">
+                <table class="min-w-full bg-white">
+                    <thead class="bg-gray-200 text-gray-700">
+                        <tr>
+                            <th class="py-3 px-4 text-center w-12">
+                                <input type="checkbox" id="select-all">
+                            </th>
+                            <th class="py-3 px-4 text-left">Thumbnail</th>
+                            <th class="py-3 px-4 text-left">Judul</th>
+                            <th class="py-3 px-4 text-left">Tanggal</th>
+                            <th class="py-3 px-4 text-left">Kategori</th>
+                            <th class="py-3 px-4 text-left">Status</th>
+                            <th class="py-3 px-4 text-center">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-gray-700">
+                        <% if(kegiatanList && kegiatanList.length > 0) { %>
+                            <% for(let kegiatan of kegiatanList) { %>
+                                <tr class="border-b border-gray-200 hover:bg-gray-50">
+                                    <td class="py-3 px-4 text-center">
+                                        <input type="checkbox" name="selectedIds" value="<%= kegiatan.ID_Kegiatan %>" class="row-checkbox">
+                                    </td>
+                                    <td class="py-3 px-4">
+                                        <% if (kegiatan.dataValues.thumbnailFile) { %>
+                                            <img src="/images/kegiatan/<%= kegiatan.dataValues.thumbnailFile %>" alt="<%= kegiatan.Judul %>" class="h-12 w-16 rounded object-cover">
+                                        <% } else { %>
+                                            <div class="h-12 w-16 rounded bg-gray-300 flex items-center justify-center text-xs text-gray-600">
+                                                NoImg
+                                            </div>
+                                        <% } %>
+                                    </td>
+                                    <td class="py-3 px-4"><%= kegiatan.Judul %></td>
+                                    <td class="py-3 px-4">
+                                        <%= new Date(kegiatan.Tanggal).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' }) %>
+                                    </td>
+                                    <td class="py-3 px-4"><%= kegiatan.Kategori || '-' %></td>
+                                    <td class="py-3 px-4">
+                                        <span class="font-medium <%= kegiatan.Status === 'Upcoming' ? 'text-green-600' : 'text-gray-600' %>">
+                                            <%= kegiatan.Status %>
+                                        </span>
+                                    </td>
+                                    <td class="py-3 px-4 text-center flex items-center justify-center space-x-2">
+                                        <a href="/admin/kegiatan/<%= kegiatan.ID_Kegiatan %>" class="bg-green-500 hover:bg-green-600 text-white font-semibold py-1 px-3 rounded-lg text-sm">
+                                            Detail
+                                        </a>
+                                        <a href="/admin/kegiatan/<%= kegiatan.ID_Kegiatan %>/edit" class="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-1 px-3 rounded-lg text-sm">
+                                            Edit
+                                        </a>
+                                        
+                                        <button 
+                                            type="button" 
+                                            class="bg-red-500 hover:bg-red-600 text-white font-semibold py-1 px-3 rounded-lg text-sm"
+                                            onclick="deleteItem('<%= kegiatan.ID_Kegiatan %>', '<%= kegiatan.Judul.replace(/'/g, "\\'") %>')">
+                                            Hapus
+                                        </button>
+                                        </td>
+                                </tr>
+                            <% } %>
+                        <% } else { %>
+                            <tr>
+                                <td colspan="7" class="py-4 px-4 text-center text-gray-500">
+                                    Belum ada data kegiatan.
+                                </td>
+                            </tr>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+        </form>
+    </main>
+
+    <script>
+        document.getElementById('select-all').addEventListener('change', function(e) {
+            const checkboxes = document.querySelectorAll('.row-checkbox');
+            checkboxes.forEach(cb => {
+                cb.checked = e.target.checked;
+            });
+        });
+
+        document.getElementById('bulk-form').addEventListener('submit', function(e) {
+            const checkedBoxes = document.querySelectorAll('.row-checkbox:checked').length;
+            if (checkedBoxes === 0) {
+                e.preventDefault();
+                alert('Tidak ada item yang dipilih untuk dihapus.');
+            } else if (!confirm(`Apakah Anda yakin ingin menghapus ${checkedBoxes} item yang dipilih?`)) {
+                e.preventDefault();
+            }
+        });
+
+        // === SCRIPT BARU UNTUK HAPUS SATUAN ===
+        function deleteItem(id, name) {
+            if (confirm(`Apakah Anda yakin ingin menghapus "${name}"? Ini akan menghapus semua galeri dan konten terkait.`)) {
+                // Buat form sementara
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = `/admin/kegiatan/${id}/delete`; // Target URL
+                
+                // Sembunyikan dan tambahkan ke halaman
+                form.style.display = 'none';
+                document.body.appendChild(form);
+                
+                // Kirim form
+                form.submit();
+            }
+        }
+    </script>
+</body>
+</html>

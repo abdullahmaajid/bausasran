@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kelola Anggota</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="flex bg-gray-100">
+    <%- include('../../partials/admin_sidebar.ejs') %>
+    <main class="flex-1 p-10">
+        <%- include('../../partials/flash.ejs') %>
+        
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-3xl font-bold text-gray-800">Kelola Anggota</h1>
+            <a href="/admin/anggota/new" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg">
+                + Tambah Anggota
+            </a>
+        </div>
+        
+        <div class="bg-white p-6 rounded-lg shadow-lg overflow-x-auto">
+            <table class="min-w-full bg-white">
+                <thead class="bg-gray-200 text-gray-700">
+                    <tr>
+                        <th class="py-3 px-4 text-left">Foto</th>
+                        <th class="py-3 px-4 text-left">ID</th>
+                        <th class="py-3 px-4 text-left">Nama</th>
+                        <th class="py-3 px-4 text-left">Jabatan</th>
+                        <th class="py-3 px-4 text-left">Deskripsi</th>
+                        <th class="py-3 px-4 text-left">Username</th>
+                        <th class="py-3 px-4 text-left">Role</th>
+                        <th class="py-3 px-4 text-center">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody class="text-gray-700">
+                    <% if(anggotaList && anggotaList.length > 0) { %>
+                        <% for(let anggota of anggotaList) { %>
+                            <tr class="border-b border-gray-200 hover:bg-gray-50">
+                                
+                                <td class="py-3 px-4">
+                                    <% if (anggota.dataValues.fotoFile) { %>
+                                        <img src="/images/anggota/<%= anggota.dataValues.fotoFile %>" alt="<%= anggota.Nama %>" class="h-12 w-12 rounded-full object-cover">
+                                    <% } else { %>
+                                        <div class="h-12 w-12 rounded-full bg-gray-300 flex items-center justify-center text-xs text-gray-600">
+                                            NoImg
+                                        </div>
+                                    <% } %>
+                                </td>
+
+                                <td class="py-3 px-4 font-mono text-sm"><%= anggota.ID_Pengguna %></td>
+                                <td class="py-3 px-4"><%= anggota.Nama %></td>
+                                <td class="py-3 px-4"><%= anggota.Jabatan || '-' %></td>
+                                <td class="py-3 px-4 text-sm text-gray-600" title="<%= anggota.Deskripsi || '' %>">
+                                    <% if (anggota.Deskripsi && anggota.Deskripsi.length > 30) { %>
+                                        <%= anggota.Deskripsi.substring(0, 30) + '...' %>
+                                    <% } else { %>
+                                        <%= anggota.Deskripsi || '-' %>
+                                    <% } %>
+                                </td>
+                                <td class="py-3 px-4"><%= anggota.username %></td>
+                                <td class="py-3 px-4">
+                                    <span class="font-medium <%= anggota.Role === 'Admin' ? 'text-red-600' : 'text-green-600' %>">
+                                        <%= anggota.Role %>
+                                    </span>
+                                </td>
+
+                                <td class="py-3 px-4 text-center flex items-center justify-center space-x-2">
+                                    
+                                    <a href="/admin/anggota/<%= anggota.ID_Pengguna %>" class="bg-green-500 hover:bg-green-600 text-white font-semibold py-1 px-3 rounded-lg text-sm">
+                                        Detail
+                                    </a>
+
+                                    <a href="/admin/anggota/<%= anggota.ID_Pengguna %>/edit" class="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-1 px-3 rounded-lg text-sm">
+                                        Edit
+                                    </a>
+
+                                    <form action="/admin/anggota/<%= anggota.ID_Pengguna %>/delete" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus <%= anggota.Nama %>?');">
+                                        <button type="submit" class="bg-red-500 hover:bg-red-600 text-white font-semibold py-1 px-3 rounded-lg text-sm">
+                                            Hapus
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        <% } %>
+                    <% } else { %>
+                        <tr>
+                            <td colspan="8" class="py-4 px-4 text-center text-gray-500">
+                                Belum ada data anggota.
+                            </td>
+                        </tr>
+                    <% } %>
+                </tbody>
+            </table>
+        </div>
+    </main>
+</body>
+</html>

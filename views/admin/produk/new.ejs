@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Tambah Produk Baru</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .param-info { font-size: 0.75rem; color: #6b7280; margin-top: 0.25rem; }
+        .price-preview { font-size: 0.875rem; font-weight: 600; color: #1d4ed8; }
+    </style>
+</head>
+<body class="flex bg-gray-100">
+
+    <%- include('../../partials/admin_sidebar.ejs') %>
+
+    <main class="flex-1 p-10">
+        <%- include('../../partials/flash.ejs') %>
+
+        <h1 class="text-3xl font-bold text-gray-800 mb-6">Tambah Produk Baru</h1>
+
+        <div class="bg-white p-8 rounded-lg shadow-lg max-w-4xl mx-auto">
+            <form action="/admin/produk" method="POST" enctype="multipart/form-data" id="new-product-form">
+
+                <h2 class="text-xl font-semibold mb-4 text-gray-700">Detail Produk</h2>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label for="Nama" class="block text-sm font-medium text-gray-700">Nama Produk*</label>
+                        <input type="text" id="Nama" name="Nama" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
+                    </div>
+                    <div>
+                        <label for="Kategori" class="block text-sm font-medium text-gray-700">Kategori</label>
+                        <input type="text" id="Kategori" name="Kategori" placeholder="Cth: Sayuran" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label for="Deskripsi" class="block text-sm font-medium text-gray-700">Deskripsi</label>
+                    <textarea id="Deskripsi" name="Deskripsi" rows="3" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm"></textarea>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4 items-end">
+                    <div>
+                        <label for="Harga" class="block text-sm font-medium text-gray-700">Harga Jual (Rp)*</label>
+                        <input type="number" id="Harga" name="Harga" step="1" min="0" value="0" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
+                    </div>
+                    <div>
+                        <label for="Diskon" class="block text-sm font-medium text-gray-700">Diskon (%)</label>
+                        <input type="number" id="Diskon" name="Diskon" step="1" min="0" max="100" value="0" placeholder="Cth: 10" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-500">Harga Setelah Diskon</label>
+                        <span id="final-price-preview" class="price-preview mt-2 block h-[38px] flex items-center">Rp 0</span>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label for="productImages" class="block text-sm font-medium text-gray-700">Upload Foto Produk (Maks 10)</label>
+                    <input type="file" id="productImages" name="productImages" multiple accept="image/png, image/jpeg, image/jpg" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                    <p class="text-xs text-gray-500 mt-1">Hanya .png, .jpg, .jpeg. Maks 5MB per file.</p>
+                </div>
+
+                <hr class="my-6">
+
+                <h2 class="text-xl font-semibold mb-4 text-gray-700">Parameter Optimal (Untuk Analisis)</h2>
+
+                <div id="parameter-container" class="space-y-4 mb-4">
+                    <p class="text-sm text-gray-500 placeholder-message">Klik "Tambah Parameter" untuk menambahkan spesifikasi.</p>
+                </div>
+
+                <button type="button" id="add-parameter-btn" class="mb-6 text-sm bg-green-100 hover:bg-green-200 text-green-700 font-medium py-1 px-3 rounded">+ Tambah Parameter</button>
+
+                <div class="flex items-center space-x-4 mt-6 border-t pt-6">
+                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Simpan Produk</button>
+                    <a href="/admin/produk" class="w-full text-center bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded">Batal</a>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <!-- Template for parameter row -->
+    <template id="parameter-row-template">
+        <div class="parameter-row grid grid-cols-12 gap-x-3 items-start border p-3 rounded bg-gray-50">
+            <div class="col-span-4">
+                <label class="block text-xs font-medium text-gray-600">Nama Parameter</label>
+                <select name="paramNama[]" class="param-select mt-1 text-sm block w-full border-gray-300 rounded-md shadow-sm">
+                    <option value="">-- Pilih --</option>
+                </select>
+            </div>
+            <div class="col-span-3">
+                <p class="param-info text-xs text-gray-500 mt-1 h-8">
+                    <span class="param-unit block">Unit: -</span>
+                    <span class="param-desc block">Deskripsi: -</span>
+                </p>
+            </div>
+            <div class="col-span-2">
+                <label class="block text-xs font-medium text-gray-600">Min Optimal</label>
+                <input type="number" step="any" name="paramMin[]" placeholder="Min" class="mt-1 text-sm block w-full border-gray-300 rounded-md shadow-sm">
+            </div>
+            <div class="col-span-2">
+                <label class="block text-xs font-medium text-gray-600">Max Optimal</label>
+                <input type="number" step="any" name="paramMax[]" placeholder="Max" class="mt-1 text-sm block w-full border-gray-300 rounded-md shadow-sm">
+            </div>
+            <div class="col-span-1 flex items-end h-full">
+                <button type="button" class="remove-parameter-btn text-sm bg-red-100 hover:bg-red-200 text-red-700 font-medium py-1 px-2 rounded w-full h-[34px] mt-1">Hapus</button>
+            </div>
+        </div>
+    </template>
+
+    <!-- Price preview script -->
+    <script>
+        (function () {
+            const hargaInput = document.getElementById('Harga');
+            const diskonInput = document.getElementById('Diskon');
+            const pricePreview = document.getElementById('final-price-preview');
+            const formatter = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 });
+
+            function updatePricePreview() {
+                const harga = parseFloat(hargaInput.value) || 0;
+                let diskonPersen = parseFloat(diskonInput.value);
+                if (isNaN(diskonPersen)) diskonPersen = 0;
+                if (diskonPersen < 0) diskonPersen = 0;
+                if (diskonPersen > 100) diskonPersen = 100;
+                const diskonNilai = harga * (diskonPersen / 100);
+                const hargaAkhir = Math.max(0, harga - diskonNilai);
+                pricePreview.textContent = formatter.format(hargaAkhir);
+            }
+
+            hargaInput.addEventListener('input', updatePricePreview);
+            diskonInput.addEventListener('input', updatePricePreview);
+            updatePricePreview();
+        })();
+    </script>
+
+    <!-- Parameter selection script (prevents picking same parameter multiple times) -->
+    <script>
+        (function() {
+            const parameterDetails = {
+                'Suhu Rata-rata': { unit: '°C', desc: 'Temperatur udara rata-rata.' },
+                'Kelembaban Relatif': { unit: '%', desc: 'Persentase uap air di udara.' },
+                'Curah Hujan': { unit: 'mm', desc: 'Jumlah hujan harian.' },
+                'Kecepatan Angin': { unit: 'm/s', desc: 'Kecepatan angin permukaan.' },
+                'Radiasi Matahari': { unit: 'MJ/m²/day', desc: 'Energi radiasi matahari harian.' },
+                'Evapotranspirasi': { unit: 'mm/day', desc: 'Penguapan air dari tanah & tanaman.' },
+                'Suhu Tanah (0-7cm)': { unit: '°C', desc: 'Temperatur tanah lapisan atas.' },
+                'Kelembaban Tanah (0-7cm)': { unit: 'm³/m³', desc: 'Kandungan air tanah lapisan atas.' },
+                'pH Tanah': { unit: 'pH', desc: 'Tingkat keasaman tanah.' },
+                'Kandungan Organik': { unit: '%', desc: 'Persentase bahan organik tanah.' }
+            };
+            const predefinedParameters = Object.keys(parameterDetails);
+
+            const container = document.getElementById('parameter-container');
+            const addButton = document.getElementById('add-parameter-btn');
+            const template = document.getElementById('parameter-row-template');
+            const placeholder = container.querySelector('.placeholder-message');
+
+            function getSelectedValues() {
+                const selects = container.querySelectorAll('.param-select');
+                const values = new Set();
+                selects.forEach(s => {
+                    if (s.value) values.add(s.value);
+                });
+                return values;
+            }
+
+            function populateDropdown(selectElement, selectedValue = '') {
+                selectElement.innerHTML = '<option value="">-- Pilih --</option>';
+                const selectedValues = getSelectedValues();
+                predefinedParameters.forEach(paramName => {
+                    const option = document.createElement('option');
+                    option.value = paramName;
+                    option.textContent = paramName;
+                    if (paramName === selectedValue) option.selected = true;
+                    if (selectedValues.has(paramName) && paramName !== selectedValue) {
+                        option.disabled = true;
+                    }
+                    selectElement.appendChild(option);
+                });
+            }
+
+            function updateAllDropdowns() {
+                const selectedValues = getSelectedValues();
+                container.querySelectorAll('.param-select').forEach(select => {
+                    const currentValue = select.value;
+                    Array.from(select.options).forEach(option => {
+                        if (!option.value) return;
+                        if (option.value !== currentValue && selectedValues.has(option.value)) {
+                            option.disabled = true;
+                        } else {
+                            option.disabled = false;
+                        }
+                    });
+                });
+                addButton.disabled = (getSelectedValues().size >= predefinedParameters.length);
+            }
+
+            function updateParameterInfo(rowElement, selectedValue) {
+                const unitElement = rowElement.querySelector('.param-unit');
+                const descElement = rowElement.querySelector('.param-desc');
+                const details = parameterDetails[selectedValue];
+                if (details) {
+                    if (unitElement) unitElement.textContent = `Unit: ${details.unit}`;
+                    if (descElement) descElement.textContent = `Deskripsi: ${details.desc}`;
+                } else {
+                    if (unitElement) unitElement.textContent = 'Unit: -';
+                    if (descElement) descElement.textContent = 'Deskripsi: -';
+                }
+            }
+
+            function addParamRow(selectedValue = '') {
+                if (placeholder) placeholder.style.display = 'none';
+                const clone = template.content.cloneNode(true);
+                const newRow = clone.querySelector('.parameter-row');
+                const selectElement = newRow.querySelector('.param-select');
+                const removeButton = newRow.querySelector('.remove-parameter-btn');
+
+                populateDropdown(selectElement, selectedValue);
+                updateParameterInfo(newRow, selectedValue);
+
+                selectElement.addEventListener('change', (e) => {
+                    updateAllDropdowns();
+                    updateParameterInfo(newRow, e.target.value);
+                });
+
+                removeButton.addEventListener('click', (e) => {
+                    e.target.closest('.parameter-row').remove();
+                    updateAllDropdowns();
+                    if (container.querySelectorAll('.parameter-row').length === 0 && placeholder) {
+                        placeholder.style.display = 'block';
+                    }
+                });
+
+                container.appendChild(clone);
+                updateAllDropdowns();
+            }
+
+            function initExistingRows() {
+                const existingRows = container.querySelectorAll('.parameter-row');
+                if (existingRows.length > 0 && placeholder) placeholder.style.display = 'none';
+                existingRows.forEach(row => {
+                    const selectElement = row.querySelector('.param-select');
+                    const pre = selectElement.dataset.selectedValue || selectElement.value || '';
+                    populateDropdown(selectElement, pre);
+                    updateParameterInfo(row, pre);
+
+                    selectElement.addEventListener('change', (e) => {
+                        updateAllDropdowns();
+                        updateParameterInfo(row, e.target.value);
+                    });
+
+                    const removeButton = row.querySelector('.remove-parameter-btn');
+                    removeButton.addEventListener('click', (e) => {
+                        e.target.closest('.parameter-row').remove();
+                        updateAllDropdowns();
+                        if (container.querySelectorAll('.parameter-row').length === 0 && placeholder) {
+                            placeholder.style.display = 'block';
+                        }
+                    });
+                });
+                updateAllDropdowns();
+            }
+
+            addButton.addEventListener('click', () => {
+                addParamRow();
+            });
+
+            initExistingRows();
+        })();
+    </script>
+
+</body>
+</html>

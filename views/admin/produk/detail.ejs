@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detail Produk: <%= product.Nama %></title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .photo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 0.75rem; }
+        .photo-item img { height: 100px; width: 100%; object-fit: cover; border-radius: 0.375rem; border: 1px solid #e5e7eb; }
+        .parameter-table th, .parameter-table td { padding: 0.5rem 0.75rem; text-align: left; font-size: 0.875rem; border-bottom: 1px solid #f3f4f6; }
+        .parameter-table th { background-color: #f9fafb; color: #6b7280; font-weight: 500; }
+    </style>
+</head>
+<body class="flex bg-gray-100">
+
+    <%- include('../../partials/admin_sidebar.ejs') %>
+
+    <main class="flex-1 p-10">
+        <%- include('../../partials/flash.ejs') %>
+
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-3xl font-bold text-gray-800">Detail Produk</h1>
+            <div>
+                 <a href="/admin/produk/<%= product.ID_Product %>/edit" class="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2 px-4 rounded-md text-sm shadow-sm mr-2">Edit Produk</a>
+                 <a href="/admin/produk" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded-md text-sm">Kembali ke Daftar</a>
+            </div>
+        </div>
+
+        <div class="bg-white p-8 rounded-lg shadow-lg max-w-4xl mx-auto">
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="md:col-span-1">
+                     <h2 class="text-xl font-semibold mb-3 text-gray-700">Foto Produk</h2>
+                     <% if (photos && photos.length > 0) { %>
+                        <div class="photo-grid">
+                            <% photos.forEach(photo => { %>
+                                <div class="photo-item">
+                                    <a href="/images/produk/<%= photo.Foto %>" target="_blank">
+                                        <img src="/images/produk/<%= photo.Foto %>" alt="Foto <%= product.Nama %>">
+                                    </a>
+                                </div>
+                            <% }) %>
+                        </div>
+                     <% } else { %>
+                        <p class="text-sm text-gray-500 italic">Tidak ada foto produk.</p>
+                     <% } %>
+                </div>
+
+                <div class="md:col-span-2 space-y-4">
+                     <h2 class="text-2xl font-bold text-gray-900"><%= product.Nama %></h2>
+
+                     <div class="text-sm">
+                        <span class="font-medium text-gray-500">Kategori:</span>
+                        <span class="ml-2 bg-gray-100 text-gray-700 px-2 py-0.5 rounded"><%= product.Kategori || 'Tidak ada' %></span>
+                     </div>
+
+                     <div>
+                        <% const formattedPrice = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(product.Harga || 0); %>
+                        <% const discountPercent = product.Diskon ? (product.Diskon * 100).toFixed(1) + '%' : null; %>
+                        <% const finalPrice = product.Harga * (1 - (product.Diskon || 0)); %>
+                        <% const formattedFinalPrice = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(finalPrice); %>
+
+                        <span class="text-2xl font-bold text-blue-700"><%= formattedFinalPrice %></span>
+                         <% if (discountPercent) { %>
+                             <span class="ml-3 text-sm bg-red-100 text-red-700 font-medium px-2 py-0.5 rounded"><%= discountPercent %> OFF</span>
+                             <span class="ml-2 text-sm text-gray-400 line-through"><%= formattedPrice %></span>
+                         <% } else { %>
+                              <span class="ml-3 text-gray-500">(Harga Normal: <%= formattedPrice %>)</span>
+                         <% } %>
+                     </div>
+
+                     <div>
+                        <h3 class="text-base font-semibold text-gray-700 mb-1">Deskripsi</h3>
+                        <p class="text-sm text-gray-600"><%= product.Deskripsi || 'Tidak ada deskripsi.' %></p>
+                     </div>
+
+                     <div>
+                         <h3 class="text-base font-semibold text-gray-700 mb-2">Parameter Optimal</h3>
+                         <% if (parameters && parameters.length > 0) { %>
+                            <div class="overflow-x-auto border rounded">
+                                <table class="min-w-full parameter-table">
+                                    <thead>
+                                        <tr><th>Nama Parameter</th><th>Minimal</th><th>Maksimal</th></tr>
+                                    </thead>
+                                    <tbody>
+                                        <% parameters.forEach(param => { %>
+                                            <tr><td><%= param.Nama %></td><td><%= param.Minimal %></td><td><%= param.Maksimal %></td></tr>
+                                        <% }) %>
+                                    </tbody>
+                                </table>
+                            </div>
+                         <% } else { %>
+                             <p class="text-sm text-gray-500 italic">Produk ini tidak memiliki parameter optimal.</p>
+                         <% } %>
+                     </div>
+
+                </div>
+            </div>
+        </div>
+    </main>
+
+</body>
+</html>
