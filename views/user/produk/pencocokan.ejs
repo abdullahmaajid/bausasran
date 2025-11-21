@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pencocokan Produk</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="flex bg-gray-100">
+
+    <%- include('../../partials/user_sidebar.ejs') %>
+
+    <main class="flex-1 p-10">
+        <%- include('../../partials/flash.ejs') %>
+
+        <div class="mb-6">
+            <a href="/user/produk" class="text-blue-500 hover:text-blue-700 font-semibold">
+                ← Kembali ke Daftar Produk
+            </a>
+        </div>
+
+        <div class="max-w-4xl mx-auto">
+            <div class="bg-white rounded-lg shadow-lg p-8 mb-6">
+                <div class="text-center mb-8">
+                    <h1 class="text-4xl font-bold text-blue-600 mb-4">🔍 Pencocokan Produk</h1>
+                    <p class="text-gray-600">Temukan produk yang sesuai dengan kebutuhan lahan Anda</p>
+                </div>
+
+                <!-- Form Pencocokan -->
+                <form id="pencocokanForm" class="space-y-6">
+                    <!-- Luas Lahan -->
+                    <div>
+                        <label for="luas_lahan" class="block text-gray-700 font-semibold mb-2">
+                            Luas Lahan (m²) <span class="text-red-500">*</span>
+                        </label>
+                        <input 
+                            type="number" 
+                            id="luas_lahan" 
+                            name="luas_lahan"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                            placeholder="Contoh: 1000"
+                            required>
+                    </div>
+
+                    <!-- Jenis Tanah -->
+                    <div>
+                        <label for="jenis_tanah" class="block text-gray-700 font-semibold mb-2">
+                            Jenis Tanah <span class="text-red-500">*</span>
+                        </label>
+                        <select 
+                            id="jenis_tanah" 
+                            name="jenis_tanah"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                            required>
+                            <option value="">-- Pilih Jenis Tanah --</option>
+                            <option value="Liat">Tanah Liat</option>
+                            <option value="Berpasir">Tanah Berpasir</option>
+                            <option value="Lempung">Tanah Lempung</option>
+                            <option value="Humus">Tanah Humus</option>
+                            <option value="Gambut">Tanah Gambut</option>
+                            <option value="Kapur">Tanah Kapur</option>
+                        </select>
+                    </div>
+
+                    <!-- Kebutuhan -->
+                    <div>
+                        <label for="kebutuhan" class="block text-gray-700 font-semibold mb-2">
+                            Kebutuhan/Tujuan <span class="text-red-500">*</span>
+                        </label>
+                        <select 
+                            id="kebutuhan" 
+                            name="kebutuhan"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                            required>
+                            <option value="">-- Pilih Kebutuhan --</option>
+                            <option value="Konsumsi">Untuk Konsumsi Sendiri</option>
+                            <option value="Komersial">Untuk Dijual (Komersial)</option>
+                            <option value="Subsisten">Pertanian Subsisten</option>
+                            <option value="Organik">Pertanian Organik</option>
+                        </select>
+                    </div>
+
+                    <!-- Lokasi -->
+                    <div>
+                        <label for="lokasi" class="block text-gray-700 font-semibold mb-2">
+                            Lokasi (Opsional)
+                        </label>
+                        <input 
+                            type="text" 
+                            id="lokasi" 
+                            name="lokasi"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                            placeholder="Contoh: Desa Bausasran, Kecamatan...">
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button 
+                        type="submit" 
+                        class="w-full bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-4 px-6 rounded-lg transition-colors text-lg">
+                        🔍 Cari Produk yang Cocok
+                    </button>
+                </form>
+            </div>
+
+            <!-- Hasil Pencocokan -->
+            <div id="hasilPencocokan" class="hidden">
+                <div class="bg-white rounded-lg shadow-lg p-8">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6">Hasil Pencocokan</h2>
+                    <div id="hasilContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Hasil akan ditampilkan di sini via JavaScript -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Loading Indicator -->
+            <div id="loadingIndicator" class="hidden text-center py-8">
+                <div class="inline-block animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-indigo-500"></div>
+                <p class="mt-4 text-gray-600">Mencari produk yang cocok...</p>
+            </div>
+        </div>
+    </main>
+
+    <%- include('../../partials/footer.ejs') %>
+
+    <script>
+        document.getElementById('pencocokanForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const form = e.target;
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData);
+
+            // Show loading
+            document.getElementById('loadingIndicator').classList.remove('hidden');
+            document.getElementById('hasilPencocokan').classList.add('hidden');
+
+            try {
+                const response = await fetch('/user/produk/pencocokan', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                // Hide loading
+                document.getElementById('loadingIndicator').classList.add('hidden');
+
+                if (result.success && result.data.length > 0) {
+                    displayHasil(result.data);
+                } else {
+                    displayNoResult();
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('loadingIndicator').classList.add('hidden');
+                alert('Terjadi kesalahan saat memproses pencocokan.');
+            }
+        });
+
+        function displayHasil(produkList) {
+            const container = document.getElementById('hasilContainer');
+            container.innerHTML = '';
+
+            produkList.forEach(produk => {
+                const card = `
+                    <div class="border-2 border-gray-200 rounded-lg p-4 hover:shadow-lg transition-shadow">
+                        <h3 class="text-lg font-bold text-gray-800 mb-2">${produk.Nama}</h3>
+                        ${produk.Harga ? `<p class="text-green-600 font-bold mb-2">Rp ${Number(produk.Harga).toLocaleString('id-ID')}</p>` : ''}
+                        ${produk.Kategori ? `<p class="text-sm text-gray-600 mb-3">Kategori: ${produk.Kategori}</p>` : ''}
+                        <a href="/user/produk/${produk.ID_Product}" class="block w-full text-center bg-indigo-500 hover:bg-indigo-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors">
+                            Lihat Detail
+                        </a>
+                    </div>
+                `;
+                container.innerHTML += card;
+            });
+
+            document.getElementById('hasilPencocokan').classList.remove('hidden');
+            document.getElementById('hasilPencocokan').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function displayNoResult() {
+            const container = document.getElementById('hasilContainer');
+            container.innerHTML = `
+                <div class="col-span-2 text-center py-12">
+                    <svg class="mx-auto h-16 w-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <p class="mt-4 text-gray-500 text-lg">Maaf, tidak ada produk yang cocok dengan kriteria Anda.</p>
+                    <p class="mt-2 text-gray-400">Coba sesuaikan kriteria pencarian Anda.</p>
+                </div>
+            `;
+            document.getElementById('hasilPencocokan').classList.remove('hidden');
+            document.getElementById('hasilPencocokan').scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>

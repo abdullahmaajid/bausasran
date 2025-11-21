@@ -6,7 +6,7 @@ module.exports.renderLogin = (req, res) => {
         req.flash('error', 'Anda sudah login.');
         // Jika sudah login, redirect sesuai role
         if (req.user.Role === 'Admin') return res.redirect('/admin/dashboard');
-        if (req.user.Role === 'User') return res.redirect('/user/testimoni');
+        if (req.user.Role === 'User') return res.redirect('/user/dashboard');
         return res.redirect('/');
     }
     res.render('public/login');

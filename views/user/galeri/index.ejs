@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galeri</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="flex bg-gray-100">
+
+    <%- include('../../partials/user_sidebar.ejs') %>
+
+    <main class="flex-1 p-10">
+        <%- include('../../partials/flash.ejs') %>
+
+        <div class="mb-6">
+            <h1 class="text-3xl font-bold text-gray-800">Galeri Foto</h1>
+            <p class="text-gray-600 mt-2">Kumpulan foto dan dokumentasi kegiatan kami</p>
+        </div>
+
+        <div class="bg-white p-6 rounded-lg shadow-lg">
+            <% if (galeriList && galeriList.length > 0) { %>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <% for(let galeri of galeriList) { %>
+                        <div class="border-2 border-gray-200 rounded-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
+                            <!-- Thumbnail -->
+                            <div class="h-56 bg-gray-200 overflow-hidden relative">
+                                <% if (galeri.dataValues.thumbnailFile) { %>
+                                    <img src="/images/galeri/<%= galeri.dataValues.thumbnailFile %>" 
+                                         alt="<%= galeri.Nama || 'Album' %>"
+                                         class="w-full h-full object-cover">
+                                <% } else { %>
+                                    <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-purple-100 to-purple-200">
+                                        <svg class="w-24 h-24 text-purple-400" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"></path>
+                                        </svg>
+                                    </div>
+                                <% } %>
+                                
+                                <!-- Badge Jumlah Foto -->
+                                <div class="absolute bottom-3 right-3 bg-black bg-opacity-75 text-white px-4 py-2 rounded-full text-sm font-bold">
+                                    📷 <%= galeri.dataValues.fotoCount %> Foto
+                                </div>
+                            </div>
+
+                            <!-- Info Album -->
+                            <div class="p-4">
+                                <h3 class="text-xl font-bold text-gray-800 mb-3">
+                                    <%= galeri.Nama || 'Album Tanpa Nama' %>
+                                </h3>
+
+                                <a href="/user/galeri/<%= galeri.ID_GroupFoto %>" 
+                                   class="block w-full text-center bg-purple-500 hover:bg-purple-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors">
+                                    Lihat Album
+                                </a>
+                            </div>
+                        </div>
+                    <% } %>
+                </div>
+            <% } else { %>
+                <div class="text-center py-12">
+                    <svg class="mx-auto h-16 w-16 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"></path>
+                    </svg>
+                    <p class="mt-4 text-gray-500 text-lg">Belum ada album galeri yang tersedia.</p>
+                </div>
+            <% } %>
+        </div>
+    </main>
+
+</body>
+</html>

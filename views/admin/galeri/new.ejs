@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tambah Galeri Baru</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="flex bg-gray-100">
+
+    <%- include('../../partials/admin_sidebar.ejs') %>
+
+    <main class="flex-1 p-10">
+        <%- include('../../partials/flash.ejs') %>
+
+        <h1 class="text-3xl font-bold text-gray-800 mb-6">Tambah Galeri Baru</h1>
+        
+        <div class="bg-white p-8 rounded-lg shadow-lg max-w-3xl mx-auto">
+            <form action="/admin/galeri" method="POST" enctype="multipart/form-data">
+                
+                <div class="mb-6">
+                    <label for="Nama" class="block text-gray-700 text-sm font-semibold mb-2">Nama Galeri/Album*</label>
+                    <input type="text" id="Nama" name="Nama" placeholder="Cth: Kegiatan Pelatihan 2024" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700" required>
+                    <p class="text-xs text-gray-500 mt-1">Nama kategori atau album untuk galeri foto ini.</p>
+                </div>
+
+                <div class="mb-6">
+                    <label for="fotoGaleri" class="block text-gray-700 text-sm font-semibold mb-2">Upload Foto</label>
+                    <input type="file" id="fotoGaleri" name="fotoGaleri" accept="image/png, image/jpeg, image/jpg" multiple class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700">
+                    <p class="text-xs text-gray-500 mt-1">Pilih multiple foto (max 20). Hanya .png, .jpg, .jpeg. Maks 5MB per file.</p>
+                    
+                    <!-- Preview Container -->
+                    <div id="preview-container" class="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4"></div>
+                </div>
+
+                <div class="flex items-center space-x-4">
+                    <button type="submit" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
+                        Simpan Galeri
+                    </button>
+                    <a href="/admin/galeri" class="w-full text-center bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded">
+                        Batal
+                    </a>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <script>
+        // Preview foto yang diupload
+        document.getElementById('fotoGaleri').addEventListener('change', function(e) {
+            const previewContainer = document.getElementById('preview-container');
+            previewContainer.innerHTML = '';
+            
+            const files = e.target.files;
+            
+            if (files.length > 20) {
+                alert('Maksimal 20 foto!');
+                e.target.value = '';
+                return;
+            }
+            
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                
+                // Validasi ukuran
+                if (file.size > 5 * 1024 * 1024) {
+                    alert(`File ${file.name} terlalu besar (max 5MB)`);
+                    continue;
+                }
+                
+                // Validasi tipe
+                if (!file.type.match('image.*')) {
+                    alert(`File ${file.name} bukan gambar`);
+                    continue;
+                }
+                
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const div = document.createElement('div');
+                    div.className = 'relative group';
+                    div.innerHTML = `
+                        <img src="${event.target.result}" class="w-full h-32 object-cover rounded-lg border-2 border-gray-200">
+                        <div class="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white text-xs p-1 rounded-b-lg truncate">
+                            ${file.name}
+                        </div>
+                    `;
+                    previewContainer.appendChild(div);
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    </script>
+</body>
+</html>

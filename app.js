@@ -61,7 +61,7 @@ app.use(passport.session()); // Harus setelah app.use(session(...))
 passport.use(new LocalStrategy(
     async (username, password, done) => {
         try {
-            const user = await pengguna.findOne({ where: { username: username } });
+            const user = await pengguna.findOne({ where: { username: username.trim() } });
             
             // 1. Cek jika user tidak ditemukan
             if (!user) {

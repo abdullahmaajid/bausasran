@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kelola Testimoni & Review</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="flex bg-gray-100">
+    <%- include('../../partials/admin_sidebar.ejs') %>
+    <main class="flex-1 p-10">
+        <%- include('../../partials/flash.ejs') %>
+        
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-3xl font-bold text-gray-800">Kelola Testimoni & Review</h1>
+            <a href="/admin/testimoni/new" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg">
+                + Tambah Review
+            </a>
+        </div>
+        
+        <form action="/admin/testimoni/bulk-action" method="POST" id="bulk-form">
+            <input type="hidden" name="action" value="delete">
+            <div class="mb-4">
+                <button type="submit" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg">
+                    Hapus yang Dipilih
+                </button>
+            </div>
+            
+            <div class="bg-white p-6 rounded-lg shadow-lg overflow-x-auto">
+                <table class="min-w-full bg-white">
+                    <thead class="bg-gray-200 text-gray-700">
+                        <tr>
+                            <th class="py-3 px-4 text-center w-12">
+                                <input type="checkbox" id="select-all">
+                            </th>
+                            <th class="py-3 px-4 text-left">ID</th>
+                            <th class="py-3 px-4 text-left">Pengguna</th>
+                            <th class="py-3 px-4 text-left">Kategori</th>
+                            <th class="py-3 px-4 text-left">Item</th>
+                            <th class="py-3 px-4 text-left">Ulasan</th>
+                            <th class="py-3 px-4 text-center">Rating</th>
+                            <th class="py-3 px-4 text-center">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-gray-700">
+                        <% if(reviewList && reviewList.length > 0) { %>
+                            <% for(let review of reviewList) { %>
+                                <tr class="border-b border-gray-200 hover:bg-gray-50">
+                                    <td class="py-3 px-4 text-center">
+                                        <input type="checkbox" name="selectedIds" value="<%= review.ID_Review %>" class="row-checkbox">
+                                    </td>
+                                    <td class="py-3 px-4 font-mono text-sm"><%= review.ID_Review %></td>
+                                    <td class="py-3 px-4">
+                                        <%= review.dataValues.pengguna ? review.dataValues.pengguna.Nama : '-' %>
+                                    </td>
+                                    <td class="py-3 px-4">
+                                        <span class="inline-block px-3 py-1 rounded-full text-xs font-semibold <%= review.Kategori === 'Product' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800' %>">
+                                            <%= review.Kategori %>
+                                        </span>
+                                    </td>
+                                    <td class="py-3 px-4">
+                                        <% if (review.Kategori === 'Product' && review.dataValues.produk) { %>
+                                            <%= review.dataValues.produk.Nama %>
+                                        <% } else if (review.Kategori === 'Kegiatan' && review.dataValues.kegiatan) { %>
+                                            <%= review.dataValues.kegiatan.Judul %>
+                                        <% } else { %>
+                                            <span class="text-gray-400">-</span>
+                                        <% } %>
+                                    </td>
+                                    <td class="py-3 px-4 text-sm text-gray-600">
+                                        <% if (review.Ulasan && review.Ulasan.length > 50) { %>
+                                            <%= review.Ulasan.substring(0, 50) + '...' %>
+                                        <% } else { %>
+                                            <%= review.Ulasan || '-' %>
+                                        <% } %>
+                                    </td>
+                                    <td class="py-3 px-4 text-center">
+                                        <% if (review.Rating) { %>
+                                            <span class="text-2xl">👍</span>
+                                        <% } else { %>
+                                            <span class="text-2xl">👎</span>
+                                        <% } %>
+                                    </td>
+                                    <td class="py-3 px-4 text-center flex items-center justify-center space-x-2">
+                                        <a href="/admin/testimoni/<%= review.ID_Review %>" class="bg-green-500 hover:bg-green-600 text-white font-semibold py-1 px-3 rounded-lg text-sm">
+                                            Detail
+                                        </a>
+                                        <a href="/admin/testimoni/<%= review.ID_Review %>/edit" class="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-1 px-3 rounded-lg text-sm">
+                                            Edit
+                                        </a>
+                                        <button 
+                                            type="button" 
+                                            class="bg-red-500 hover:bg-red-600 text-white font-semibold py-1 px-3 rounded-lg text-sm"
+                                            onclick="deleteItem('<%= review.ID_Review %>', '<%= (review.dataValues.pengguna ? review.dataValues.pengguna.Nama : 'Review').replace(/'/g, "\\'") %>')">
+                                            Hapus
+                                        </button>
+                                    </td>
+                                </tr>
+                            <% } %>
+                        <% } else { %>
+                            <tr>
+                                <td colspan="8" class="py-4 px-4 text-center text-gray-500">
+                                    Belum ada data testimoni/review.
+                                </td>
+                            </tr>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+        </form>
+    </main>
+
+    <script>
+        // Select all checkbox
+        document.getElementById('select-all').addEventListener('change', function(e) {
+            const checkboxes = document.querySelectorAll('.row-checkbox');
+            checkboxes.forEach(cb => {
+                cb.checked = e.target.checked;
+            });
+        });
+
+        // Bulk delete validation
+        document.getElementById('bulk-form').addEventListener('submit', function(e) {
+            const checkedBoxes = document.querySelectorAll('.row-checkbox:checked').length;
+            if (checkedBoxes === 0) {
+                e.preventDefault();
+                alert('Tidak ada item yang dipilih untuk dihapus.');
+            } else if (!confirm(`Apakah Anda yakin ingin menghapus ${checkedBoxes} review yang dipilih?`)) {
+                e.preventDefault();
+            }
+        });
+
+        // Delete single item
+        function deleteItem(id, name) {
+            if (confirm(`Apakah Anda yakin ingin menghapus review dari "${name}"?`)) {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = `/admin/testimoni/${id}/delete`;
+                form.style.display = 'none';
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
+    </script>
+</body>
+</html>

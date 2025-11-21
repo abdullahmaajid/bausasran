@@ -10,6 +10,8 @@ const produkController = require('../controllers/admin/produkController'); // Yo
 const kegiatanController = require('../controllers/admin/kegiatanController');
 const uploadPrestasi = require('../middleware/multerPrestasiStorage');
 const prestasiController = require('../controllers/admin/prestasiController');
+const reviewController = require('../controllers/admin/reviewController');
+const galeriController = require('../controllers/admin/galeriController');
 
 // 2. Import Multer Middlewares
 const uploadAnggota = require('../middleware/multerStorage'); // For single 'anggota' photo
@@ -17,6 +19,7 @@ const uploadProduk = require('../middleware/multerProdukStorage'); // For multip
 // Impor middleware baru
 const uploadProdukSingle = require('../middleware/multerProdukSingleStorage');
 const uploadKegiatan = require('../middleware/multerKegiatanStorage');
+const uploadGaleri = require('../middleware/multerGaleriStorage');
 
 
 // === DASHBOARD ===
@@ -100,15 +103,42 @@ router.post('/prestasi/:prestasiId/foto/:fotoId/set-thumbnail', prestasiControll
 router.post('/prestasi/:prestasiId/foto/:fotoId/replace', uploadPrestasi.single('newFoto'), prestasiController.replaceFotoPrestasi);
 
 
+// === KELOLA TESTIMONI/REVIEW ===
+// Rute GET (menampilkan halaman)
+router.get('/testimoni', reviewController.renderList);
+router.get('/testimoni/new', reviewController.renderNewForm);
+router.get('/testimoni/:id/edit', reviewController.renderEditForm);
+router.get('/testimoni/:id', reviewController.renderDetail); // detail
+
+// Rute POST (memproses data)
+router.post('/testimoni', reviewController.createReview);
+router.post('/testimoni/:id/edit', reviewController.updateReview);
+router.post('/testimoni/:id/delete', reviewController.deleteReview);
+
+// Bulk Action (hapus banyak item dari halaman index)
+router.post('/testimoni/bulk-action', reviewController.bulkAction);
 
 
+// === KELOLA GALERI ===
+router.get('/galeri', galeriController.renderList);
+router.get('/galeri/new', galeriController.renderNewForm);
+router.get('/galeri/:id/edit', galeriController.renderEditForm);
+router.get('/galeri/:id', galeriController.renderDetail); // detail
+
+router.post('/galeri', uploadGaleri, galeriController.createGaleri);
+router.post('/galeri/:id/edit', uploadGaleri, galeriController.updateGaleri);
+router.post('/galeri/:id/delete', galeriController.deleteGaleri);
+
+router.post('/galeri/:id/bulk-delete-photos', galeriController.bulkDeleteFotos);
+
+// Delete Single Foto
+router.post('/galeri/:id/foto/:fotoId/delete', galeriController.deleteSingleFoto);
+
+// Bulk Action (hapus banyak group galeri dari halaman index)
+router.post('/galeri/bulk-action', galeriController.bulkAction);
 
 
 // === Placeholder for Other Admin Routes ===
-// router.get('/kegiatan', /* kegiatanController.renderList */);
-// router.get('/prestasi', /* prestasiController.renderList */);
-// router.get('/galeri', /* galeriController.renderList */);
-// router.get('/testimoni', /* testimoniController.renderList */);
 // router.get('/master/group-parameter', /* groupParameterController.renderList */);
 // router.get('/master/group-section', /* groupSectionController.renderList */);
 // ... add more routes as needed ...

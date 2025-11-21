@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daftar Anggota</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="flex bg-gray-100">
+
+    <%- include('../../partials/user_sidebar.ejs') %>
+
+    <main class="flex-1 p-10">
+        <%- include('../../partials/flash.ejs') %>
+
+        <div class="mb-6">
+            <h1 class="text-3xl font-bold text-gray-800">Daftar Anggota</h1>
+            <p class="text-gray-600 mt-2">Temui para anggota Kelompok Tani kami</p>
+        </div>
+
+        <div class="bg-white p-6 rounded-lg shadow-lg">
+            <% if (anggotaList && anggotaList.length > 0) { %>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <% for(let anggota of anggotaList) { %>
+                        <div class="border-2 border-gray-200 rounded-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
+                            <!-- Foto Anggota -->
+                            <div class="h-64 bg-gray-200 overflow-hidden">
+                                <% if (anggota.dataValues.fotoFile) { %>
+                                    <img src="/images/anggota/<%= anggota.dataValues.fotoFile %>" 
+                                         alt="<%= anggota.Nama %>"
+                                         class="w-full h-full object-cover">
+                                <% } else { %>
+                                    <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-100 to-blue-200">
+                                        <svg class="w-24 h-24 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path>
+                                        </svg>
+                                    </div>
+                                <% } %>
+                            </div>
+
+                            <!-- Info Anggota -->
+                            <div class="p-4">
+                                <h3 class="text-xl font-bold text-gray-800 mb-2"><%= anggota.Nama %></h3>
+                                
+                                <div class="space-y-2 text-sm text-gray-600 mb-4">
+                                    <% if (anggota.Username) { %>
+                                        <p class="flex items-center">
+                                            <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                                <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"></path>
+                                                <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"></path>
+                                            </svg>
+                                            <%= anggota.Username %>
+                                        </p>
+                                    <% } %>
+                                    
+                                    <% if (anggota.Alamat) { %>
+                                        <p class="flex items-start">
+                                            <svg class="w-4 h-4 mr-2 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"></path>
+                                            </svg>
+                                            <%= anggota.Alamat %>
+                                        </p>
+                                    <% } %>
+                                </div>
+
+                                <a href="/user/anggota/<%= anggota.ID_Pengguna %>" 
+                                   class="block w-full text-center bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors">
+                                    Lihat Profil
+                                </a>
+                            </div>
+                        </div>
+                    <% } %>
+                </div>
+            <% } else { %>
+                <div class="text-center py-12">
+                    <svg class="mx-auto h-16 w-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                    </svg>
+                    <p class="mt-4 text-gray-500 text-lg">Belum ada anggota terdaftar.</p>
+                </div>
+            <% } %>
+        </div>
+    </main>
+
+    <%- include('../../partials/footer.ejs') %>
+</body>
+</html>

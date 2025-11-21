@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kelola Galeri</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="flex bg-gray-100">
+    <%- include('../../partials/admin_sidebar.ejs') %>
+    <main class="flex-1 p-10">
+        <%- include('../../partials/flash.ejs') %>
+        
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-3xl font-bold text-gray-800">Kelola Galeri</h1>
+            <a href="/admin/galeri/new" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg">
+                + Tambah Galeri
+            </a>
+        </div>
+        
+        <form action="/admin/galeri/bulk-action" method="POST" id="bulk-form">
+            <input type="hidden" name="action" value="delete">
+            <div class="mb-4">
+                <button type="submit" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg">
+                    Hapus yang Dipilih
+                </button>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <% if(groupFotoList && groupFotoList.length > 0) { %>
+                    <% for(let group of groupFotoList) { %>
+                        <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300 relative">
+                            <!-- Checkbox -->
+                            <div class="absolute top-4 left-4 z-10">
+                                <input type="checkbox" name="selectedIds" value="<%= group.ID_GroupFoto %>" class="row-checkbox w-5 h-5">
+                            </div>
+                            
+                            <!-- Thumbnail -->
+                            <div class="relative h-48 bg-gray-200">
+                                <% if (group.dataValues.thumbnail) { %>
+                                    <img src="/images/galeri/<%= group.dataValues.thumbnail %>" 
+                                         alt="<%= group.Nama %>" 
+                                         class="w-full h-full object-cover">
+                                <% } else { %>
+                                    <div class="w-full h-full flex items-center justify-center bg-gray-300">
+                                        <svg class="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                        </svg>
+                                    </div>
+                                <% } %>
+                                
+                                <!-- Badge Jumlah Foto -->
+                                <div class="absolute bottom-2 right-2 bg-black bg-opacity-75 text-white px-3 py-1 rounded-full text-sm font-semibold">
+                                    <%= group.dataValues.photoCount %> foto
+                                </div>
+                            </div>
+                            
+                            <!-- Info -->
+                            <div class="p-4">
+                                <h3 class="text-lg font-bold text-gray-800 mb-2 truncate" title="<%= group.Nama %>">
+                                    <%= group.Nama %>
+                                </h3>
+                                <p class="text-sm text-gray-600 mb-4">
+                                    ID: <%= group.ID_GroupFoto %>
+                                </p>
+                                
+                                <!-- Action Buttons -->
+                                <div class="flex space-x-2">
+                                    <a href="/admin/galeri/<%= group.ID_GroupFoto %>" 
+                                       class="flex-1 text-center bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-3 rounded-lg text-sm">
+                                        Lihat
+                                    </a>
+                                    <a href="/admin/galeri/<%= group.ID_GroupFoto %>/edit" 
+                                       class="flex-1 text-center bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2 px-3 rounded-lg text-sm">
+                                        Edit
+                                    </a>
+                                    <button 
+                                        type="button" 
+                                        class="flex-1 bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-3 rounded-lg text-sm"
+                                        onclick="deleteItem('<%= group.ID_GroupFoto %>', '<%= group.Nama.replace(/'/g, "\\'") %>')">
+                                        Hapus
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    <% } %>
+                <% } else { %>
+                    <div class="col-span-full text-center py-12">
+                        <svg class="mx-auto h-16 w-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                        </svg>
+                        <p class="mt-4 text-gray-500 text-lg">Belum ada galeri.</p>
+                        <a href="/admin/galeri/new" class="mt-4 inline-block bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-6 rounded-lg">
+                            Tambah Galeri Pertama
+                        </a>
+                    </div>
+                <% } %>
+            </div>
+        </form>
+    </main>
+
+    <script>
+        // Prevent checkbox click from triggering card actions
+        document.querySelectorAll('.row-checkbox').forEach(cb => {
+            cb.addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+        });
+
+        // Bulk delete validation
+        document.getElementById('bulk-form').addEventListener('submit', function(e) {
+            const checkedBoxes = document.querySelectorAll('.row-checkbox:checked').length;
+            if (checkedBoxes === 0) {
+                e.preventDefault();
+                alert('Tidak ada galeri yang dipilih untuk dihapus.');
+            } else if (!confirm(`Apakah Anda yakin ingin menghapus ${checkedBoxes} galeri beserta semua fotonya?`)) {
+                e.preventDefault();
+            }
+        });
+
+        // Delete single item
+        function deleteItem(id, name) {
+            if (confirm(`Apakah Anda yakin ingin menghapus galeri "${name}" beserta semua fotonya?`)) {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = `/admin/galeri/${id}/delete`;
+                form.style.display = 'none';
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
+    </script>
+</body>
+</html>

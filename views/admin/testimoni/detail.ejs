@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detail Review</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="flex bg-gray-100">
+
+    <%- include('../../partials/admin_sidebar.ejs') %>
+
+    <main class="flex-1 p-10">
+        <%- include('../../partials/flash.ejs') %>
+
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-3xl font-bold text-gray-800">Detail Review #<%= review.ID_Review %></h1>
+            <div class="space-x-2">
+                <a href="/admin/testimoni/<%= review.ID_Review %>/edit" class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded-lg">
+                    Edit Review
+                </a>
+                <a href="/admin/testimoni" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-lg">
+                    Kembali
+                </a>
+            </div>
+        </div>
+        
+        <div class="bg-white p-8 rounded-lg shadow-lg max-w-3xl mx-auto">
+            
+            <!-- Info Pengguna -->
+            <div class="mb-6 pb-6 border-b">
+                <h2 class="text-xl font-bold text-gray-800 mb-3">Informasi Pemberi Review</h2>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <p class="text-sm text-gray-600">Nama Pengguna</p>
+                        <p class="text-lg font-semibold text-gray-800">
+                            <%= pengguna ? pengguna.Nama : '-' %>
+                        </p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600">Role</p>
+                        <p class="text-lg font-semibold text-gray-800">
+                            <%= pengguna ? pengguna.Role : '-' %>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Info Rating -->
+            <div class="mb-6 pb-6 border-b">
+                <h2 class="text-xl font-bold text-gray-800 mb-3">Rating</h2>
+                <div class="flex items-center space-x-3">
+                    <% if (review.Rating) { %>
+                        <span class="text-5xl">👍</span>
+                        <span class="text-2xl font-bold text-green-600">Positif (Puas)</span>
+                    <% } else { %>
+                        <span class="text-5xl">👎</span>
+                        <span class="text-2xl font-bold text-red-600">Negatif (Tidak Puas)</span>
+                    <% } %>
+                </div>
+            </div>
+
+            <!-- Info Kategori & Item -->
+            <div class="mb-6 pb-6 border-b">
+                <h2 class="text-xl font-bold text-gray-800 mb-3">Kategori Review</h2>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <p class="text-sm text-gray-600">Kategori</p>
+                        <p class="text-lg font-semibold">
+                            <span class="inline-block px-4 py-2 rounded-full text-sm font-bold <%= review.Kategori === 'Product' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800' %>">
+                                <%= review.Kategori %>
+                            </span>
+                        </p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600"><%= relatedType %></p>
+                        <p class="text-lg font-semibold text-gray-800">
+                            <% if (review.Kategori === 'Product' && relatedItem) { %>
+                                <%= relatedItem.Nama %>
+                            <% } else if (review.Kategori === 'Kegiatan' && relatedItem) { %>
+                                <%= relatedItem.Judul %>
+                            <% } else { %>
+                                <span class="text-gray-400">-</span>
+                            <% } %>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ulasan -->
+            <div class="mb-6">
+                <h2 class="text-xl font-bold text-gray-800 mb-3">Ulasan/Komentar</h2>
+                <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                    <% if (review.Ulasan && review.Ulasan.trim() !== '') { %>
+                        <p class="text-gray-700 leading-relaxed whitespace-pre-wrap"><%= review.Ulasan %></p>
+                    <% } else { %>
+                        <p class="text-gray-400 italic">Tidak ada ulasan tertulis.</p>
+                    <% } %>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex items-center space-x-4 pt-6 border-t">
+                <a href="/admin/testimoni/<%= review.ID_Review %>/edit" class="flex-1 text-center bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 px-6 rounded-lg">
+                    Edit Review
+                </a>
+                <button 
+                    type="button" 
+                    onclick="deleteReview()"
+                    class="flex-1 bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-6 rounded-lg">
+                    Hapus Review
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        function deleteReview() {
+            if (confirm('Apakah Anda yakin ingin menghapus review ini?')) {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '/admin/testimoni/<%= review.ID_Review %>/delete';
+                form.style.display = 'none';
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
+    </script>
+</body>
+</html>

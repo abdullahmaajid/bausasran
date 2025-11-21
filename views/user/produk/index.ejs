@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daftar Produk</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="flex bg-gray-100">
+
+    <%- include('../../partials/user_sidebar.ejs') %>
+
+    <main class="flex-1 p-10">
+        <%- include('../../partials/flash.ejs') %>
+
+        <div class="mb-6 flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-800">Produk Kami</h1>
+                <p class="text-gray-600 mt-2">Berbagai produk unggulan dari Kelompok Tani</p>
+            </div>
+            <a href="/user/produk/pencocokan" class="bg-indigo-500 hover:bg-indigo-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors shadow-md">
+                🔍 Pencocokan Produk
+            </a>
+        </div>
+
+        <div class="bg-white p-6 rounded-lg shadow-lg">
+            <% if (produkList && produkList.length > 0) { %>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <% for(let produk of produkList) { %>
+                        <div class="border-2 border-gray-200 rounded-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
+                            <!-- Thumbnail -->
+                            <div class="h-48 bg-gray-200 overflow-hidden relative">
+                                <% if (produk.dataValues.thumbnailFile) { %>
+                                    <img src="/images/produk/<%= produk.dataValues.thumbnailFile %>" 
+                                         alt="<%= produk.Nama %>"
+                                         class="w-full h-full object-cover">
+                                <% } else { %>
+                                    <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-indigo-100 to-indigo-200">
+                                        <svg class="w-20 h-20 text-indigo-400" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3zM16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"></path>
+                                        </svg>
+                                    </div>
+                                <% } %>
+                                
+                                <!-- Badge Jumlah Foto -->
+                                <% if (produk.dataValues.fotoCount > 0) { %>
+                                    <div class="absolute top-2 right-2 bg-black bg-opacity-75 text-white px-3 py-1 rounded-full text-sm font-semibold">
+                                        📷 <%= produk.dataValues.fotoCount %>
+                                    </div>
+                                <% } %>
+                            </div>
+
+                            <!-- Info Produk -->
+                            <div class="p-4">
+                                <h3 class="text-xl font-bold text-gray-800 mb-2"><%= produk.Nama %></h3>
+                                
+                                <div class="space-y-2 text-sm text-gray-600 mb-4">
+                                    <% if (produk.Harga) { %>
+                                        <p class="flex items-center text-lg font-bold text-green-600">
+                                            💰 Rp <%= Number(produk.Harga).toLocaleString('id-ID') %>
+                                        </p>
+                                    <% } %>
+
+                                    <% if (produk.Kategori) { %>
+                                        <p class="flex items-center">
+                                            <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                                <path d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM2 11a2 2 0 012-2h12a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4z"></path>
+                                            </svg>
+                                            <%= produk.Kategori %>
+                                        </p>
+                                    <% } %>
+                                </div>
+
+                                <% if (produk.Deskripsi) { %>
+                                    <p class="text-sm text-gray-600 mb-4 line-clamp-3">
+                                        <%= produk.Deskripsi.substring(0, 100) %><%= produk.Deskripsi.length > 100 ? '...' : '' %>
+                                    </p>
+                                <% } %>
+
+                                <a href="/user/produk/<%= produk.ID_Product %>" 
+                                   class="block w-full text-center bg-indigo-500 hover:bg-indigo-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors">
+                                    Lihat Detail
+                                </a>
+                            </div>
+                        </div>
+                    <% } %>
+                </div>
+            <% } else { %>
+                <div class="text-center py-12">
+                    <svg class="mx-auto h-16 w-16 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3zM16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"></path>
+                    </svg>
+                    <p class="mt-4 text-gray-500 text-lg">Belum ada produk yang tersedia.</p>
+                </div>
+            <% } %>
+        </div>
+    </main>
+
+    <%- include('../../partials/footer.ejs') %>
+</body>
+</html>

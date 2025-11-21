@@ -1,0 +1,240 @@
+<% layout('layouts/main') %>
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard User - Bausasran</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="flex bg-gray-100">
+
+    <%- include('../partials/user_sidebar.ejs') %>
+
+    <main class="flex-1 p-10">
+        <%- include('../partials/flash.ejs') %>
+
+            <!-- Welcome Section -->
+            <div class="mb-8">
+                <h1 class="text-3xl font-bold text-gray-800 mb-2">Dashboard</h1>
+                <p class="text-gray-600">Selamat datang kembali, <span class="font-semibold text-green-600"><%= currentUser.Nama %></span>!</p>
+            </div>
+
+            <!-- Statistics Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                <!-- Total Anggota -->
+                <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600 mb-1">Total Anggota</p>
+                            <p class="text-3xl font-bold text-blue-600"><%= stats.totalAnggota %></p>
+                        </div>
+                        <div class="p-3 bg-blue-100 rounded-full">
+                            <svg class="w-8 h-8 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <a href="/user/anggota" class="text-sm text-blue-600 hover:text-blue-800 mt-3 inline-block">Lihat Semua →</a>
+                </div>
+
+                <!-- Total Produk -->
+                <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600 mb-1">Total Produk</p>
+                            <p class="text-3xl font-bold text-green-600"><%= stats.totalProduk %></p>
+                        </div>
+                        <div class="p-3 bg-green-100 rounded-full">
+                            <svg class="w-8 h-8 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 2a4 4 0 00-4 4v1H5a1 1 0 00-.994.89l-1 9A1 1 0 004 18h12a1 1 0 00.994-1.11l-1-9A1 1 0 0015 7h-1V6a4 4 0 00-4-4zm2 5V6a2 2 0 10-4 0v1h4zm-6 3a1 1 0 112 0 1 1 0 01-2 0zm7-1a1 1 0 100 2 1 1 0 000-2z" clip-rule="evenodd"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <a href="/user/produk" class="text-sm text-green-600 hover:text-green-800 mt-3 inline-block">Lihat Semua →</a>
+                </div>
+
+                <!-- Total Kegiatan -->
+                <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600 mb-1">Total Kegiatan</p>
+                            <p class="text-3xl font-bold text-yellow-600"><%= stats.totalKegiatan %></p>
+                        </div>
+                        <div class="p-3 bg-yellow-100 rounded-full">
+                            <svg class="w-8 h-8 text-yellow-600" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <a href="/user/kegiatan" class="text-sm text-yellow-600 hover:text-yellow-800 mt-3 inline-block">Lihat Semua →</a>
+                </div>
+
+                <!-- Total Prestasi -->
+                <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600 mb-1">Total Prestasi</p>
+                            <p class="text-3xl font-bold text-purple-600"><%= stats.totalPrestasi %></p>
+                        </div>
+                        <div class="p-3 bg-purple-100 rounded-full">
+                            <svg class="w-8 h-8 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <a href="/user/prestasi" class="text-sm text-purple-600 hover:text-purple-800 mt-3 inline-block">Lihat Semua →</a>
+                </div>
+
+                <!-- Total Galeri -->
+                <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600 mb-1">Album Galeri</p>
+                            <p class="text-3xl font-bold text-pink-600"><%= stats.totalGaleri %></p>
+                        </div>
+                        <div class="p-3 bg-pink-100 rounded-full">
+                            <svg class="w-8 h-8 text-pink-600" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <a href="/user/galeri" class="text-sm text-pink-600 hover:text-pink-800 mt-3 inline-block">Lihat Semua →</a>
+                </div>
+
+                <!-- Testimoni Saya -->
+                <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600 mb-1">Testimoni Saya</p>
+                            <p class="text-3xl font-bold text-red-600"><%= stats.totalTestimoniSaya %></p>
+                        </div>
+                        <div class="p-3 bg-red-100 rounded-full">
+                            <svg class="w-8 h-8 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z" clip-rule="evenodd"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <a href="/user/testimoni" class="text-sm text-red-600 hover:text-red-800 mt-3 inline-block">Kelola Testimoni →</a>
+                </div>
+            </div>
+
+            <!-- Two Column Layout -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                <!-- Kegiatan Terbaru -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-xl font-bold text-gray-800">Kegiatan Terbaru</h2>
+                        <a href="/user/kegiatan" class="text-sm text-green-600 hover:text-green-800">Lihat Semua →</a>
+                    </div>
+                    
+                    <% if (kegiatanTerbaru && kegiatanTerbaru.length > 0) { %>
+                        <div class="space-y-3">
+                            <% kegiatanTerbaru.forEach(kegiatan => { %>
+                                <div class="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                                    <div class="flex-1">
+                                        <a href="/user/kegiatan/<%= kegiatan.ID_Kegiatan %>" class="font-medium text-gray-800 hover:text-green-600">
+                                            <%= kegiatan.Judul %>
+                                        </a>
+                                        <p class="text-xs text-gray-500 mt-1">
+                                            <%= new Date(kegiatan.Tanggal).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) %>
+                                        </p>
+                                    </div>
+                                    <span class="px-2 py-1 text-xs font-semibold rounded-full <%= kegiatan.Status === 'Upcoming' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800' %>">
+                                        <%= kegiatan.Status === 'Upcoming' ? 'Akan Datang' : 'Selesai' %>
+                                    </span>
+                                </div>
+                            <% }) %>
+                        </div>
+                    <% } else { %>
+                        <p class="text-gray-500 text-center py-8">Belum ada kegiatan terbaru.</p>
+                    <% } %>
+                </div>
+
+                <!-- Produk Terbaru -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-xl font-bold text-gray-800">Produk Terbaru</h2>
+                        <a href="/user/produk" class="text-sm text-green-600 hover:text-green-800">Lihat Semua →</a>
+                    </div>
+                    
+                    <% if (produkTerbaru && produkTerbaru.length > 0) { %>
+                        <div class="space-y-3">
+                            <% produkTerbaru.forEach(produk => { %>
+                                <div class="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                                    <div class="flex-1">
+                                        <a href="/user/produk/<%= produk.ID_Product %>" class="font-medium text-gray-800 hover:text-green-600">
+                                            <%= produk.Nama %>
+                                        </a>
+                                        <p class="text-sm text-green-600 font-semibold mt-1">
+                                            Rp <%= produk.Harga.toLocaleString('id-ID') %>
+                                        </p>
+                                    </div>
+                                </div>
+                            <% }) %>
+                        </div>
+                    <% } else { %>
+                        <p class="text-gray-500 text-center py-8">Belum ada produk terbaru.</p>
+                    <% } %>
+                </div>
+            </div>
+
+            <!-- Testimoni Saya -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-xl font-bold text-gray-800">Testimoni Saya</h2>
+                    <a href="/user/testimoni/tambah" class="px-4 py-2 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700 transition-colors">
+                        + Tambah Testimoni
+                    </a>
+                </div>
+                
+                <% if (testimoniSaya && testimoniSaya.length > 0) { %>
+                    <div class="space-y-4">
+                        <% testimoniSaya.forEach(testimoni => { %>
+                            <div class="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                                <div class="flex items-center justify-between mb-2">
+                                    <div class="flex items-center space-x-2">
+                                        <!-- Rating (Boolean: true = positif, false = negatif) -->
+                                        <% if (testimoni.Rating) { %>
+                                            <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                                                ✓ Positif
+                                            </span>
+                                        <% } else { %>
+                                            <span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">
+                                                ✗ Negatif
+                                            </span>
+                                        <% } %>
+                                        <span class="px-2 py-1 text-xs font-semibold rounded-full <%= testimoni.Kategori === 'Product' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800' %>">
+                                            <%= testimoni.Kategori %>
+                                        </span>
+                                    </div>
+                                </div>
+                                <p class="text-gray-700 text-sm">
+                                    <%= testimoni.Ulasan && testimoni.Ulasan.length > 100 ? testimoni.Ulasan.substring(0, 100) + '...' : (testimoni.Ulasan || 'Tidak ada ulasan') %>
+                                </p>
+                                <div class="flex items-center space-x-2 mt-3">
+                                    <a href="/user/testimoni/edit/<%= testimoni.ID_Review %>" class="text-xs text-blue-600 hover:text-blue-800">Edit</a>
+                                    <span class="text-gray-300">|</span>
+                                    <a href="/user/testimoni" class="text-xs text-gray-600 hover:text-gray-800">Lihat Detail</a>
+                                </div>
+                            </div>
+                        <% }) %>
+                    </div>
+                <% } else { %>
+                    <div class="text-center py-8">
+                        <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z" clip-rule="evenodd"/>
+                        </svg>
+                        <p class="text-gray-500 mb-4">Anda belum membuat testimoni.</p>
+                        <a href="/user/testimoni/tambah" class="px-4 py-2 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700 transition-colors inline-block">
+                            Buat Testimoni Pertama
+                        </a>
+                    </div>
+                <% } %>
+            </div>
+
+    </main>
+
+</body>
+</html>

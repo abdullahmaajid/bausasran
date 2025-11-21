@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Galeri - <%= groupFoto.Nama %></title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="flex bg-gray-100">
+
+    <%- include('../../partials/admin_sidebar.ejs') %>
+
+    <main class="flex-1 p-10">
+        <%- include('../../partials/flash.ejs') %>
+
+        <h1 class="text-3xl font-bold text-gray-800 mb-6">Edit Galeri: <%= groupFoto.Nama %></h1>
+        
+        <!-- Form Edit Nama & Tambah Foto -->
+        <div class="bg-white p-8 rounded-lg shadow-lg mb-6">
+            <h2 class="text-xl font-bold text-gray-800 mb-4">Informasi Galeri</h2>
+            <form action="/admin/galeri/<%= groupFoto.ID_GroupFoto %>/edit" method="POST" enctype="multipart/form-data">
+                
+                <div class="mb-6">
+                    <label for="Nama" class="block text-gray-700 text-sm font-semibold mb-2">Nama Galeri/Album*</label>
+                    <input type="text" id="Nama" name="Nama" value="<%= groupFoto.Nama %>" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700" required>
+                </div>
+
+                <div class="mb-6">
+                    <label for="fotoGaleri" class="block text-gray-700 text-sm font-semibold mb-2">Tambah Foto Baru (Opsional)</label>
+                    <input type="file" id="fotoGaleri" name="fotoGaleri" accept="image/png, image/jpeg, image/jpg" multiple class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700">
+                    <p class="text-xs text-gray-500 mt-1">Pilih multiple foto (max 20). Hanya .png, .jpg, .jpeg. Maks 5MB per file.</p>
+                    
+                    <!-- Preview Container -->
+                    <div id="preview-container" class="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4"></div>
+                </div>
+
+                <div class="flex items-center space-x-4">
+                    <button type="submit" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
+                        Simpan Perubahan
+                    </button>
+                    <a href="/admin/galeri" class="w-full text-center bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded">
+                        Batal
+                    </a>
+                </div>
+            </form>
+        </div>
+
+        <!-- Kelola Foto Existing -->
+        <div class="bg-white p-8 rounded-lg shadow-lg">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold text-gray-800">Foto yang Ada (<%= fotoList.length %> foto)</h2>
+                <button type="button" onclick="deleteSelected()" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg">
+                    Hapus yang Dipilih
+                </button>
+            </div>
+
+            <% if(fotoList && fotoList.length > 0) { %>
+                <form id="bulk-delete-form" action="/admin/galeri/<%= groupFoto.ID_GroupFoto %>/bulk-delete-fotos" method="POST">
+                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                        <% for(let foto of fotoList) { %>
+                            <div class="relative group">
+                                <!-- Checkbox -->
+                                <div class="absolute top-2 left-2 z-10">
+                                    <input type="checkbox" name="selectedFotoIds" value="<%= foto.ID_Foto %>" class="foto-checkbox w-5 h-5">
+                                </div>
+                                
+                                <!-- Image -->
+                                <img src="/images/galeri/<%= foto.Foto %>" 
+                                     alt="Foto #<%= foto.ID_Foto %>" 
+                                     class="w-full h-48 object-cover rounded-lg shadow-md cursor-pointer hover:shadow-xl transition-shadow duration-300"
+                                     onclick="openLightbox('<%= foto.Foto %>')">
+                                
+                                <!-- Delete Button Overlay -->
+                                <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition-opacity duration-300 rounded-lg flex items-center justify-center">
+                                    <button 
+                                        type="button"
+                                        onclick="deleteSingleFoto('<%= foto.ID_Foto %>')"
+                                        class="opacity-0 group-hover:opacity-100 bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded-lg transition-opacity duration-300">
+                                        Hapus
+                                    </button>
+                                </div>
+                                
+                                <p class="text-xs text-gray-600 mt-2 text-center truncate" title="<%= foto.Foto %>">
+                                    <%= foto.Foto %>
+                                </p>
+                            </div>
+                        <% } %>
+                    </div>
+                </form>
+            <% } else { %>
+                <div class="text-center py-12">
+                    <svg class="mx-auto h-16 w-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                    </svg>
+                    <p class="mt-4 text-gray-500 text-lg">Belum ada foto di galeri ini.</p>
+                </div>
+            <% } %>
+        </div>
+    </main>
+
+    <!-- Lightbox Modal -->
+    <div id="lightbox" class="hidden fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4" onclick="closeLightbox()">
+        <div class="relative max-w-5xl max-h-full">
+            <button onclick="closeLightbox()" class="absolute top-4 right-4 text-white text-4xl font-bold hover:text-gray-300">
+                &times;
+            </button>
+            <img id="lightbox-img" src="" class="max-w-full max-h-screen object-contain">
+        </div>
+    </div>
+
+    <script>
+        // Preview foto baru yang diupload
+        document.getElementById('fotoGaleri').addEventListener('change', function(e) {
+            const previewContainer = document.getElementById('preview-container');
+            previewContainer.innerHTML = '';
+            
+            const files = e.target.files;
+            
+            if (files.length > 20) {
+                alert('Maksimal 20 foto!');
+                e.target.value = '';
+                return;
+            }
+            
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                
+                if (file.size > 5 * 1024 * 1024) {
+                    alert(`File ${file.name} terlalu besar (max 5MB)`);
+                    continue;
+                }
+                
+                if (!file.type.match('image.*')) {
+                    alert(`File ${file.name} bukan gambar`);
+                    continue;
+                }
+                
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const div = document.createElement('div');
+                    div.className = 'relative';
+                    div.innerHTML = `
+                        <img src="${event.target.result}" class="w-full h-32 object-cover rounded-lg border-2 border-gray-200">
+                        <div class="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white text-xs p-1 rounded-b-lg truncate">
+                            ${file.name}
+                        </div>
+                    `;
+                    previewContainer.appendChild(div);
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Lightbox functions
+        function openLightbox(filename) {
+            document.getElementById('lightbox').classList.remove('hidden');
+            document.getElementById('lightbox-img').src = '/images/galeri/' + filename;
+        }
+
+        function closeLightbox() {
+            document.getElementById('lightbox').classList.add('hidden');
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') closeLightbox();
+        });
+
+        // Delete selected photos
+        function deleteSelected() {
+            const checkedBoxes = document.querySelectorAll('.foto-checkbox:checked');
+            if (checkedBoxes.length === 0) {
+                alert('Tidak ada foto yang dipilih untuk dihapus.');
+                return;
+            }
+            
+            if (confirm(`Apakah Anda yakin ingin menghapus ${checkedBoxes.length} foto yang dipilih?`)) {
+                document.getElementById('bulk-delete-form').submit();
+            }
+        }
+
+        // Delete single photo
+        function deleteSingleFoto(fotoId) {
+            if (confirm('Apakah Anda yakin ingin menghapus foto ini?')) {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = `/admin/galeri/<%= groupFoto.ID_GroupFoto %>/foto/${fotoId}/delete`;
+                form.style.display = 'none';
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Testimoni</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="bg-gray-100">
+
+    <%- include('../../partials/navbar.ejs') %>
+
+    <main class="container mx-auto p-6 md:p-12">
+        <%- include('../../partials/flash.ejs') %>
+
+        <div class="max-w-2xl mx-auto">
+            <div class="mb-6">
+                <a href="/user/testimoni" class="text-blue-500 hover:text-blue-700 font-semibold">
+                    ← Kembali ke Testimoni Saya
+                </a>
+            </div>
+
+            <div class="bg-white p-8 rounded-lg shadow-lg">
+                <h1 class="text-3xl font-bold text-gray-800 mb-6">Edit Testimoni</h1>
+                
+                <form action="/user/testimoni/<%= review.ID_Review %>/edit" method="POST">
+                    <!-- Kategori -->
+                    <div class="mb-6">
+                        <label for="kategori" class="block text-gray-700 font-semibold mb-2">
+                            Kategori <span class="text-red-500">*</span>
+                        </label>
+                        <select 
+                            name="Kategori" 
+                            id="kategori" 
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            required
+                            onchange="toggleKategori()">
+                            <option value="">-- Pilih Kategori --</option>
+                            <option value="Product" <%= review.Kategori === 'Product' ? 'selected' : '' %>>Produk</option>
+                            <option value="Kegiatan" <%= review.Kategori === 'Kegiatan' ? 'selected' : '' %>>Kegiatan</option>
+                        </select>
+                    </div>
+
+                    <!-- Dropdown Produk (hidden by default) -->
+                    <div id="produkSection" class="mb-6 <%= review.Kategori === 'Product' ? '' : 'hidden' %>">
+                        <label for="produk" class="block text-gray-700 font-semibold mb-2">
+                            Pilih Produk <span class="text-red-500">*</span>
+                        </label>
+                        <select 
+                            name="ID_Product" 
+                            id="produk"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="">-- Pilih Produk --</option>
+                            <% if (produkList && produkList.length > 0) { %>
+                                <% for(let produk of produkList) { %>
+                                    <option value="<%= produk.ID_Product %>" <%= review.ID_Product == produk.ID_Product ? 'selected' : '' %>>
+                                        <%= produk.Nama %>
+                                    </option>
+                                <% } %>
+                            <% } %>
+                        </select>
+                    </div>
+
+                    <!-- Dropdown Kegiatan (hidden by default) -->
+                    <div id="kegiatanSection" class="mb-6 <%= review.Kategori === 'Kegiatan' ? '' : 'hidden' %>">
+                        <label for="kegiatan" class="block text-gray-700 font-semibold mb-2">
+                            Pilih Kegiatan <span class="text-red-500">*</span>
+                        </label>
+                        <select 
+                            name="ID_Kegiatan" 
+                            id="kegiatan"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="">-- Pilih Kegiatan --</option>
+                            <% if (kegiatanList && kegiatanList.length > 0) { %>
+                                <% for(let kegiatan of kegiatanList) { %>
+                                    <option value="<%= kegiatan.ID_Kegiatan %>" <%= review.ID_Kegiatan == kegiatan.ID_Kegiatan ? 'selected' : '' %>>
+                                        <%= kegiatan.Judul %>
+                                    </option>
+                                <% } %>
+                            <% } %>
+                        </select>
+                    </div>
+
+                    <!-- Rating -->
+                    <div class="mb-6">
+                        <label class="block text-gray-700 font-semibold mb-2">
+                            Rating <span class="text-red-500">*</span>
+                        </label>
+                        <div class="flex space-x-2">
+                            <% for(let i = 1; i <= 5; i++) { %>
+                                <label class="flex flex-col items-center justify-center cursor-pointer p-3 border-2 <%= review.Rating == i ? 'border-yellow-400 bg-yellow-50' : 'border-gray-300' %> rounded-lg hover:border-yellow-400 transition-colors rating-label">
+                                    <input type="radio" name="Rating" value="<%= i %>" <%= review.Rating == i ? 'checked' : '' %> required class="hidden rating-input">
+                                    <span class="text-3xl rating-star <%= review.Rating == i ? 'text-yellow-400' : 'text-gray-300' %>">★</span>
+                                    <span class="text-xs font-semibold text-gray-600 mt-1"><%= i %></span>
+                                </label>
+                            <% } %>
+                        </div>
+                        <p class="text-sm text-gray-500 mt-2">Pilih rating dari 1 (sangat buruk) sampai 5 (sangat baik)</p>
+                    </div>
+
+                    <!-- Ulasan -->
+                    <div class="mb-6">
+                        <label for="ulasan" class="block text-gray-700 font-semibold mb-2">
+                            Ulasan <span class="text-red-500">*</span>
+                        </label>
+                        <textarea 
+                            name="Ulasan" 
+                            id="ulasan" 
+                            rows="6"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            placeholder="Tulis testimoni Anda di sini..."
+                            required><%= review.Ulasan || '' %></textarea>
+                        <p class="text-sm text-gray-500 mt-2">Minimal 10 karakter</p>
+                    </div>
+
+                    <!-- Buttons -->
+                    <div class="flex space-x-4">
+                        <button 
+                            type="submit" 
+                            class="flex-1 bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg transition-colors">
+                            Simpan Perubahan
+                        </button>
+                        <a 
+                            href="/user/testimoni" 
+                            class="flex-1 text-center bg-gray-500 hover:bg-gray-600 text-white font-bold py-3 px-6 rounded-lg transition-colors">
+                            Batal
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <%- include('../../partials/footer.ejs') %>
+
+    <style>
+        .rating-label input[type="radio"]:checked ~ .rating-star {
+            color: #FBBF24;
+        }
+        .rating-label:has(input[type="radio"]:checked) {
+            border-color: #FBBF24;
+            background-color: #FEF3C7;
+        }
+    </style>
+
+    <script>
+        function toggleKategori() {
+            const kategori = document.getElementById('kategori').value;
+            const produkSection = document.getElementById('produkSection');
+            const kegiatanSection = document.getElementById('kegiatanSection');
+            const produkSelect = document.getElementById('produk');
+            const kegiatanSelect = document.getElementById('kegiatan');
+            
+            if (kategori === 'Product') {
+                produkSection.classList.remove('hidden');
+                kegiatanSection.classList.add('hidden');
+                produkSelect.required = true;
+                kegiatanSelect.required = false;
+                kegiatanSelect.value = '';
+            } else if (kategori === 'Kegiatan') {
+                kegiatanSection.classList.remove('hidden');
+                produkSection.classList.add('hidden');
+                kegiatanSelect.required = true;
+                produkSelect.required = false;
+                produkSelect.value = '';
+            } else {
+                produkSection.classList.add('hidden');
+                kegiatanSection.classList.add('hidden');
+                produkSelect.required = false;
+                kegiatanSelect.required = false;
+                produkSelect.value = '';
+                kegiatanSelect.value = '';
+            }
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            toggleKategori();
+        });
+    </script>
+</body>
+</html>

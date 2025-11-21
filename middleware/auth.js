@@ -27,7 +27,7 @@ module.exports.isUser = (req, res, next) => {
 };
 
 // Middleware ini akan mengarahkan user setelah login
-// Sesuai permintaan: Admin ke dashboard, User ke testimoni
+// Sesuai permintaan: Admin ke dashboard, User ke dashboard
 module.exports.checkReturnTo = (req, res, next) => {
     let returnTo = req.session.returnTo; // Cek jika ada halaman tersimpan
 
@@ -36,7 +36,7 @@ module.exports.checkReturnTo = (req, res, next) => {
         if (req.user.Role === 'Admin') {
             returnTo = '/admin/dashboard';
         } else if (req.user.Role === 'User') {
-            returnTo = '/user/testimoni';
+            returnTo = '/user/dashboard';
         } else {
             returnTo = '/'; // Fallback
         }

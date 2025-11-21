@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daftar Kegiatan</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="flex bg-gray-100">
+
+    <%- include('../../partials/user_sidebar.ejs') %>
+
+    <main class="flex-1 p-10">
+        <%- include('../../partials/flash.ejs') %>
+
+        <div class="mb-6">
+            <h1 class="text-3xl font-bold text-gray-800">Kegiatan Kami</h1>
+            <p class="text-gray-600 mt-2">Berbagai aktivitas dan program Kelompok Tani</p>
+        </div>
+
+        <div class="bg-white p-6 rounded-lg shadow-lg">
+            <% if (kegiatanList && kegiatanList.length > 0) { %>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <% for(let kegiatan of kegiatanList) { %>
+                        <div class="border-2 border-gray-200 rounded-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
+                            <!-- Thumbnail -->
+                            <div class="h-48 bg-gray-200 overflow-hidden relative">
+                                <% if (kegiatan.dataValues.thumbnailFile) { %>
+                                    <img src="/images/kegiatan/<%= kegiatan.dataValues.thumbnailFile %>" 
+                                         alt="<%= kegiatan.Judul %>"
+                                         class="w-full h-full object-cover">
+                                <% } else { %>
+                                    <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-green-100 to-green-200">
+                                        <svg class="w-20 h-20 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"></path>
+                                        </svg>
+                                    </div>
+                                <% } %>
+                                
+                                <!-- Badge Jumlah Foto -->
+                                <% if (kegiatan.dataValues.fotoCount > 0) { %>
+                                    <div class="absolute top-2 right-2 bg-black bg-opacity-75 text-white px-3 py-1 rounded-full text-sm font-semibold">
+                                        📷 <%= kegiatan.dataValues.fotoCount %>
+                                    </div>
+                                <% } %>
+
+                                <!-- Badge Status -->
+                                <div class="absolute bottom-2 left-2">
+                                    <% if (kegiatan.Status === 'Ongoing') { %>
+                                        <span class="bg-blue-500 text-white px-3 py-1 rounded-full text-xs font-semibold">
+                                            🔄 Berlangsung
+                                        </span>
+                                    <% } else if (kegiatan.Status === 'Upcoming') { %>
+                                        <span class="bg-orange-500 text-white px-3 py-1 rounded-full text-xs font-semibold">
+                                            📅 Akan Datang
+                                        </span>
+                                    <% } else { %>
+                                        <span class="bg-gray-500 text-white px-3 py-1 rounded-full text-xs font-semibold">
+                                            ✓ Selesai
+                                        </span>
+                                    <% } %>
+                                </div>
+                            </div>
+
+                            <!-- Info Kegiatan -->
+                            <div class="p-4">
+                                <h3 class="text-xl font-bold text-gray-800 mb-2"><%= kegiatan.Judul %></h3>
+                                
+                                <div class="space-y-2 text-sm text-gray-600 mb-4">
+                                    <% if (kegiatan.Tanggal) { %>
+                                        <p class="flex items-center">
+                                            <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"></path>
+                                            </svg>
+                                            <%= new Date(kegiatan.Tanggal).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' }) %>
+                                        </p>
+                                    <% } %>
+
+                                    <% if (kegiatan.Lokasi) { %>
+                                        <p class="flex items-center">
+                                            <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"></path>
+                                            </svg>
+                                            <%= kegiatan.Lokasi %>
+                                        </p>
+                                    <% } %>
+                                </div>
+
+                                <% if (kegiatan.Deskripsi) { %>
+                                    <p class="text-sm text-gray-600 mb-4 line-clamp-3">
+                                        <%= kegiatan.Deskripsi.substring(0, 100) %><%= kegiatan.Deskripsi.length > 100 ? '...' : '' %>
+                                    </p>
+                                <% } %>
+
+                                <a href="/user/kegiatan/<%= kegiatan.ID_Kegiatan %>" 
+                                   class="block w-full text-center bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors">
+                                    Lihat Detail
+                                </a>
+                            </div>
+                        </div>
+                    <% } %>
+                </div>
+            <% } else { %>
+                <div class="text-center py-12">
+                    <svg class="mx-auto h-16 w-16 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"></path>
+                    </svg>
+                    <p class="mt-4 text-gray-500 text-lg">Belum ada kegiatan yang terdaftar.</p>
+                </div>
+            <% } %>
+        </div>
+    </main>
+
+    <%- include('../../partials/footer.ejs') %>
+</body>
+</html>

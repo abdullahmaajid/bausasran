@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daftar Prestasi</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="flex bg-gray-100">
+
+    <%- include('../../partials/user_sidebar.ejs') %>
+
+    <main class="flex-1 p-10">
+        <%- include('../../partials/flash.ejs') %>
+
+        <div class="mb-6">
+            <h1 class="text-3xl font-bold text-gray-800">Prestasi Kami</h1>
+            <p class="text-gray-600 mt-2">Pencapaian dan penghargaan Kelompok Tani</p>
+        </div>
+
+        <div class="bg-white p-6 rounded-lg shadow-lg">
+            <% if (prestasiList && prestasiList.length > 0) { %>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <% for(let prestasi of prestasiList) { %>
+                        <div class="border-2 border-gray-200 rounded-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
+                            <!-- Thumbnail -->
+                            <div class="h-48 bg-gray-200 overflow-hidden relative">
+                                <% if (prestasi.dataValues.thumbnailFile) { %>
+                                    <img src="/images/prestasi/<%= prestasi.dataValues.thumbnailFile %>" 
+                                         alt="<%= prestasi.Judul %>"
+                                         class="w-full h-full object-cover">
+                                <% } else { %>
+                                    <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-yellow-100 to-yellow-200">
+                                        <svg class="w-20 h-20 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                                        </svg>
+                                    </div>
+                                <% } %>
+                                
+                                <!-- Badge Jumlah Foto -->
+                                <% if (prestasi.dataValues.fotoCount > 0) { %>
+                                    <div class="absolute top-2 right-2 bg-black bg-opacity-75 text-white px-3 py-1 rounded-full text-sm font-semibold">
+                                        📷 <%= prestasi.dataValues.fotoCount %>
+                                    </div>
+                                <% } %>
+                            </div>
+
+                            <!-- Info Prestasi -->
+                            <div class="p-4">
+                                <h3 class="text-xl font-bold text-gray-800 mb-2"><%= prestasi.Judul %></h3>
+                                
+                                <div class="space-y-2 text-sm text-gray-600 mb-4">
+                                    <% if (prestasi.Tanggal) { %>
+                                        <p class="flex items-center">
+                                            <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"></path>
+                                            </svg>
+                                            <%= new Date(prestasi.Tanggal).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' }) %>
+                                        </p>
+                                    <% } %>
+
+                                    <% if (prestasi.Penyelenggara) { %>
+                                        <p class="flex items-center">
+                                            <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                                <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"></path>
+                                            </svg>
+                                            <%= prestasi.Penyelenggara %>
+                                        </p>
+                                    <% } %>
+                                </div>
+
+                                <% if (prestasi.Deskripsi) { %>
+                                    <p class="text-sm text-gray-600 mb-4 line-clamp-3">
+                                        <%= prestasi.Deskripsi.substring(0, 100) %><%= prestasi.Deskripsi.length > 100 ? '...' : '' %>
+                                    </p>
+                                <% } %>
+
+                                <a href="/user/prestasi/<%= prestasi.ID_Prestasi %>" 
+                                   class="block w-full text-center bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors">
+                                    Lihat Detail
+                                </a>
+                            </div>
+                        </div>
+                    <% } %>
+                </div>
+            <% } else { %>
+                <div class="text-center py-12">
+                    <svg class="mx-auto h-16 w-16 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                    </svg>
+                    <p class="mt-4 text-gray-500 text-lg">Belum ada prestasi yang dicatat.</p>
+                </div>
+            <% } %>
+        </div>
+    </main>
+
+    <%- include('../../partials/footer.ejs') %>
+</body>
+</html>
