@@ -4,8 +4,12 @@
         
         <div>
             <a href="/" class="text-gray-600 hover:text-blue-500 px-3">Home</a>
-            <a href="/#kegiatan" class="text-gray-600 hover:text-blue-500 px-3">Kegiatan</a>
-            <a href="/#produk" class="text-gray-600 hover:text-blue-500 px-3">Produk</a>
+            <a href="/kegiatan" class="text-gray-600 hover:text-blue-500 px-3">Kegiatan</a>
+            <a href="/produk" class="text-gray-600 hover:text-blue-500 px-3">Produk</a>
+            <a href="/galeri" class="text-gray-600 hover:text-blue-500 px-3">Galeri</a>
+            <a href="/anggota" class="text-gray-600 hover:text-blue-500 px-3">Anggota</a>
+            <a href="/prestasi" class="text-gray-600 hover:text-blue-500 px-3">Prestasi</a>
+            <a href="/testimoni" class="text-gray-600 hover:text-blue-500 px-3">Testimoni</a>
             <% if(currentUser && currentUser.Role === 'User') { %>
                 <a href="/user/testimoni" class="text-gray-600 hover:text-blue-500 px-3">Testimoni Saya</a>
             <% } %>
