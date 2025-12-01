@@ -18,8 +18,29 @@ router.post('/login',
         failureFlash: true,
         keepSessionInfo: true,
     }),
+    (req, res, next) => {
+        // Handle "Ingat Saya"
+        if (req.body.rememberMe) {
+            req.session.cookie.maxAge = 1000 * 60 * 60 * 24 * 30; // 30 hari
+        } else {
+            req.session.cookie.expires = false; // Session cookie (hapus saat browser ditutup)
+        }
+        next();
+    },
     authMiddleware.checkReturnTo
 );
+
+// GET: Menampilkan halaman register
+router.get('/register', authController.renderRegister);
+
+// POST: Memproses pendaftaran
+router.post('/register', authController.registerUser);
+
+// GET: Menampilkan halaman lupa password
+router.get('/lupa-password', authController.renderLupaPassword);
+
+// POST: Memproses reset password
+router.post('/lupa-password', authController.resetPassword);
 
 // GET: Logout
 router.get('/logout', authController.logoutUser);

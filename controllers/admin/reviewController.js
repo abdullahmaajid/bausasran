@@ -129,10 +129,17 @@ module.exports.createReview = async (req, res) => {
             return res.redirect('/admin/testimoni/new');
         }
 
+        // Validasi rating (1-5)
+        const ratingNum = parseInt(Rating);
+        if (isNaN(ratingNum) || ratingNum < 1 || ratingNum > 5) {
+            req.flash('error', 'Rating harus antara 1 sampai 5.');
+            return res.redirect('/admin/testimoni/new');
+        }
+
         // Buat review baru
         await db.review.create({
             Ulasan: Ulasan || null,
-            Rating: Rating === '1' || Rating === 1 || Rating === true,
+            Rating: ratingNum,
             Kategori,
             ID_Pengguna: parseInt(ID_Pengguna),
             ID_Product: Kategori === 'Product' ? parseInt(ID_Product) : null,
@@ -215,10 +222,17 @@ module.exports.updateReview = async (req, res) => {
             return res.redirect(`/admin/testimoni/${id}/edit`);
         }
 
+        // Validasi rating (1-5)
+        const ratingNum = parseInt(Rating);
+        if (isNaN(ratingNum) || ratingNum < 1 || ratingNum > 5) {
+            req.flash('error', 'Rating harus antara 1 sampai 5.');
+            return res.redirect(`/admin/testimoni/${id}/edit`);
+        }
+
         // Update review
         await review.update({
             Ulasan: Ulasan || null,
-            Rating: Rating === '1' || Rating === 1 || Rating === true,
+            Rating: ratingNum,
             Kategori,
             ID_Pengguna: parseInt(ID_Pengguna),
             ID_Product: Kategori === 'Product' ? parseInt(ID_Product) : null,

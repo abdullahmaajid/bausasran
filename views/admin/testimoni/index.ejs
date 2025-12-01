@@ -75,11 +75,9 @@
                                         <% } %>
                                     </td>
                                     <td class="py-3 px-4 text-center">
-                                        <% if (review.Rating) { %>
-                                            <span class="text-2xl">👍</span>
-                                        <% } else { %>
-                                            <span class="text-2xl">👎</span>
-                                        <% } %>
+                                        <% const stars = '⭐'.repeat(review.Rating); %>
+                                        <span class="text-yellow-500"><%= stars %></span>
+                                        <span class="text-gray-600 text-xs">(<%= review.Rating %>/5)</span>
                                     </td>
                                     <td class="py-3 px-4 text-center flex items-center justify-center space-x-2">
                                         <a href="/admin/testimoni/<%= review.ID_Review %>" class="bg-green-500 hover:bg-green-600 text-white font-semibold py-1 px-3 rounded-lg text-sm">

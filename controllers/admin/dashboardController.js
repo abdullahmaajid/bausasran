@@ -67,6 +67,11 @@ module.exports.renderDashboard = async (req, res) => {
             }]
         });
 
+        // Hitung rata-rata rating
+        const avgRating = reviewTerbaru.length > 0 
+            ? (reviewTerbaru.reduce((sum, r) => sum + r.Rating, 0) / reviewTerbaru.length).toFixed(1)
+            : 0;
+
         res.render('admin/dashboard', {
             stats: {
                 totalPengguna,

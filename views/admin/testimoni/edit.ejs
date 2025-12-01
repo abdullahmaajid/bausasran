@@ -73,8 +73,11 @@
                     <label for="Rating" class="block text-gray-700 text-sm font-semibold mb-2">Rating*</label>
                     <select id="Rating" name="Rating" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700" required>
                         <option value="">-- Pilih Rating --</option>
-                        <option value="1" <%= review.Rating ? 'selected' : '' %>>👍 Positif (Puas)</option>
-                        <option value="0" <%= !review.Rating ? 'selected' : '' %>>👎 Negatif (Tidak Puas)</option>
+                        <option value="1" <%= review.Rating === 1 ? 'selected' : '' %>>⭐ 1 - Sangat Buruk</option>
+                        <option value="2" <%= review.Rating === 2 ? 'selected' : '' %>>⭐⭐ 2 - Buruk</option>
+                        <option value="3" <%= review.Rating === 3 ? 'selected' : '' %>>⭐⭐⭐ 3 - Cukup</option>
+                        <option value="4" <%= review.Rating === 4 ? 'selected' : '' %>>⭐⭐⭐⭐ 4 - Baik</option>
+                        <option value="5" <%= review.Rating === 5 ? 'selected' : '' %>>⭐⭐⭐⭐⭐ 5 - Sangat Baik</option>
                     </select>
                 </div>
 

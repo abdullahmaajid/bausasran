@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daftar Akun - Bausasran</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="bg-gray-100">
+
+    <%- include('../partials/navbar.ejs') %>
+
+    <%- include('../partials/flash.ejs') %>
+
+    <main class="container mx-auto p-6 md:p-12 flex justify-center mt-10">
+        <div class="w-full max-w-2xl bg-white p-8 rounded-lg shadow-lg">
+            <h1 class="text-3xl font-bold text-gray-800 text-center mb-2">Daftar Akun Baru</h1>
+            <p class="text-center text-gray-600 mb-6">Lengkapi formulir di bawah untuk membuat akun</p>
+            
+            <form action="/register" method="POST" id="registerForm">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Nama Lengkap -->
+                    <div class="mb-4">
+                        <label for="Nama" class="block text-gray-700 text-sm font-semibold mb-2">
+                            Nama Lengkap <span class="text-red-500">*</span>
+                        </label>
+                        <input 
+                            type="text" 
+                            id="Nama" 
+                            name="Nama" 
+                            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                            required
+                            placeholder="Masukkan nama lengkap">
+                    </div>
+                    
+                    <!-- Username -->
+                    <div class="mb-4">
+                        <label for="Username" class="block text-gray-700 text-sm font-semibold mb-2">
+                            Username <span class="text-red-500">*</span>
+                        </label>
+                        <input 
+                            type="text" 
+                            id="Username" 
+                            name="Username" 
+                            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                            required
+                            placeholder="Pilih username unik"
+                            pattern="[a-zA-Z0-9_]+"
+                            title="Username hanya boleh mengandung huruf, angka, dan underscore">
+                        <p class="text-xs text-gray-500 mt-1">Hanya huruf, angka, dan underscore (_)</p>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Password -->
+                    <div class="mb-4">
+                        <label for="Password" class="block text-gray-700 text-sm font-semibold mb-2">
+                            Password <span class="text-red-500">*</span>
+                        </label>
+                        <div class="relative">
+                            <input 
+                                type="password" 
+                                id="Password" 
+                                name="Password" 
+                                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                                required
+                                minlength="6"
+                                placeholder="Minimal 6 karakter">
+                            <button 
+                                type="button" 
+                                onclick="togglePassword('Password')"
+                                class="absolute right-2 top-2 text-gray-500 hover:text-gray-700">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                </svg>
+                            </button>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-1">Minimal 6 karakter</p>
+                    </div>
+                    
+                    <!-- Konfirmasi Password -->
+                    <div class="mb-4">
+                        <label for="ConfirmPassword" class="block text-gray-700 text-sm font-semibold mb-2">
+                            Konfirmasi Password <span class="text-red-500">*</span>
+                        </label>
+                        <div class="relative">
+                            <input 
+                                type="password" 
+                                id="ConfirmPassword" 
+                                name="ConfirmPassword" 
+                                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                                required
+                                minlength="6"
+                                placeholder="Ketik ulang password">
+                            <button 
+                                type="button" 
+                                onclick="togglePassword('ConfirmPassword')"
+                                class="absolute right-2 top-2 text-gray-500 hover:text-gray-700">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                </svg>
+                            </button>
+                        </div>
+                        <p class="text-xs text-red-500 mt-1 hidden" id="passwordError">Password tidak cocok!</p>
+                    </div>
+                </div>
+
+                <!-- Password Strength Indicator -->
+                <div class="mb-6">
+                    <div class="flex items-center space-x-2">
+                        <div class="flex-1 bg-gray-200 rounded-full h-2">
+                            <div id="passwordStrength" class="h-2 rounded-full transition-all duration-300 bg-gray-300" style="width: 0%"></div>
+                        </div>
+                        <span id="strengthText" class="text-xs text-gray-500">Lemah</span>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="flex items-center justify-between">
+                    <button 
+                        type="submit" 
+                        class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-4 rounded focus:outline-none focus:shadow-outline transition-colors">
+                        Daftar Sekarang
+                    </button>
+                </div>
+            </form>
+            
+            <p class="text-center text-gray-600 text-sm mt-6">
+                Sudah punya akun? <a href="/login" class="text-blue-500 hover:text-blue-700 font-semibold">Login di sini</a>
+            </p>
+        </div>
+    </main>
+
+    <script>
+        // Toggle password visibility
+        function togglePassword(fieldId) {
+            const field = document.getElementById(fieldId);
+            field.type = field.type === 'password' ? 'text' : 'password';
+        }
+
+        // Password strength checker
+        const passwordInput = document.getElementById('Password');
+        const strengthBar = document.getElementById('passwordStrength');
+        const strengthText = document.getElementById('strengthText');
+
+        passwordInput.addEventListener('input', function() {
+            const password = this.value;
+            let strength = 0;
+            
+            if (password.length >= 6) strength += 25;
+            if (password.length >= 10) strength += 25;
+            if (/[a-z]/.test(password) && /[A-Z]/.test(password)) strength += 25;
+            if (/[0-9]/.test(password)) strength += 15;
+            if (/[^a-zA-Z0-9]/.test(password)) strength += 10;
+            
+            strengthBar.style.width = strength + '%';
+            
+            if (strength < 40) {
+                strengthBar.className = 'h-2 rounded-full transition-all duration-300 bg-red-500';
+                strengthText.textContent = 'Lemah';
+                strengthText.className = 'text-xs text-red-500';
+            } else if (strength < 70) {
+                strengthBar.className = 'h-2 rounded-full transition-all duration-300 bg-yellow-500';
+                strengthText.textContent = 'Sedang';
+                strengthText.className = 'text-xs text-yellow-500';
+            } else {
+                strengthBar.className = 'h-2 rounded-full transition-all duration-300 bg-green-500';
+                strengthText.textContent = 'Kuat';
+                strengthText.className = 'text-xs text-green-500';
+            }
+        });
+
+        // Validate password match
+        const confirmPassword = document.getElementById('ConfirmPassword');
+        const passwordError = document.getElementById('passwordError');
+        const form = document.getElementById('registerForm');
+
+        confirmPassword.addEventListener('input', function() {
+            if (this.value !== passwordInput.value && this.value.length > 0) {
+                passwordError.classList.remove('hidden');
+                this.classList.add('border-red-500');
+            } else {
+                passwordError.classList.add('hidden');
+                this.classList.remove('border-red-500');
+            }
+        });
+
+        form.addEventListener('submit', function(e) {
+            if (passwordInput.value !== confirmPassword.value) {
+                e.preventDefault();
+                alert('Password dan Konfirmasi Password tidak cocok!');
+                confirmPassword.focus();
+            }
+        });
+    </script>
+</body>
+</html>

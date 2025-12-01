@@ -12,8 +12,12 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: true
     },
     Rating: {
-      type: DataTypes.BOOLEAN,
-      allowNull: false
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      validate: {
+        min: 1,
+        max: 5
+      }
     },
     Kategori: {
       type: DataTypes.ENUM('Product','Kegiatan'),
