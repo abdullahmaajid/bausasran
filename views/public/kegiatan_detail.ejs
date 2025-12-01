@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= kegiatan.Judul %> - Bausasran</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="bg-gray-100">
+
+    <%- include('../partials/navbar.ejs') %>
+
+    <main class="container mx-auto p-6 md:p-12">
+        <%- include('../partials/flash.ejs') %>
+
+        <!-- Breadcrumb -->
+        <nav class="mb-6 text-sm">
+            <ol class="flex items-center space-x-2 text-gray-600">
+                <li><a href="/" class="hover:text-blue-600">Home</a></li>
+                <li><span class="text-gray-400">/</span></li>
+                <li><a href="/kegiatan" class="hover:text-blue-600">Kegiatan</a></li>
+                <li><span class="text-gray-400">/</span></li>
+                <li class="text-gray-800 font-semibold"><%= kegiatan.Judul %></li>
+            </ol>
+        </nav>
+
+        <!-- Detail Kegiatan -->
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden mb-8">
+            <!-- Hero Image -->
+            <% if (fotoFiles && fotoFiles.length > 0) { %>
+                <div class="relative h-96 bg-gray-200">
+                    <img 
+                        src="/images/kegiatan/<%= fotoFiles[0] %>" 
+                        alt="<%= kegiatan.Judul %>" 
+                        class="w-full h-full object-cover"
+                        onerror="this.src='https://via.placeholder.com/1200x400?text=Foto+Kegiatan'">
+                </div>
+            <% } else { %>
+                <div class="h-96 bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center">
+                    <div class="text-center text-white">
+                        <svg class="w-24 h-24 mx-auto mb-4 opacity-50" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"/>
+                        </svg>
+                        <p class="text-xl font-semibold">Belum ada foto</p>
+                    </div>
+                </div>
+            <% } %>
+
+            <!-- Content -->
+            <div class="p-8">
+                <!-- Header -->
+                <div class="mb-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <span class="inline-block px-3 py-1 rounded-full text-sm font-semibold <%= kegiatan.Status === 'Upcoming' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800' %>">
+                            <%= kegiatan.Status %>
+                        </span>
+                        <% if (kegiatan.Kategori) { %>
+                            <span class="text-sm text-gray-500"><%= kegiatan.Kategori %></span>
+                        <% } %>
+                    </div>
+                    <h1 class="text-4xl font-bold text-gray-900 mb-3"><%= kegiatan.Judul %></h1>
+                    <div class="flex items-center space-x-4 text-gray-600">
+                        <div class="flex items-center">
+                            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/>
+                            </svg>
+                            <%= new Date(kegiatan.Tanggal).toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) %>
+                        </div>
+                        <% if (kegiatan.Lokasi) { %>
+                            <div class="flex items-center">
+                                <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
+                                </svg>
+                                <%= kegiatan.Lokasi %>
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
+
+                <!-- Deskripsi -->
+                <div class="mb-8">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-4">Deskripsi Kegiatan</h2>
+                    <div class="prose max-w-none">
+                        <% if (kegiatan.Deskripsi) { %>
+                            <p class="text-gray-700 leading-relaxed whitespace-pre-line"><%= kegiatan.Deskripsi %></p>
+                        <% } else { %>
+                            <p class="text-gray-500 italic">Tidak ada deskripsi tersedia.</p>
+                        <% } %>
+                    </div>
+                </div>
+
+                <!-- Galeri Foto -->
+                <% if (fotoFiles && fotoFiles.length > 1) { %>
+                    <div class="mb-8">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-4">Galeri Foto</h2>
+                        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                            <% fotoFiles.forEach((foto, index) => { %>
+                                <div class="relative group cursor-pointer overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-shadow">
+                                    <img 
+                                        src="/images/kegiatan/<%= foto %>" 
+                                        alt="Foto <%= index + 1 %>" 
+                                        class="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-300"
+                                        onerror="this.src='https://via.placeholder.com/400x300?text=Foto+<%= index + 1 %>'">
+                                    <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-opacity"></div>
+                                </div>
+                            <% }) %>
+                        </div>
+                    </div>
+                <% } %>
+
+                <!-- Testimoni / Review -->
+                <div class="mb-8">
+                    <div class="flex items-center justify-between mb-6">
+                        <div>
+                            <h2 class="text-2xl font-bold text-gray-800">Testimoni</h2>
+                            <p class="text-gray-600"><%= totalReview %> ulasan dengan rating rata-rata <%= avgRating %>/5</p>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <% const stars = '⭐'.repeat(Math.round(avgRating)); %>
+                            <span class="text-2xl"><%= stars %></span>
+                            <span class="text-xl font-bold text-gray-800"><%= avgRating %></span>
+                        </div>
+                    </div>
+
+                    <% if (reviewList && reviewList.length > 0) { %>
+                        <div class="space-y-4">
+                            <% reviewList.forEach(review => { %>
+                                <div class="border border-gray-200 rounded-lg p-5 hover:shadow-md transition-shadow">
+                                    <div class="flex items-start justify-between mb-3">
+                                        <div class="flex items-center space-x-3">
+                                            <div class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold">
+                                                <%= review.dataValues.pengguna ? review.dataValues.pengguna.Nama.charAt(0).toUpperCase() : '?' %>
+                                            </div>
+                                            <div>
+                                                <p class="font-semibold text-gray-800">
+                                                    <%= review.dataValues.pengguna ? review.dataValues.pengguna.Nama : 'Anonymous' %>
+                                                </p>
+                                                <div class="flex items-center">
+                                                    <% const reviewStars = '⭐'.repeat(review.Rating); %>
+                                                    <span class="text-yellow-500 text-sm"><%= reviewStars %></span>
+                                                    <span class="text-gray-600 text-xs ml-2"><%= review.Rating %>/5</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <p class="text-gray-700"><%= review.Ulasan || 'Tidak ada ulasan tertulis' %></p>
+                                </div>
+                            <% }) %>
+                        </div>
+                    <% } else { %>
+                        <div class="text-center py-12 bg-gray-50 rounded-lg">
+                            <svg class="w-16 h-16 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                            </svg>
+                            <p class="text-gray-500">Belum ada testimoni untuk kegiatan ini.</p>
+                        </div>
+                    <% } %>
+                </div>
+
+                <!-- CTA -->
+                <div class="mt-8 flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+                    <a href="/kegiatan" class="px-6 py-3 bg-gray-500 hover:bg-gray-600 text-white font-semibold rounded-lg transition-colors text-center">
+                        ← Kembali ke Daftar Kegiatan
+                    </a>
+                    <% if (currentUser && currentUser.Role === 'User') { %>
+                        <a href="/user/testimoni/tambah" class="px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-lg transition-colors text-center">
+                            ✍️ Tulis Testimoni
+                        </a>
+                    <% } else if (!currentUser) { %>
+                        <a href="/login?returnTo=/kegiatan/<%= kegiatan.ID_Kegiatan %>" class="px-6 py-3 bg-green-500 hover:bg-green-600 text-white font-semibold rounded-lg transition-colors text-center">
+                            🔐 Login untuk Memberi Testimoni
+                        </a>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <%- include('../partials/footer.ejs') %>
+
+</body>
+</html>
