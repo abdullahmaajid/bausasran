@@ -12,6 +12,12 @@ module.exports.renderLogin = (req, res) => {
         if (req.user.Role === 'User') return res.redirect('/user/dashboard');
         return res.redirect('/');
     }
+    
+    // Store returnTo from query parameter
+    if (req.query.returnTo) {
+        req.session.returnTo = req.query.returnTo;
+    }
+    
     res.render('public/login');
 };
 
