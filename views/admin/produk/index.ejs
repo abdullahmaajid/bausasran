@@ -38,7 +38,7 @@
 
         /* Input styling */
         .form-input, .form-select { border-color: #d1d5db; border-radius: 0.375rem; box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05); font-size: 0.875rem; }
-        .form-input:focus, .form-select:focus { border-color: #3b82f6; ring: 1px; ring-color: #3b82f6; }
+        .form-input:focus, .form-select:focus { border-color: #3b82f6; box-shadow: 0 0 0 1px #3b82f6; }
         input[type=range]::-webkit-slider-thumb { appearance: none; width: 16px; height: 16px; background: #3b82f6; border-radius: 50%; cursor: pointer; }
         input[type=range]::-moz-range-thumb { width: 16px; height: 16px; background: #3b82f6; border-radius: 50%; cursor: pointer; border: none;}
 
@@ -123,7 +123,7 @@
     </main>
 
     <!-- Data Produk & Scripts -->
-    <script> const allProductsData = <%- JSON.stringify(productsWithParams) %>; </script>
+    <script> const allProductsData = JSON.parse(decodeURIComponent('<%- encodeURIComponent(JSON.stringify(productsWithParams)) %>')); </script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="/js/koncoTaniAdmin.js"></script>
 
@@ -209,6 +209,7 @@
                             <div class="parameter-list-scroll"> <ul class="product-params">${paramsHTML}</ul> </div>
                         </details>
                         <div class="mt-auto pt-3 border-t border-gray-100 flex justify-end space-x-2">
+                             <a href="/admin/produk/${product.ID_Product}" class="bg-blue-100 hover:bg-blue-200 text-blue-800 text-xs font-medium py-1 px-2.5 rounded border border-blue-200 hover:border-blue-300"> Detail </a>
                              <a href="/admin/produk/${product.ID_Product}/edit" class="bg-gray-100 hover:bg-yellow-100 text-gray-700 hover:text-yellow-800 text-xs font-medium py-1 px-2.5 rounded border border-gray-200 hover:border-yellow-200"> Edit </a>
                              <form action="/admin/produk/${product.ID_Product}/delete" method="POST" onsubmit="return confirm('Hapus produk ${product.Nama}?');"> <button type="submit" class="bg-gray-100 hover:bg-red-100 text-gray-700 hover:text-red-800 text-xs font-medium py-1 px-2.5 rounded border border-gray-200 hover:border-red-200"> Hapus </button> </form>
                         </div>
@@ -218,20 +219,66 @@
 
         // UI Functions Object (remains the same as previous)
         const uiFunctions = {
-            showLoadingState: () => { /* ... */ },
-            hideLoadingState: () => { /* ... */ },
-            updateLiveCards: (current, units) => { /* ... */ },
+            showLoadingState: () => { 
+                if(uiMapLoading) uiMapLoading.style.display = 'block'; 
+                if(uiResultsSummary) uiResultsSummary.textContent = 'Mengambil data dari API eksternal...'; 
+                if(uiLiveWeatherCards) uiLiveWeatherCards.style.display = 'none'; 
+                if(uiLivePlaceholder) uiLivePlaceholder.style.display = 'grid'; 
+            },
+            hideLoadingState: () => { 
+                if(uiMapLoading) uiMapLoading.style.display = 'none'; 
+            },
+            updateLiveCards: (current, units) => { 
+                if (uiLivePlaceholder) uiLivePlaceholder.style.display = 'none';
+                if (uiLiveWeatherCards) uiLiveWeatherCards.style.display = 'grid';
+                if (uiLiveTemp) uiLiveTemp.textContent = `${current.temperature_2m ?? 'N/A'}${units?.temperature_2m || '°C'}`;
+                if (uiLiveHumidity) uiLiveHumidity.textContent = `${current.relative_humidity_2m ?? 'N/A'}${units?.relative_humidity_2m || '%'}`;
+                if (uiLivePrecip) uiLivePrecip.textContent = `${current.precipitation ?? 'N/A'} ${units?.precipitation || 'mm'}`;
+            },
             displayResults: (calculatedProducts, passingGrade, totalProducts) => {
                 const visibleProducts = calculatedProducts.filter(p => p.isVisible); const cocokCount = visibleProducts.filter(p => p.paramCount > 0 && p.scorePercent >= passingGrade).length;
                 if(uiLiveCocok) uiLiveCocok.textContent = `${cocokCount} Produk`; if(uiResultsSummary) uiResultsSummary.textContent = `Menampilkan ${visibleProducts.length} dari ${totalProducts} produk (Min. Kecocokan: ${passingGrade}%)`;
                 if(uiResultsList) uiResultsList.innerHTML = '';
-                if (visibleProducts.length === 0) { const initialMsg = document.getElementById('initial-message'); if (initialMsg) initialMsg.style.display = 'none'; if(uiResultsList) uiResultsList.innerHTML = `<div class="col-span-full text-center py-8 text-gray-500 text-sm"><svg class="mx-auto h-10 w-10 text-gray-400"...</svg><span class="mt-2 block">Tidak ada produk cocok...</span></div>`; }
+                if (visibleProducts.length === 0) { const initialMsg = document.getElementById('initial-message'); if (initialMsg) initialMsg.style.display = 'none'; if(uiResultsList) uiResultsList.innerHTML = `<div class="col-span-full text-center py-8 text-gray-500 text-sm"><svg class="mx-auto h-10 w-10 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg><span class="mt-2 block">Tidak ada produk cocok...</span></div>`; }
                 else { const initialMsg = document.getElementById('initial-message'); if (initialMsg) initialMsg.style.display = 'none'; visibleProducts.forEach(product => { if(uiResultsList) uiResultsList.innerHTML += createCardHTML_UI(product, true); }); } },
-            displayInitialState: (message = 'Pilih lokasi...') => { /* ... */ },
-            displayError: (errorMessage) => { /* ... */ },
-            updateFilterGradeValue: (value) => { /* ... */ },
-            getFilterValues: () => { /* ... */ },
-            addMapMarker: (lat, lng) => { /* ... */ }
+            displayInitialState: (message = 'Pilih lokasi...') => { 
+                if(uiResultsList) {
+                    const initialMsgDiv = document.getElementById('initial-message');
+                     if (!initialMsgDiv) {
+                         uiResultsList.innerHTML = `
+                            <div id="initial-message" class="col-span-full text-center py-8 text-gray-500 text-sm">
+                                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /> <path vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                                <span class="mt-2 block">${message}</span>
+                            </div>`;
+                     } else {
+                         initialMsgDiv.style.display = 'block';
+                         const span = initialMsgDiv.querySelector('span.mt-2');
+                         if (span) span.textContent = message;
+                         uiResultsList.querySelectorAll('.product-card').forEach(card => card.remove());
+                     }
+                }
+                if(uiResultsSummary) uiResultsSummary.textContent = 'Pilih lokasi di peta.';
+                if(uiLiveWeatherCards) uiLiveWeatherCards.style.display = 'none';
+                if(uiLivePlaceholder) uiLivePlaceholder.style.display = 'grid';
+            },
+            displayError: (errorMessage) => { 
+                 if(uiResultsSummary) uiResultsSummary.textContent = `Error: ${errorMessage}`;
+                 if(uiResultsList) uiResultsList.innerHTML = `<p class="col-span-full text-red-500 text-center py-6">${errorMessage}</p>`;
+                 if(uiLivePlaceholder) uiLivePlaceholder.style.display = 'grid';
+                 if(uiLiveWeatherCards) uiLiveWeatherCards.style.display = 'none';
+            },
+            updateFilterGradeValue: (value) => { 
+                if(uiFilterGradeValue) uiFilterGradeValue.textContent = `${value}%`; 
+            },
+            getFilterValues: () => { 
+                return {
+                    search: uiFilterSearch ? uiFilterSearch.value.toLowerCase() : '',
+                    category: uiFilterCategory ? uiFilterCategory.value : 'Semua',
+                    sort: uiFilterSort ? uiFilterSort.value : 'nama',
+                    grade: uiFilterGrade ? parseInt(uiFilterGrade.value, 10) : 0
+                };
+            },
+            addMapMarker: (lat, lng) => { /* Not used in this view */ }
         };
 
         // Initialize (remains the same)

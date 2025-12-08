@@ -392,20 +392,20 @@ module.exports.renderDetail = async (req, res) => {
             include: [
                 {
                     model: db.groupfoto,
-                    as: 'groupfoto', // Sesuaikan 'as' jika ada alias di model Product
+                    as: 'ID_GroupFoto_groupfoto', // Fixed alias
                     include: {
                         model: db.foto,
-                        as: 'fotos', // Sesuaikan 'as' jika ada alias di model GroupFoto
-                        attributes: ['ID_Foto', 'Foto'] // Ambil kolom yang relevan saja
+                        as: 'fotos',
+                        attributes: ['ID_Foto', 'Foto']
                     }
                 },
                 {
                     model: db.groupparameter,
-                    as: 'groupparameter', // Sesuaikan 'as' jika ada alias di model Product
+                    as: 'ID_GroupParameter_groupparameter', // Fixed alias
                     include: {
                         model: db.parameter,
-                        as: 'parameters', // Sesuaikan 'as' jika ada alias di model GroupParameter
-                        attributes: ['Nama', 'Minimal', 'Maksimal'] // Ambil kolom yang relevan
+                        as: 'parameters',
+                        attributes: ['Nama', 'Minimal', 'Maksimal']
                     }
                 }
             ]
@@ -420,11 +420,8 @@ module.exports.renderDetail = async (req, res) => {
         const productData = product.toJSON();
 
         // Optional: Rapikan data foto dan parameter jika perlu
-        // Jika alias tidak dipakai, akses mungkin seperti productData.groupfoto.fotos
-        // Jika pakai alias, akses seperti productData.groupfoto.parameters
-        // Contoh akses (sesuaikan dengan alias Anda):
-        const photos = productData.groupfoto ? productData.groupfoto.fotos || [] : [];
-        const parameters = productData.groupparameter ? productData.groupparameter.parameters || [] : [];
+        const photos = productData.ID_GroupFoto_groupfoto ? productData.ID_GroupFoto_groupfoto.fotos || [] : [];
+        const parameters = productData.ID_GroupParameter_groupparameter ? productData.ID_GroupParameter_groupparameter.parameters || [] : [];
 
 
         // Render view detail (buat file baru: views/admin/produk/detail.ejs)

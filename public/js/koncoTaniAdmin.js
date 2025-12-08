@@ -1,3 +1,13 @@
+// Global UI Helper Reference
+let uiHelpers = null;
+
+let map;
+let marker;
+let currentApiData = null;
+const defaultLat = -7.7956;
+const defaultLng = 110.3695;
+
+// Elements references (may be null in Detail View)
 const mapContainer = document.getElementById('map');
 const mapLoading = document.getElementById('map-loading');
 const resultsList = document.getElementById('results-list');
@@ -7,29 +17,27 @@ const liveTemp = document.getElementById('live-temp');
 const liveHumidity = document.getElementById('live-humidity');
 const livePrecip = document.getElementById('live-precip');
 const liveCocok = document.getElementById('live-cocok');
+const livePlaceholder = document.getElementById('live-weather-placeholder');
 const filterSearch = document.getElementById('filter-search');
 const filterGrade = document.getElementById('filter-grade');
 const filterGradeValue = document.getElementById('filter-grade-value');
 const filterCategory = document.getElementById('filter-category');
 const filterSort = document.getElementById('filter-sort');
-const livePlaceholder = document.getElementById('live-weather-placeholder');
-const initialMessageDiv = document.getElementById('initial-message');
 
-let map;
-let marker;
-let currentApiData = null;
-const defaultLat = -7.7956;
-const defaultLng = 110.3695;
+// Initialization Function (Called by index.ejs and detail.ejs)
+window.initKoncoTani = function(ui) {
+    console.log("Initializing KoncoTani Admin Script...");
+    uiHelpers = ui; // Store UI helpers for use in other functions
 
-document.addEventListener('DOMContentLoaded', () => {
-    if (!mapContainer || !resultsList || !filterGrade) {
-        console.error("Essential elements (map, results-list, filter-grade) not found. Aborting initialization.");
-        if(resultsList) resultsList.innerHTML = '<p class="col-span-full text-red-600 text-center py-6">Error: Komponen halaman penting tidak ditemukan.</p>';
+    if (!mapContainer) {
+        console.error("Map container not found. Aborting initialization.");
+        if (uiHelpers && uiHelpers.displayError) uiHelpers.displayError("Komponen peta tidak ditemukan.");
         return;
     }
+
     initMap();
     initFilters();
-});
+};
 
 function initMap() {
     map = L.map('map').setView([defaultLat, defaultLng], 10);
@@ -41,6 +49,10 @@ function initMap() {
     marker = L.marker([defaultLat, defaultLng]).addTo(map)
              .bindPopup(`Lokasi Default:<br>Lat: ${defaultLat.toFixed(4)}, Lng: ${defaultLng.toFixed(4)}`).openPopup();
 
+    if (uiHelpers && uiHelpers.addMapMarker) {
+        // Optional: Sync map marker logic if provided
+    }
+
     console.log("Triggering analysis for default location...");
     triggerAnalysisForLocation(defaultLat, defaultLng);
 
@@ -48,13 +60,14 @@ function initMap() {
 }
 
 function initFilters() {
+    // Only attach listeners if elements exist (List View)
     if (filterSearch) filterSearch.addEventListener('input', () => runComparison(currentApiData));
     if (filterCategory) filterCategory.addEventListener('change', () => runComparison(currentApiData));
     if (filterSort) filterSort.addEventListener('change', () => runComparison(currentApiData));
     if (filterGrade) {
-        if(filterGradeValue) filterGradeValue.textContent = `${filterGrade.value}%`;
+        if (filterGradeValue) filterGradeValue.textContent = `${filterGrade.value}%`;
         filterGrade.addEventListener('input', (e) => {
-           if(filterGradeValue) filterGradeValue.textContent = `${e.target.value}%`;
+             if (filterGradeValue) filterGradeValue.textContent = `${e.target.value}%`;
         });
         filterGrade.addEventListener('change', () => runComparison(currentApiData));
     }
@@ -67,15 +80,19 @@ function onMapClick(e) {
 }
 
 async function triggerAnalysisForLocation(lat, lng) {
-    if (mapLoading) mapLoading.style.display = 'block';
-    if (resultsSummary) resultsSummary.textContent = 'Mengambil data dari API eksternal...';
-    if (liveWeatherCards) liveWeatherCards.style.display = 'none';
-    if (livePlaceholder) livePlaceholder.style.display = 'grid';
-
-    if (marker) {
-        marker.remove();
+    // UI Update - Loading State
+    if (uiHelpers && uiHelpers.showLoadingState) {
+        uiHelpers.showLoadingState();
+    } else {
+        // Fallback Default UI
+        if (mapLoading) mapLoading.style.display = 'block';
+        if (resultsSummary) resultsSummary.textContent = 'Mengambil data dari API eksternal...';
+        if (liveWeatherCards) liveWeatherCards.style.display = 'none';
+        if (livePlaceholder) livePlaceholder.style.display = 'grid';
     }
-     marker = L.marker([lat, lng]).addTo(map)
+
+    if (marker) marker.remove();
+    marker = L.marker([lat, lng]).addTo(map)
              .bindPopup(`Lokasi Terpilih:<br>Lat: ${lat.toFixed(4)}, Lng: ${lng.toFixed(4)}`).openPopup();
 
     try {
@@ -85,14 +102,29 @@ async function triggerAnalysisForLocation(lat, lng) {
             current: { ...weatherApiData.current, ...soilApiData.current },
             units: { ...weatherApiData.units, ...soilApiData.units }
         };
-        updateLiveCardsUI(currentApiData.current, currentApiData.units);
+
+        // UI Update - Live Cards
+        if (uiHelpers && uiHelpers.updateLiveCards) {
+             uiHelpers.updateLiveCards(currentApiData.current, currentApiData.units);
+        } else {
+             updateLiveCardsUI(currentApiData.current, currentApiData.units);
+        }
+        
         runComparison(currentApiData);
 
     } catch (error) {
         console.error('Gagal mengambil data API:', error);
-        displayErrorUI(`Gagal memuat data API: ${error.message}`);
+        if (uiHelpers && uiHelpers.displayError) {
+            uiHelpers.displayError(`Gagal memuat data API: ${error.message}`);
+        } else {
+            displayErrorUI(`Gagal memuat data API: ${error.message}`);
+        }
     } finally {
-        if (mapLoading) mapLoading.style.display = 'none';
+        if (uiHelpers && uiHelpers.hideLoadingState) {
+            uiHelpers.hideLoadingState();
+        } else {
+            if (mapLoading) mapLoading.style.display = 'none';
+        }
     }
 }
 
@@ -108,7 +140,7 @@ async function fetchWeatherData(lat, lng) {
 }
 
 async function fetchSoilData(lat, lng) {
-    console.warn("Fetch SoilGrids data not implemented yet. Returning dummy data.");
+    // console.warn("Fetch SoilGrids data not implemented yet. Returning dummy data.");
     return {
         current: {
             'soil_temperature_0_to_7cm': 25.5, 'soil_moisture_0_to_7cm': 0.3, 'phh2o': 6.5, 'soc': 2.1
@@ -118,6 +150,7 @@ async function fetchSoilData(lat, lng) {
     };
 }
 
+// === Default UI Helpers (Fallback for List View) ===
 function updateLiveCardsUI(current, units) {
     if (livePlaceholder) livePlaceholder.style.display = 'none';
     if (liveWeatherCards) liveWeatherCards.style.display = 'grid';
@@ -134,6 +167,7 @@ function displayErrorUI(errorMessage) {
 }
 
 function displayInitialStateUI(message = 'Pilih lokasi di peta untuk melihat hasil kecocokan produk pertanian.') {
+    // Only run if resultsList exists (List View)
     if(resultsList) {
         const initialMsgDiv = document.getElementById('initial-message');
          if (!initialMsgDiv) {
@@ -160,47 +194,95 @@ const parameterApiMapping = {
 
 function runComparison(apiData) {
     if (!apiData || !apiData.current) {
-        displayInitialStateUI('Pilih lokasi di peta untuk melihat kecocokan.');
+        if (uiHelpers && uiHelpers.displayInitialState) {
+            uiHelpers.displayInitialState('Pilih lokasi di peta untuk melihat kecocokan.');
+        } else {
+            displayInitialStateUI('Pilih lokasi di peta untuk melihat kecocokan.');
+        }
         return;
     }
-    const searchTerm = filterSearch ? filterSearch.value.toLowerCase() : '';
-    const passingGrade = filterGrade ? parseInt(filterGrade.value, 10) : 0;
-    const category = filterCategory ? filterCategory.value : 'Semua';
-    const sortBy = filterSort ? filterSort.value : 'nama';
+    
+    // Get filter values either via UI helpers or direct DOM fallback
+    let searchTerm = '', filterCategoryVal = 'Semua', filterSortVal = 'nama', passingGrade = 0;
+
+    if (uiHelpers && uiHelpers.getFilterValues) {
+        const filters = uiHelpers.getFilterValues();
+        searchTerm = filters.search;
+        filterCategoryVal = filters.category;
+        filterSortVal = filters.sort;
+        passingGrade = filters.grade;
+    } else {
+         searchTerm = filterSearch ? filterSearch.value.toLowerCase() : '';
+         filterCategoryVal = filterCategory ? filterCategory.value : 'Semua';
+         filterSortVal = filterSort ? filterSort.value : 'nama';
+         passingGrade = filterGrade ? parseInt(filterGrade.value, 10) : 0;
+    }
+
     let productsToCompare = typeof allProductsData !== 'undefined' ? allProductsData : [];
+    
     let calculatedProducts = productsToCompare.map(product => {
         const params = product.groupparameter?.parameters;
         let score = 0; let validParamCount = 0; let paramDetails = []; let scorePercent = 0;
+        
         if (params && params.length > 0) {
             paramDetails = params.map(param => {
                 const mapping = parameterApiMapping[param.Nama];
-                const apiCode = mapping ? mapping[0] : null; const unit = mapping ? mapping[1] : (param.Unit || 'N/A');
+                const apiCode = mapping ? mapping[0] : null; 
+                const unit = mapping ? mapping[1] : (param.Unit || 'N/A');
+                
                 const actualValue = apiCode ? apiData.current[apiCode] : undefined;
                 let isCocok = false; let readableActual = 'N/A';
+                
                 if (apiCode) validParamCount++;
-                if (actualValue !== undefined && actualValue !== null) { readableActual = actualValue; if (actualValue >= param.Minimal && actualValue <= param.Maksimal) { score++; isCocok = true; } }
-                else if (mapping) { readableActual = 'API N/A'; } else { readableActual = 'DB N/A'; }
+                
+                if (actualValue !== undefined && actualValue !== null) { 
+                    readableActual = actualValue; 
+                    if (actualValue >= param.Minimal && actualValue <= param.Maksimal) { 
+                        score++; isCocok = true; 
+                    } 
+                } else if (mapping) { 
+                    readableActual = 'API N/A'; 
+                } else { 
+                    readableActual = 'DB N/A'; 
+                }
                 return { ...param, Unit: unit, actualValue: readableActual, isCocok };
             });
             scorePercent = validParamCount > 0 ? (score / validParamCount) * 100 : 0;
-        } else { validParamCount = 0; }
+        } else { 
+            validParamCount = 0; 
+        }
         return { ...product, score, paramCount: validParamCount, scorePercent, paramDetails };
     });
+
+    // Filter Logic
     calculatedProducts = calculatedProducts.map(p => {
         let isVisible = true;
-        if (category !== 'Semua' && p.Kategori !== category) { isVisible = false; }
+        if (filterCategoryVal !== 'Semua' && p.Kategori !== filterCategoryVal) { isVisible = false; }
         if (searchTerm && !p.Nama.toLowerCase().includes(searchTerm)) { isVisible = false; }
         if (p.paramCount > 0 && p.scorePercent < passingGrade) { isVisible = false; }
         return { ...p, isVisible };
     });
+
+    // Sorting Logic
     calculatedProducts.sort((a, b) => {
-        if (sortBy === 'cocok') { if (a.paramCount === 0 && b.paramCount > 0) return 1; if (a.paramCount > 0 && b.paramCount === 0) return -1; return b.scorePercent - a.scorePercent; }
+        if (filterSortVal === 'cocok') { 
+            if (a.paramCount === 0 && b.paramCount > 0) return 1; 
+            if (a.paramCount > 0 && b.paramCount === 0) return -1; 
+            return b.scorePercent - a.scorePercent; 
+        }
         return a.Nama.localeCompare(b.Nama);
     });
-    renderResultsUI(calculatedProducts);
+
+    if (uiHelpers && uiHelpers.displayResults) {
+        uiHelpers.displayResults(calculatedProducts, passingGrade, productsToCompare.length);
+    } else {
+        renderResultsUI(calculatedProducts);
+    }
 }
 
 function renderResultsUI(products) {
+    if (!resultsList) return; // Guard for Detail View
+
     const visibleProducts = products.filter(p => p.isVisible);
     const passingGradeValue = filterGrade ? parseInt(filterGrade.value, 10) : 0;
     const cocokCount = visibleProducts.filter(p => p.paramCount > 0 && p.scorePercent >= passingGradeValue).length;
@@ -208,21 +290,16 @@ function renderResultsUI(products) {
     if (liveCocok) liveCocok.textContent = `${cocokCount} Produk`;
     if (resultsSummary) resultsSummary.textContent = `Menampilkan ${visibleProducts.length} dari ${products.length} produk (Min. Kecocokan: ${passingGradeValue}%)`;
 
-    if (resultsList) resultsList.innerHTML = '';
+    resultsList.innerHTML = '';
 
     if (visibleProducts.length === 0) {
-        const initialMsg = document.getElementById('initial-message');
-        if (initialMsg) initialMsg.style.display = 'none';
         if (resultsList) resultsList.innerHTML = `
             <div class="col-span-full text-center py-8 text-gray-500 text-sm"><svg class="mx-auto h-10 w-10 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg><span class="mt-2 block">Tidak ada produk cocok...</span></div>`;
         return;
     }
 
-    const initialMsg = document.getElementById('initial-message');
-    if (initialMsg) initialMsg.style.display = 'none';
-
     visibleProducts.forEach(product => {
-        if (resultsList) resultsList.innerHTML += createCardHTML(product, true);
+        resultsList.innerHTML += createCardHTML(product, true);
     });
     console.log("[DEBUG] renderResults finished (rebuild mode)");
 }
