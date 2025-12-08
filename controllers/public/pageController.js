@@ -99,11 +99,34 @@ module.exports.renderKegiatanDetail = async (req, res) => {
 // ==================================================================
 module.exports.renderProduk = async (req, res) => {
     try {
-        // Ambil semua produk
+        // Ambil semua produk dengan relasi foto dan parameter
         const produkList = await db.product.findAll({
+            include: [
+                {
+                    model: db.groupfoto,
+                    as: 'ID_GroupFoto_groupfoto',
+                    include: {
+                        model: db.foto,
+                        as: 'fotos',
+                        attributes: ['ID_Foto', 'Foto']
+                    }
+                },
+                {
+                    model: db.groupparameter,
+                    as: 'ID_GroupParameter_groupparameter',
+                    include: {
+                        model: db.parameter,
+                        as: 'parameters',
+                        attributes: ['Nama', 'Minimal', 'Maksimal']
+                    }
+                }
+            ],
             order: [['ID_Product', 'DESC']]
         });
 
+        // Convert to plain JSON for client-side usage if needed, or pass as instance
+        // passing as instance works fine with EJS serialization usually
+        
         res.render('public/produk', {
             produkList
         });
@@ -122,7 +145,20 @@ module.exports.renderProdukDetail = async (req, res) => {
         const { id } = req.params;
 
         // Ambil detail produk
-        const produk = await db.product.findByPk(id);
+        // Ambil detail produk dengan parameter untuk simulasi
+        const produk = await db.product.findByPk(id, {
+            include: [
+                 {
+                    model: db.groupparameter,
+                    as: 'ID_GroupParameter_groupparameter',
+                    include: {
+                        model: db.parameter,
+                        as: 'parameters',
+                        attributes: ['Nama', 'Minimal', 'Maksimal']
+                    }
+                }
+            ]
+        });
 
         if (!produk) {
             req.flash('error', 'Produk tidak ditemukan.');

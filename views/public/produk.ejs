@@ -5,75 +5,336 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Produk - Bausasran</title>
     <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <style>
+        .map-section {
+            background-color: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .status-badge { 
+            font-size: 0.75rem; 
+            font-weight: 700; 
+            padding: 0.125rem 0.5rem; 
+            border-radius: 0.25rem; 
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            display: inline-block;
+        }
+        .status-cocok { 
+            background-color: #dcfce7; 
+            color: #15803d; 
+        }
+        .status-tidak-cocok { 
+            background-color: #fee2e2; 
+            color: #b91c1c; 
+        }
+        .status-na { 
+            background-color: #f3f4f6; 
+            color: #4b5563; 
+        }
+        
+        /* Parameter List Styles from Admin */
+        .product-params { padding: 0.5rem; background-color: #f9fafb; border-radius: 0.375rem; }
+        .param-item { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            padding: 0.25rem 0; 
+            border-bottom: 1px dashed #e5e7eb; 
+            font-size: 0.75rem; /* text-xs */
+        }
+        .param-item:last-child { border-bottom: none; }
+        .param-name { color: #374151; font-weight: 500; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 0.5rem; }
+        .param-optimal-range { color: #9ca3af; font-size: 0.7rem; margin-right: 0.5rem; }
+        .param-actual-value { font-weight: 700; }
+        .param-cocok { color: #059669; } /* Green-600 */
+        .param-tidak-cocok { color: #dc2626; } /* Red-600 */
+    </style>
+
 </head>
-<body class="bg-gray-100">
+<body class="bg-gray-100 flex flex-col min-h-screen">
 
     <%- include('../partials/navbar.ejs') %>
 
-    <main class="container mx-auto p-6 md:p-12">
-        <%- include('../partials/flash.ejs') %>
+    <!-- Simulation & Map Section -->
+    <div class="map-section py-8 px-4 md:px-8">
+        <div class="container mx-auto">
+            <div class="text-center mb-6">
+                <h1 class="text-3xl font-bold text-gray-800 mb-2">Simulasi Kecocokan Lahan</h1>
+                <p class="text-gray-600">Klik lokasi di peta untuk menemukan produk yang cocok dengan lahan Anda.</p>
+            </div>
 
-        <!-- Header -->
-        <div class="text-center mb-12">
-            <h1 class="text-4xl font-bold text-gray-800 mb-4">Produk Unggulan</h1>
-            <p class="text-lg text-gray-600">Berbagai produk berkualitas dari Bausasran</p>
-        </div>
-
-        <!-- Produk Grid -->
-        <% if(produkList && produkList.length > 0) { %>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                <% produkList.forEach(produk => { %>
-                    <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-                        <div class="relative h-56 bg-gray-200">
-                            <img 
-                                src="https://via.placeholder.com/400x300?text=<%= encodeURIComponent(produk.Nama) %>" 
-                                alt="<%= produk.Nama %>" 
-                                class="w-full h-full object-cover">
-                            <% if (produk.Kategori) { %>
-                                <span class="absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-semibold bg-blue-500 text-white">
-                                    <%= produk.Kategori %>
-                                </span>
-                            <% } %>
-                        </div>
-                        <div class="p-5">
-                            <h3 class="text-xl font-bold text-gray-900 mb-2 line-clamp-2"><%= produk.Nama %></h3>
-                            <% if (produk.Deskripsi) { %>
-                                <p class="text-gray-600 text-sm mb-3 line-clamp-2"><%= produk.Deskripsi %></p>
-                            <% } %>
-                            <div class="flex items-baseline justify-between mb-4">
-                                <span class="text-2xl font-bold text-green-600">
-                                    Rp <%= new Intl.NumberFormat('id-ID').format(produk.Harga) %>
-                                </span>
-                            </div>
-                            <div class="flex space-x-2">
-                                <a href="/produk/<%= produk.ID_Product %>" class="flex-1 text-center bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors">
-                                    Detail
-                                </a>
-                                <a 
-                                    href="https://wa.me/62812345678?text=Halo, saya tertarik dengan <%= encodeURIComponent(produk.Nama) %>" 
-                                    target="_blank"
-                                    class="flex-1 text-center bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors">
-                                    <svg class="w-5 h-5 inline-block" fill="currentColor" viewBox="0 0 24 24">
-                                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-                                    </svg>
-                                </a>
-                            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Map -->
+                <div class="lg:col-span-2 bg-white p-2 rounded-lg shadow-md border border-gray-200">
+                    <div class="relative rounded overflow-hidden">
+                        <div id="map" class="h-96 w-full z-0"></div>
+                        <div id="map-loading" class="absolute inset-0 bg-white bg-opacity-75 z-10 hidden flex flex-col items-center justify-center">
+                            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                            <span class="mt-2 text-blue-600 font-semibold">Menganalisis Lahan...</span>
                         </div>
                     </div>
-                <% }) %>
+                </div>
+
+                <!-- Live Conditions & Summary -->
+                <div class="lg:col-span-1 space-y-4">
+                    <!-- Placeholder -->
+                    <div id="live-weather-placeholder" class="bg-white p-6 rounded-lg shadow-md border border-gray-200 h-full flex flex-col items-center justify-center text-center text-gray-400 border-dashed border-2">
+                        <svg class="w-16 h-16 mb-2 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                        <p class="text-sm font-medium">Pilih lokasi di peta untuk melihat kondisi lahan.</p>
+                    </div>
+
+                    <!-- Live Data Cards (Hidden by default) -->
+                    <div id="live-weather-cards" class="hidden grid grid-cols-2 gap-3">
+                         <div class="bg-blue-50 p-3 rounded border border-blue-100 text-center">
+                            <span class="block text-xs text-blue-500 uppercase font-bold">Suhu</span>
+                            <span id="live-temp" class="text-xl font-bold text-gray-800">-</span>
+                        </div>
+                        <div class="bg-blue-50 p-3 rounded border border-blue-100 text-center">
+                            <span class="block text-xs text-blue-500 uppercase font-bold">Hujan</span>
+                            <span id="live-precip" class="text-xl font-bold text-gray-800">-</span>
+                        </div>
+                        <div class="bg-green-50 p-3 rounded border border-green-100 text-center">
+                            <span class="block text-xs text-green-500 uppercase font-bold">Kelembaban</span>
+                            <span id="live-humidity" class="text-xl font-bold text-gray-800">-</span>
+                        </div>
+                        <div class="bg-purple-50 p-3 rounded border border-purple-100 text-center col-span-2">
+                             <div class="flex items-center justify-between px-2">
+                                <span class="text-xs text-purple-600 uppercase font-bold">Produk Cocok</span>
+                                <span id="live-cocok" class="text-lg font-extrabold text-purple-700">-</span>
+                             </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-        <% } else { %>
-            <div class="text-center py-16">
-                <svg class="w-24 h-24 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
-                </svg>
-                <h3 class="text-xl font-semibold text-gray-700 mb-2">Belum Ada Produk</h3>
-                <p class="text-gray-500">Produk akan segera hadir. Pantau terus halaman ini!</p>
+        </div>
+    </div>
+
+    <main class="container mx-auto p-6 md:p-12 flex-grow">
+        <%- include('../partials/flash.ejs') %>
+
+        <!-- Filters -->
+        <div class="bg-white p-4 rounded-lg shadow mb-8 flex flex-col md:flex-row gap-4 items-center justify-between">
+            <div class="w-full md:w-1/3">
+                 <input type="text" id="filter-search" placeholder="Cari produk..." class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
             </div>
-        <% } %>
+            <div class="flex gap-4 w-full md:w-2/3 justify-end items-center flex-wrap">
+                 <select id="filter-category" class="px-3 py-2 border rounded-lg bg-white">
+                    <option value="Semua">Semua Kategori</option>
+                    <% const categories = [...new Set(produkList.map(p => p.Kategori).filter(Boolean))]; %>
+                    <% categories.forEach(cat => { %>
+                        <option value="<%= cat %>"><%= cat %></option>
+                    <% }) %>
+                </select>
+                
+                <div class="flex items-center gap-2">
+                    <label for="filter-grade" class="text-sm font-medium text-gray-600 whitespace-nowrap">Min. Cocok:</label>
+                    <input type="range" id="filter-grade" min="0" max="100" value="50" step="10" class="w-24">
+                    <span id="filter-grade-value" class="text-sm font-bold text-blue-600 w-8">50%</span>
+                </div>
+
+                <select id="filter-sort" class="px-3 py-2 border rounded-lg bg-white">
+                    <option value="nama">Nama (A-Z)</option>
+                    <option value="cocok">Kecocokan Tertinggi</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="flex justify-between items-center mb-6">
+             <h2 class="text-2xl font-bold text-gray-800">Daftar Produk</h2>
+             <span id="results-summary" class="text-sm text-gray-500">Menampilkan produk...</span>
+        </div>
+
+        <!-- Product Grid Container for Script -->
+        <div id="results-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 min-h-[300px]">
+             <!-- Initial static content or loading state, script will replace this -->
+             <div class="col-span-full text-center py-12">
+                 <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto"></div>
+             </div>
+        </div>
+        
     </main>
 
     <%- include('../partials/footer.ejs') %>
+
+    <!-- Data Injection & Scripts -->
+    <script> const allProductsData = JSON.parse(decodeURIComponent('<%- encodeURIComponent(JSON.stringify(produkList)) %>')); </script>
+    <script src="/js/koncoTaniAdmin.js"></script>
+
+    <script>
+        // UI Adapter for Public Page
+        const uiFunctions = {
+            showLoadingState: () => {
+                document.getElementById('map-loading').classList.remove('hidden');
+                document.getElementById('results-summary').textContent = 'Mengambil data lahan...';
+                document.getElementById('live-weather-cards').classList.add('hidden');
+                document.getElementById('live-weather-placeholder').classList.remove('hidden');
+            },
+            hideLoadingState: () => {
+                document.getElementById('map-loading').classList.add('hidden');
+            },
+            updateLiveCards: (current, units) => {
+                document.getElementById('live-weather-placeholder').classList.add('hidden');
+                document.getElementById('live-weather-cards').classList.remove('hidden');
+                document.getElementById('live-temp').textContent = Math.round(current.temperature_2m) + (units.temperature_2m || '°C');
+                // document.getElementById('live-humidity').textContent = current.relative_humidity_2m + (units.relative_humidity_2m || '%');
+                // document.getElementById('live-precip').textContent = current.precipitation + (units.precipitation || 'mm');
+                document.getElementById('live-humidity').textContent = (current.relative_humidity_2m || '-') + '%';
+                document.getElementById('live-precip').textContent = (current.precipitation || '0') + ' mm';
+            },
+            displayResults: (calculatedProducts, passingGrade, totalProducts) => {
+                const visibleProducts = calculatedProducts.filter(p => p.isVisible);
+                const cocokCount = visibleProducts.filter(p => p.paramCount > 0 && p.scorePercent >= passingGrade).length;
+                
+                document.getElementById('live-cocok').textContent = cocokCount;
+                document.getElementById('results-summary').textContent = `Menampilkan ${visibleProducts.length} produk`;
+                
+                const container = document.getElementById('results-list');
+                container.innerHTML = '';
+                
+                if (visibleProducts.length === 0) {
+                     container.innerHTML = `<div class="col-span-full text-center py-16 text-gray-500">
+                        <p class="text-xl font-semibold mb-2">Tidak ada produk ditemukan</p>
+                        <p>Cobalah menyesuaikan filter atau lokasi di peta.</p>
+                     </div>`;
+                     return;
+                }
+
+                visibleProducts.forEach(product => {
+                    container.innerHTML += createPublicCardHTML(product, passingGrade);
+                });
+            },
+            displayInitialState: (msg) => {
+                 // Initial render without map data
+                 runComparison(null); 
+            },
+            displayError: (msg) => {
+                alert(msg);
+            },
+            updateFilterGradeValue: (val) => { /* handled by listener */ },
+            getFilterValues: () => {
+                return {
+                    search: document.getElementById('filter-search').value.toLowerCase(),
+                    category: document.getElementById('filter-category').value,
+                    sort: document.getElementById('filter-sort').value,
+                    grade: parseInt(document.getElementById('filter-grade').value, 10)
+                };
+            }
+        };
+
+        // Custom Card Renderer for Public View
+        function createPublicCardHTML(product, passingGrade) {
+            let statusBadge = '';
+            let scoreText = '';
+            
+            // Checks only if we have parameters to compare
+            if (product.paramCount > 0) {
+                const isCocok = product.scorePercent >= passingGrade;
+                const matches = `${product.score}/${product.paramCount}`;
+                const color = isCocok ? 'status-cocok' : 'status-tidak-cocok'; // Use classes defined in CSS
+                const text = isCocok ? 'Cocok' : 'Kurang Cocok';
+                // Note: In the new layout, statusBadge is injected into the header flex container, so remove absolute positioning
+                statusBadge = `<span class="status-badge ${color} mt-1 flex-shrink-0 ml-2">${text} (${Math.round(product.scorePercent)}%)</span>`;
+                scoreText = `Kecocokan: <strong>${matches}</strong>`;
+            } else {
+                 scoreText = `Syarat: <strong>${product.groupparameter?.parameters?.length || 0} Param</strong>`;
+            }
+
+            const imgUrl = (product.photos && product.photos.length > 0) 
+                 ? `/images/produk/${product.photos[0].Foto}` 
+                 : `https://via.placeholder.com/400x300?text=${encodeURIComponent(product.Nama)}`;
+
+            const price = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(product.Harga);
+
+            // Parameter List Logic
+            let paramsHtml = '';
+            const rawParams = product.ID_GroupParameter_groupparameter?.parameters || [];
+            const details = product.paramDetails || [];
+            
+            
+            if (details.length > 0) {
+                 paramsHtml = '<ul class="product-params">';
+                 details.forEach(p => {
+                     // Check if mapping exists (using the global map from koncoTaniAdmin if available, else infer)
+                     // Since we don't have direct access to parameterApiMapping here easily without exposing it, 
+                     // we rely on 'p' having 'actualValue' populated by the script's calculations.
+                     
+                     const paramStatusClass = p.isCocok ? 'param-cocok' : 'param-tidak-cocok';
+                     const unit = p.Unit || 'N/A';
+                     
+                     paramsHtml += `
+                     <li class="param-item">
+                        <span class="param-name" title="${p.Nama}">${p.Nama} (${unit})</span>
+                        <span class="param-optimal-range">Opt: ${p.Minimal}–${p.Maksimal}</span>
+                        <span class="param-actual-value ${paramStatusClass}">${p.actualValue}</span>
+                     </li>`;
+                 });
+                 paramsHtml += '</ul>';
+            } else if (rawParams.length > 0) {
+                 // Render static requirements
+                 paramsHtml = '<ul class="product-params">';
+                 rawParams.forEach(p => {
+                     paramsHtml += `
+                     <li class="param-item">
+                        <span class="param-name" title="${p.Nama}">${p.Nama}</span>
+                        <span class="param-optimal-range">Opt: ${p.Minimal}–${p.Maksimal}</span>
+                        <span class="param-actual-value text-gray-400">-</span>
+                     </li>`;
+                 });
+                 paramsHtml += '</ul>';
+            }
+
+            return `
+                <div class="product-card bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden flex flex-col h-full" data-product-id="${product.ID_Product}">
+                    <div class="relative h-56 bg-gray-200 overflow-hidden">
+                        <img src="${imgUrl}" alt="${product.Nama}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                        ${product.Kategori ? `<span class="absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-semibold bg-blue-500 text-white shadow-sm">${product.Kategori}</span>` : ''}
+                    </div>
+                    
+                    <div class="p-4 flex flex-col flex-grow space-y-2">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-800 product-name leading-tight">${product.Nama}</h3>
+                            </div>
+                            ${statusBadge}
+                        </div>
+                        
+                        <div class="text-sm">
+                            <span class="text-lg font-semibold text-blue-700">${price}</span>
+                        </div>
+             
+                        <p class="text-xs text-gray-600 description-full flex-grow min-h-[30px]"> 
+                           ${product.Deskripsi ? (product.Deskripsi.length > 100 ? product.Deskripsi.substring(0, 100) + '...' : product.Deskripsi) : 'Tidak ada deskripsi.'}
+                        </p>
+                        
+                        <p class="text-sm text-gray-600 product-score"> ${scoreText} </p>
+                        
+                        <details class="product-details text-sm">
+                            <summary class="cursor-pointer text-blue-600 hover:text-blue-800 font-medium text-xs">Detail Parameter</summary>
+                            <div class="parameter-list-scroll"> 
+                                ${paramsHtml}
+                            </div>
+                        </details>
+                        
+                        <div class="mt-auto pt-3 border-t border-gray-100 flex justify-end space-x-2">
+                             <a href="/produk/${product.ID_Product}" class="flex-1 text-center bg-blue-600 hover:bg-blue-700 text-white font-semibold py-1.5 px-3 rounded text-sm transition-colors shadow-sm">
+                                Detail
+                             </a>
+                             <a href="https://wa.me/62812345678?text=Halo, saya tertarik dengan ${encodeURIComponent(product.Nama)}" target="_blank" class="flex-none bg-green-500 hover:bg-green-600 text-white font-semibold py-1.5 px-3 rounded text-sm transition-colors shadow-sm flex items-center justify-center">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                             </a>
+                        </div>
+                    </div>
+                </div>`;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+             // Initialize KoncoTani logic
+             if (window.initKoncoTani) {
+                 window.initKoncoTani(uiFunctions);
+             }
+        });
+    </script>
 
 </body>
 </html>

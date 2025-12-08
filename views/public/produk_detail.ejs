@@ -5,6 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><%= produk.Nama %> - Bausasran</title>
     <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <style>
+        /* Map Styles */
+        #map { height: 400px; width: 100%; border-radius: 0.5rem; z-index: 1; }
+        .map-section { background-color: #f8fafc; border-radius: 0.5rem; border: 1px solid #e2e8f0; overflow: hidden; }
+        
+        /* Parameter Styles */
+        .param-item { display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px dashed #e2e8f0; font-size: 0.875rem; }
+        .param-item:last-child { border-bottom: none; }
+        .param-cocok { color: #16a34a; font-weight: 600; }
+        .param-tidak-cocok { color: #dc2626; font-weight: 600; }
+        
+        /* Weather Card Re-use */
+        .weather-card { background: white; padding: 1rem; border-radius: 0.5rem; border: 1px solid #e2e8f0; text-align: center; }
+        .weather-value { font-size: 1.25rem; font-weight: 700; color: #1f2937; }
+        .weather-label { font-size: 0.75rem; color: #6b7280; margin-top: 0.25rem; }
+    </style>
 </head>
 <body class="bg-gray-100">
 
@@ -131,6 +149,139 @@
                 </div>
             </div>
         </div>
+
+        <!-- Section: Simulasi Kecocokan Lahan -->
+        <div class="bg-white rounded-lg shadow-lg p-6 md:p-8 mb-8">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                <svg class="w-6 h-6 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0121 18.382V7.618a1 1 0 01-1.447-.894L15 7m0 13V7m0 0L9 4"></path></svg>
+                Simulasi Kecocokan Lahan
+            </h2>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Map Column -->
+                <div class="lg:col-span-2">
+                    <div class="map-section relative">
+                        <div id="map"></div>
+                        <div id="map-loading" class="absolute inset-0 bg-white/80 z-[1000] flex flex-col items-center justify-center hidden">
+                            <svg class="animate-spin h-8 w-8 text-blue-600 mb-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                            <span class="text-sm font-semibold text-gray-600">Menganalisis lokasi...</span>
+                        </div>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-2 italic">* Klik di peta untuk mengecek kecocokan produk ini dengan lahan Anda.</p>
+                </div>
+
+                <!-- Analysis Result Column -->
+                <div class="lg:col-span-1 flex flex-col">
+                     <!-- Live Weather -->
+                     <div id="live-weather-container" class="mb-4 hidden">
+                         <h4 class="text-sm font-semibold text-gray-700 mb-2">Kondisi Lahan Terpilih:</h4>
+                         <div class="grid grid-cols-2 gap-2" id="live-weather-cards">
+                             <!-- Will be populated by JS -->
+                             <div class="weather-card"><div class="weather-value" id="val-temp">-</div><div class="weather-label">Suhu</div></div>
+                             <div class="weather-card"><div class="weather-value" id="val-rain">-</div><div class="weather-label">Hujan</div></div>
+                         </div>
+                     </div>
+
+                     <!-- Suitability Result -->
+                     <div id="analysis-result-container" class="bg-gray-50 rounded-lg p-4 border border-gray-200 flex-grow">
+                         <div id="initial-instruction" class="text-center py-6 text-gray-500">
+                             <svg class="w-10 h-10 mx-auto text-gray-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                             <p class="text-sm">Pilih lokasi pada peta</p>
+                         </div>
+                         
+                         <div id="result-content" class="hidden">
+                             <div id="result-badge" class="mb-4 text-center p-2 rounded font-bold text-white bg-gray-400">
+                                 Menunggu Analisis...
+                             </div>
+                             
+                             <h4 class="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-2">Detail Parameter</h4>
+                             <div id="parameter-detail-list" class="space-y-1">
+                                 <!-- List Items Injected Here -->
+                             </div>
+                         </div>
+                     </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Inject Data & Script -->
+        <script>
+            // Inject single product as array for compatibility or handling
+            const productData = JSON.parse(decodeURIComponent('<%- encodeURIComponent(JSON.stringify(produk)) %>'));
+            // Override global data expectation for koncoTaniAdmin if needed, or just pass to init
+             
+             // Define UI Helper for Detail View
+             const detailUiFunctions = {
+                 showLoadingState: () => {
+                     document.getElementById('map-loading').classList.remove('hidden');
+                     document.getElementById('result-badge').className = 'mb-4 text-center p-2 rounded font-bold text-white bg-blue-500';
+                     document.getElementById('result-badge').textContent = 'Mengambil data...';
+                 },
+                 hideLoadingState: () => {
+                     document.getElementById('map-loading').classList.add('hidden');
+                 },
+                 updateLiveCards: (current, units) => {
+                     document.getElementById('live-weather-container').classList.remove('hidden');
+                     document.getElementById('val-temp').innerText = (current.temperature_2m || '-') + (units.temperature_2m || '°C');
+                     document.getElementById('val-rain').innerText = (current.precipitation || '0') + (units.precipitation || 'mm');
+                 },
+                 displayResults: (products, grade, total) => {
+                     // In Detail View, 'products' is actually the list passed to runComparison.
+                     // Since we only have 1 product, we take index 0.
+                     if(!products || products.length === 0) return;
+                     const p = products[0];
+
+                     const container = document.getElementById('analysis-result-container');
+                     const instruction = document.getElementById('initial-instruction');
+                     const content = document.getElementById('result-content');
+                     const badge = document.getElementById('result-badge');
+                     const paramList = document.getElementById('parameter-detail-list');
+
+                     instruction.classList.add('hidden');
+                     content.classList.remove('hidden');
+
+                     // Update Badge
+                     // Logic: product.scorePercent vs grade (default 0 or hardcode reasonable threshold?)
+                     // Let's assume default passing grade of 50% for visual indication
+                     const isCocok = p.scorePercent >= 50; 
+                     badge.className = `mb-4 text-center p-2 rounded font-bold text-white ${isCocok ? 'bg-green-500' : 'bg-red-500'}`;
+                     badge.innerHTML = `${isCocok ? '✓ Cocok di Lokasi Ini' : '⚠️ Kurang Cocok'} <span class="block text-xs font-normal opacity-90">Kecocokan: ${Math.round(p.scorePercent)}%</span>`;
+
+                     // Update Parameter Table
+                     if (p.paramDetails && p.paramDetails.length > 0) {
+                         paramList.innerHTML = p.paramDetails.map(param => {
+                             const colorClass = param.isCocok ? 'param-cocok' : 'param-tidak-cocok';
+                             const icon = param.isCocok ? '✓' : '✕';
+                             return `
+                                 <div class="param-item">
+                                     <span class="flex-1 text-gray-700" title="${param.Nama}">${param.Nama} <span class="text-xs text-gray-400">(${param.Unit||''})</span></span>
+                                     <span class="text-xs text-gray-500 mx-2">Opt: ${param.Minimal}-${param.Maksimal}</span>
+                                     <span class="${colorClass}">${icon} ${param.actualValue}</span>
+                                 </div>`;
+                         }).join('');
+                     } else {
+                         paramList.innerHTML = '<p class="text-sm text-gray-400 italic text-center">Tidak ada parameter spesifik.</p>';
+                     }
+                 },
+                 displayError: (msg) => {
+                     alert(msg);
+                 }
+             };
+
+             // Initialize
+             document.addEventListener('DOMContentLoaded', () => {
+                 // Hack: koncoTaniAdmin expects 'allProductsData' to exist in global scope to run comparisons
+                 window.allProductsData = [productData];
+                 
+                 // If koncoTaniAdmin is loaded
+                 if (typeof window.initKoncoTani === 'function') {
+                     window.initKoncoTani(detailUiFunctions);
+                 } else {
+                     console.error("KoncoTani script not loaded.");
+                 }
+             });
+        </script>
+        <script src="/js/koncoTaniAdmin.js"></script>
 
         <!-- Tab Section (Detail & Testimoni) -->
         <div class="bg-white rounded-lg shadow-lg p-8 mb-8">

@@ -221,7 +221,8 @@ function runComparison(apiData) {
     let productsToCompare = typeof allProductsData !== 'undefined' ? allProductsData : [];
     
     let calculatedProducts = productsToCompare.map(product => {
-        const params = product.groupparameter?.parameters;
+        // Fix: Check correct Sequelize alias (ID_GroupParameter_groupparameter) first
+        const params = product.ID_GroupParameter_groupparameter?.parameters || product.groupparameter?.parameters;
         let score = 0; let validParamCount = 0; let paramDetails = []; let scorePercent = 0;
         
         if (params && params.length > 0) {
