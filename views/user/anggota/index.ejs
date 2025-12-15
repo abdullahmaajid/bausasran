@@ -3,85 +3,120 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daftar Anggota</title>
-    <link rel="stylesheet" href="/css/style.css">
+    <title>Daftar Anggota - Bausasran</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        main: '#003024',    // Background Gelap
+                        surface: '#004030', // Warna Kartu
+                        accent: '#83C540',  // Hijau Neon
+                        pale: '#F5FEF9',    // Teks Putih
+                        muted: '#A3C2B8',   // Teks Pudar
+                    },
+                    fontFamily: { sans: ['Inter', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer base { 
+            body { @apply bg-main text-pale font-sans antialiased; } 
+            /* Custom Scrollbar */
+            .custom-scroll::-webkit-scrollbar { width: 8px; }
+            .custom-scroll::-webkit-scrollbar-track { @apply bg-main; }
+            .custom-scroll::-webkit-scrollbar-thumb { @apply bg-surface border border-white/10 rounded-full; }
+        }
+    </style>
 </head>
-<body class="flex bg-gray-100">
+<body class="flex h-screen overflow-hidden">
 
     <%- include('../../partials/user_sidebar.ejs') %>
 
-    <main class="flex-1 p-10">
+    <main class="flex-1 overflow-y-auto custom-scroll p-6 md:p-10 relative">
+        
+        <div class="fixed top-0 right-0 w-[500px] h-[500px] bg-accent/5 rounded-full blur-[100px] pointer-events-none -z-10"></div>
+
         <%- include('../../partials/flash.ejs') %>
 
-        <div class="mb-6">
-            <h1 class="text-3xl font-bold text-gray-800">Daftar Anggota</h1>
-            <p class="text-gray-600 mt-2">Temui para anggota Kelompok Tani kami</p>
+        <div class="mb-10 border-b border-white/10 pb-6">
+            <h1 class="text-3xl md:text-4xl font-bold text-pale mb-2">
+                Daftar <span class="text-accent">Anggota</span>
+            </h1>
+            <p class="text-muted text-lg">Temui para penggerak dan anggota komunitas Kelompok Tani kami.</p>
         </div>
 
-        <div class="bg-white p-6 rounded-lg shadow-lg">
-            <% if (anggotaList && anggotaList.length > 0) { %>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <% for(let anggota of anggotaList) { %>
-                        <div class="border-2 border-gray-200 rounded-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
-                            <!-- Foto Anggota -->
-                            <div class="h-64 bg-gray-200 overflow-hidden">
-                                <% if (anggota.dataValues.fotoFile) { %>
-                                    <img src="/images/anggota/<%= anggota.dataValues.fotoFile %>" 
-                                         alt="<%= anggota.Nama %>"
-                                         class="w-full h-full object-cover">
-                                <% } else { %>
-                                    <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-100 to-blue-200">
-                                        <svg class="w-24 h-24 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path>
-                                        </svg>
+        <% if (anggotaList && anggotaList.length > 0) { %>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 pb-10">
+                <% for(let anggota of anggotaList) { %>
+                    <div class="group bg-surface border border-white/5 rounded-2xl overflow-hidden hover:border-accent/50 hover:shadow-[0_0_20px_rgba(131,197,64,0.15)] transition-all duration-300 flex flex-col relative">
+                        
+                        <div class="h-64 relative overflow-hidden bg-black/20">
+                            <% if (anggota.dataValues && anggota.dataValues.fotoFile) { %>
+                                <img src="/images/anggota/<%= anggota.dataValues.fotoFile %>" 
+                                     alt="<%= anggota.Nama %>"
+                                     class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                                <div class="absolute inset-0 bg-gradient-to-t from-surface via-surface/20 to-transparent opacity-90"></div>
+                            <% } else { %>
+                                <div class="w-full h-full flex flex-col items-center justify-center bg-surface border-b border-white/5">
+                                    <svg class="w-20 h-20 text-white/5 group-hover:text-accent/20 transition-colors duration-500" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path>
+                                    </svg>
+                                </div>
+                            <% } %>
+                        </div>
+
+                        <div class="p-5 flex-1 flex flex-col relative -mt-12 z-10">
+                            <h3 class="text-xl font-bold text-white mb-1 drop-shadow-md truncate"><%= anggota.Nama %></h3>
+                            <div class="w-12 h-1 bg-accent rounded-full mb-4 shadow-[0_0_10px_rgba(131,197,64,0.5)]"></div>
+                            
+                            <div class="space-y-3 mb-6 flex-grow">
+                                <% if (anggota.Username) { %>
+                                    <div class="flex items-center text-sm text-muted group-hover:text-pale transition-colors">
+                                        <div class="w-8 h-8 rounded-full bg-black/20 flex items-center justify-center mr-3 border border-white/5 group-hover:border-accent/30 transition-colors shrink-0">
+                                            <svg class="w-4 h-4 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                                        </div>
+                                        <span class="truncate font-medium">@<%= anggota.Username %></span>
+                                    </div>
+                                <% } %>
+                                
+                                <% if (anggota.Alamat) { %>
+                                    <div class="flex items-start text-sm text-muted group-hover:text-pale transition-colors">
+                                        <div class="w-8 h-8 rounded-full bg-black/20 flex items-center justify-center mr-3 border border-white/5 group-hover:border-accent/30 transition-colors shrink-0">
+                                            <svg class="w-4 h-4 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                                        </div>
+                                        <span class="line-clamp-2 leading-relaxed text-xs opacity-80"><%= anggota.Alamat %></span>
                                     </div>
                                 <% } %>
                             </div>
 
-                            <!-- Info Anggota -->
-                            <div class="p-4">
-                                <h3 class="text-xl font-bold text-gray-800 mb-2"><%= anggota.Nama %></h3>
-                                
-                                <div class="space-y-2 text-sm text-gray-600 mb-4">
-                                    <% if (anggota.Username) { %>
-                                        <p class="flex items-center">
-                                            <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                                                <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"></path>
-                                                <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"></path>
-                                            </svg>
-                                            <%= anggota.Username %>
-                                        </p>
-                                    <% } %>
-                                    
-                                    <% if (anggota.Alamat) { %>
-                                        <p class="flex items-start">
-                                            <svg class="w-4 h-4 mr-2 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                                                <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"></path>
-                                            </svg>
-                                            <%= anggota.Alamat %>
-                                        </p>
-                                    <% } %>
-                                </div>
-
-                                <a href="/user/anggota/<%= anggota.ID_Pengguna %>" 
-                                   class="block w-full text-center bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors">
-                                    Lihat Profil
-                                </a>
-                            </div>
+                            <a href="/user/anggota/<%= anggota.ID_Pengguna %>" 
+                               class="block w-full text-center bg-white/5 hover:bg-accent border border-white/10 hover:border-transparent text-pale hover:text-main font-bold py-3 px-4 rounded-xl transition-all duration-300 transform group-hover:-translate-y-1 shadow-lg">
+                                Lihat Profil
+                            </a>
                         </div>
-                    <% } %>
-                </div>
-            <% } else { %>
-                <div class="text-center py-12">
-                    <svg class="mx-auto h-16 w-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    </div>
+                <% } %>
+            </div>
+        <% } else { %>
+            <div class="flex flex-col items-center justify-center py-20 border-2 border-dashed border-white/5 rounded-3xl bg-surface/30">
+                <div class="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mb-4 animate-pulse">
+                    <svg class="w-10 h-10 text-muted/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
                     </svg>
-                    <p class="mt-4 text-gray-500 text-lg">Belum ada anggota terdaftar.</p>
                 </div>
-            <% } %>
+                <h3 class="text-xl font-bold text-pale mb-2">Belum Ada Anggota</h3>
+                <p class="text-muted text-sm">Data anggota belum tersedia saat ini.</p>
+            </div>
+        <% } %>
+
+        <div class="mt-4 border-t border-white/5 pt-6 text-center text-xs text-muted/30">
+            &copy; <%= new Date().getFullYear() %> Kampung Wisata Bausasran.
         </div>
     </main>
 
-    <%- include('../../partials/footer.ejs') %>
 </body>
 </html>

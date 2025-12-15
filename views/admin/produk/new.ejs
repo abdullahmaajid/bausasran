@@ -1,115 +1,211 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Tambah Produk Baru</title>
-    <link rel="stylesheet" href="/css/style.css">
-    <style>
-        .param-info { font-size: 0.75rem; color: #6b7280; margin-top: 0.25rem; }
-        .price-preview { font-size: 0.875rem; font-weight: 600; color: #1d4ed8; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tambah Produk Baru - Admin Bausasran</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        main: '#003024',    // Background Gelap
+                        surface: '#004030', // Warna Kartu
+                        accent: '#83C540',  // Hijau Neon
+                        pale: '#F5FEF9',    // Teks Putih
+                        muted: '#A3C2B8',   // Teks Pudar
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style type="text/tailwindcss">
+        @layer base {
+            body { @apply bg-main text-pale font-sans antialiased; }
+        }
+        
+        /* Custom Scrollbar */
+        .custom-scroll::-webkit-scrollbar { width: 6px; }
+        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #004030; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); }
+        .custom-scroll::-webkit-scrollbar-thumb:hover { background: #83C540; }
+
+        /* Input Styles */
+        .form-input {
+            @apply w-full bg-main border border-white/10 rounded-xl px-4 py-3 text-sm text-pale focus:border-accent focus:ring-1 focus:ring-accent outline-none transition-all placeholder-white/20;
+        }
+        .form-label {
+            @apply block text-sm font-medium text-muted mb-2;
+        }
     </style>
 </head>
-<body class="flex bg-gray-100">
+
+<body class="flex h-screen overflow-hidden">
 
     <%- include('../../partials/admin_sidebar.ejs') %>
 
-    <main class="flex-1 p-10">
+    <main class="flex-1 overflow-y-auto relative p-6 md:p-10 custom-scroll">
         <%- include('../../partials/flash.ejs') %>
 
-        <h1 class="text-3xl font-bold text-gray-800 mb-6">Tambah Produk Baru</h1>
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-pale">Tambah Produk Baru</h1>
+            <p class="text-muted text-sm mt-1">Masukkan informasi detail produk dan parameter agrikultur.</p>
+        </div>
 
-        <div class="bg-white p-8 rounded-lg shadow-lg max-w-4xl mx-auto">
+        <div class="bg-surface p-6 md:p-8 rounded-3xl border border-white/5 shadow-2xl w-full">
             <form action="/admin/produk" method="POST" enctype="multipart/form-data" id="new-product-form">
 
-                <h2 class="text-xl font-semibold mb-4 text-gray-700">Detail Produk</h2>
+                <div class="flex flex-col xl:flex-row gap-8">
+                    
+                    <div class="flex-1 space-y-8">
+                        
+                        <div class="border-b border-white/10 pb-8">
+                            <h2 class="text-xl font-bold text-accent mb-6 flex items-center gap-2">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                Informasi Produk
+                            </h2>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                                <div>
+                                    <label for="Nama" class="form-label">Nama Produk <span class="text-red-400">*</span></label>
+                                    <input type="text" id="Nama" name="Nama" class="form-input" placeholder="Contoh: Bibit Cabai Rawit" required>
+                                </div>
+                                <div>
+                                    <label for="Kategori" class="form-label">Kategori</label>
+                                    <input type="text" id="Kategori" name="Kategori" class="form-input" placeholder="Contoh: Sayuran / Bibit">
+                                </div>
+                            </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                    <div>
-                        <label for="Nama" class="block text-sm font-medium text-gray-700">Nama Produk*</label>
-                        <input type="text" id="Nama" name="Nama" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
+                            <div class="mb-6">
+                                <label for="Deskripsi" class="form-label">Deskripsi</label>
+                                <textarea id="Deskripsi" name="Deskripsi" rows="4" class="form-input resize-y" placeholder="Jelaskan detail produk, manfaat, dan cara perawatan singkat..."></textarea>
+                            </div>
+
+                            <div class="bg-main/50 p-6 rounded-2xl border border-white/5">
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
+                                    <div>
+                                        <label for="Harga" class="form-label">Harga Jual (Rp) <span class="text-red-400">*</span></label>
+                                        <div class="relative">
+                                            <span class="absolute left-4 top-3 text-muted text-sm">Rp</span>
+                                            <input type="number" id="Harga" name="Harga" step="1" min="0" value="0" class="form-input pl-10" required>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label for="Diskon" class="form-label">Diskon (%)</label>
+                                        <input type="number" id="Diskon" name="Diskon" step="1" min="0" max="100" value="0" class="form-input text-center" placeholder="0">
+                                    </div>
+                                    <div>
+                                        <label class="form-label">Harga Akhir</label>
+                                        <div class="h-[46px] bg-accent/10 border border-accent/20 rounded-xl flex items-center px-4 text-accent font-bold text-lg w-full" id="final-price-preview">
+                                            Rp 0
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h2 class="text-xl font-bold text-accent mb-6 flex items-center gap-2">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                Foto Produk
+                            </h2>
+                            
+                            <div class="w-full bg-main/30 border-2 border-dashed border-white/10 rounded-2xl p-8 text-center hover:border-accent/50 transition-colors">
+                                <label for="productImages" class="cursor-pointer flex flex-col items-center justify-center w-full h-full">
+                                    <div class="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center mb-3">
+                                        <svg class="w-6 h-6 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+                                    </div>
+                                    <span class="text-sm font-medium text-pale">Klik untuk upload foto</span>
+                                    <span class="text-xs text-muted mt-1">Maksimal 10 file (PNG, JPG, JPEG)</span>
+                                    <input type="file" id="productImages" name="productImages" multiple accept="image/png, image/jpeg, image/jpg" class="hidden">
+                                </label>
+                            </div>
+                        </div>
+
                     </div>
-                    <div>
-                        <label for="Kategori" class="block text-sm font-medium text-gray-700">Kategori</label>
-                        <input type="text" id="Kategori" name="Kategori" placeholder="Cth: Sayuran" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+
+                    <div class="flex-1 xl:max-w-xl xl:border-l border-white/10 xl:pl-8">
+                        
+                        <div class="sticky top-6">
+                            <div class="flex justify-between items-center mb-6">
+                                <h2 class="text-xl font-bold text-accent flex items-center gap-2">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                                    Parameter Agrikultur
+                                </h2>
+                                <button type="button" id="add-parameter-btn" class="text-xs bg-accent hover:bg-white text-main font-bold py-2 px-3 rounded-lg transition-colors flex items-center gap-1 shadow-lg shadow-green-500/20">
+                                    <span>+</span> Tambah
+                                </button>
+                            </div>
+
+                            <div class="bg-main/30 rounded-2xl p-1 border border-white/5 min-h-[200px]">
+                                <div id="parameter-container" class="space-y-3 p-3">
+                                    <div class="placeholder-message text-center py-12 flex flex-col items-center justify-center opacity-60">
+                                        <svg class="w-10 h-10 text-muted mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
+                                        <p class="text-muted text-sm font-medium">Belum ada parameter.</p>
+                                        <p class="text-muted text-xs mt-1">Tambahkan spesifikasi tumbuh optimal.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
 
-                <div class="mb-4">
-                    <label for="Deskripsi" class="block text-sm font-medium text-gray-700">Deskripsi</label>
-                    <textarea id="Deskripsi" name="Deskripsi" rows="3" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm"></textarea>
+                <div class="flex items-center justify-end gap-4 mt-10 pt-6 border-t border-white/10">
+                    <a href="/admin/produk" class="py-3 px-8 rounded-xl border border-white/10 text-muted hover:text-white hover:bg-white/5 transition-all font-semibold">
+                        Batal
+                    </a>
+                    <button type="submit" class="bg-accent hover:bg-white text-main font-bold py-3 px-10 rounded-xl transition-all shadow-lg hover:shadow-accent/20 flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                        Simpan Produk
+                    </button>
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4 items-end">
-                    <div>
-                        <label for="Harga" class="block text-sm font-medium text-gray-700">Harga Jual (Rp)*</label>
-                        <input type="number" id="Harga" name="Harga" step="1" min="0" value="0" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
-                    </div>
-                    <div>
-                        <label for="Diskon" class="block text-sm font-medium text-gray-700">Diskon (%)</label>
-                        <input type="number" id="Diskon" name="Diskon" step="1" min="0" max="100" value="0" placeholder="Cth: 10" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-500">Harga Setelah Diskon</label>
-                        <span id="final-price-preview" class="price-preview mt-2 block h-[38px] flex items-center">Rp 0</span>
-                    </div>
-                </div>
-
-                <div class="mb-4">
-                    <label for="productImages" class="block text-sm font-medium text-gray-700">Upload Foto Produk (Maks 10)</label>
-                    <input type="file" id="productImages" name="productImages" multiple accept="image/png, image/jpeg, image/jpg" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
-                    <p class="text-xs text-gray-500 mt-1">Hanya .png, .jpg, .jpeg. Maks 5MB per file.</p>
-                </div>
-
-                <hr class="my-6">
-
-                <h2 class="text-xl font-semibold mb-4 text-gray-700">Parameter Optimal (Untuk Analisis)</h2>
-
-                <div id="parameter-container" class="space-y-4 mb-4">
-                    <p class="text-sm text-gray-500 placeholder-message">Klik "Tambah Parameter" untuk menambahkan spesifikasi.</p>
-                </div>
-
-                <button type="button" id="add-parameter-btn" class="mb-6 text-sm bg-green-100 hover:bg-green-200 text-green-700 font-medium py-1 px-3 rounded">+ Tambah Parameter</button>
-
-                <div class="flex items-center space-x-4 mt-6 border-t pt-6">
-                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Simpan Produk</button>
-                    <a href="/admin/produk" class="w-full text-center bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded">Batal</a>
-                </div>
             </form>
         </div>
     </main>
 
-    <!-- Template for parameter row -->
     <template id="parameter-row-template">
-        <div class="parameter-row grid grid-cols-12 gap-x-3 items-start border p-3 rounded bg-gray-50">
-            <div class="col-span-4">
-                <label class="block text-xs font-medium text-gray-600">Nama Parameter</label>
-                <select name="paramNama[]" class="param-select mt-1 text-sm block w-full border-gray-300 rounded-md shadow-sm">
-                    <option value="">-- Pilih --</option>
-                </select>
+        <div class="parameter-row bg-surface border border-white/10 rounded-xl p-4 relative group hover:border-accent/30 transition-colors animate-fade-in-down">
+            
+            <div class="flex justify-between items-start mb-3">
+                <div class="w-full mr-2">
+                    <select name="paramNama[]" class="param-select w-full bg-main border border-white/10 rounded-lg px-3 py-2 text-sm text-pale focus:border-accent outline-none font-medium">
+                        <option value="">-- Pilih Parameter --</option>
+                    </select>
+                </div>
+                <button type="button" class="remove-parameter-btn text-red-400 hover:text-red-300 p-1.5 hover:bg-red-500/10 rounded-lg transition-colors" title="Hapus">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
             </div>
-            <div class="col-span-3">
-                <p class="param-info text-xs text-gray-500 mt-1 h-8">
-                    <span class="param-unit block">Unit: -</span>
-                    <span class="param-desc block">Deskripsi: -</span>
-                </p>
+
+            <div class="grid grid-cols-2 gap-3 mb-2">
+                <div>
+                    <label class="block text-[10px] uppercase font-bold text-muted mb-1">Min</label>
+                    <input type="number" step="any" name="paramMin[]" placeholder="Min" class="w-full bg-main border border-white/10 rounded-lg px-3 py-1.5 text-sm text-pale focus:border-accent outline-none">
+                </div>
+                <div>
+                    <label class="block text-[10px] uppercase font-bold text-muted mb-1">Max</label>
+                    <input type="number" step="any" name="paramMax[]" placeholder="Max" class="w-full bg-main border border-white/10 rounded-lg px-3 py-1.5 text-sm text-pale focus:border-accent outline-none">
+                </div>
             </div>
-            <div class="col-span-2">
-                <label class="block text-xs font-medium text-gray-600">Min Optimal</label>
-                <input type="number" step="any" name="paramMin[]" placeholder="Min" class="mt-1 text-sm block w-full border-gray-300 rounded-md shadow-sm">
-            </div>
-            <div class="col-span-2">
-                <label class="block text-xs font-medium text-gray-600">Max Optimal</label>
-                <input type="number" step="any" name="paramMax[]" placeholder="Max" class="mt-1 text-sm block w-full border-gray-300 rounded-md shadow-sm">
-            </div>
-            <div class="col-span-1 flex items-end h-full">
-                <button type="button" class="remove-parameter-btn text-sm bg-red-100 hover:bg-red-200 text-red-700 font-medium py-1 px-2 rounded w-full h-[34px] mt-1">Hapus</button>
+
+            <div class="flex justify-between items-center pt-2 border-t border-white/5 mt-2">
+                <span class="param-unit text-xs font-mono text-accent bg-accent/10 px-2 py-0.5 rounded">Unit: -</span>
+                <span class="param-desc text-[10px] text-muted italic truncate max-w-[150px]"></span>
             </div>
         </div>
     </template>
 
-    <!-- Price preview script -->
     <script>
+        // --- 1. Price Calculator Logic ---
         (function () {
             const hargaInput = document.getElementById('Harga');
             const diskonInput = document.getElementById('Diskon');
@@ -119,11 +215,14 @@
             function updatePricePreview() {
                 const harga = parseFloat(hargaInput.value) || 0;
                 let diskonPersen = parseFloat(diskonInput.value);
+                
                 if (isNaN(diskonPersen)) diskonPersen = 0;
                 if (diskonPersen < 0) diskonPersen = 0;
                 if (diskonPersen > 100) diskonPersen = 100;
+
                 const diskonNilai = harga * (diskonPersen / 100);
                 const hargaAkhir = Math.max(0, harga - diskonNilai);
+                
                 pricePreview.textContent = formatter.format(hargaAkhir);
             }
 
@@ -131,25 +230,22 @@
             diskonInput.addEventListener('input', updatePricePreview);
             updatePricePreview();
         })();
-    </script>
 
-    <!-- Parameter selection script (prevents picking same parameter multiple times) -->
-    <script>
+        // --- 2. Dynamic Parameters Logic ---
         (function() {
             const parameterDetails = {
                 'Suhu Rata-rata': { unit: '°C', desc: 'Temperatur udara rata-rata.' },
                 'Kelembaban Relatif': { unit: '%', desc: 'Persentase uap air di udara.' },
                 'Curah Hujan': { unit: 'mm', desc: 'Jumlah hujan harian.' },
                 'Kecepatan Angin': { unit: 'm/s', desc: 'Kecepatan angin permukaan.' },
-                'Radiasi Matahari': { unit: 'MJ/m²/day', desc: 'Energi radiasi matahari harian.' },
-                'Evapotranspirasi': { unit: 'mm/day', desc: 'Penguapan air dari tanah & tanaman.' },
-                'Suhu Tanah (0-7cm)': { unit: '°C', desc: 'Temperatur tanah lapisan atas.' },
-                'Kelembaban Tanah (0-7cm)': { unit: 'm³/m³', desc: 'Kandungan air tanah lapisan atas.' },
+                'Radiasi Matahari': { unit: 'MJ/m²/day', desc: 'Energi radiasi harian.' },
+                'Evapotranspirasi': { unit: 'mm/day', desc: 'Penguapan tanah & tanaman.' },
+                'Suhu Tanah (0-7cm)': { unit: '°C', desc: 'Temperatur tanah atas.' },
+                'Kelembaban Tanah': { unit: 'm³/m³', desc: 'Air tanah lapisan atas.' },
                 'pH Tanah': { unit: 'pH', desc: 'Tingkat keasaman tanah.' },
-                'Kandungan Organik': { unit: '%', desc: 'Persentase bahan organik tanah.' }
+                'Kandungan Organik': { unit: '%', desc: 'Bahan organik tanah.' }
             };
             const predefinedParameters = Object.keys(parameterDetails);
-
             const container = document.getElementById('parameter-container');
             const addButton = document.getElementById('add-parameter-btn');
             const template = document.getElementById('parameter-row-template');
@@ -158,15 +254,14 @@
             function getSelectedValues() {
                 const selects = container.querySelectorAll('.param-select');
                 const values = new Set();
-                selects.forEach(s => {
-                    if (s.value) values.add(s.value);
-                });
+                selects.forEach(s => { if (s.value) values.add(s.value); });
                 return values;
             }
 
             function populateDropdown(selectElement, selectedValue = '') {
                 selectElement.innerHTML = '<option value="">-- Pilih --</option>';
                 const selectedValues = getSelectedValues();
+                
                 predefinedParameters.forEach(paramName => {
                     const option = document.createElement('option');
                     option.value = paramName;
@@ -174,6 +269,7 @@
                     if (paramName === selectedValue) option.selected = true;
                     if (selectedValues.has(paramName) && paramName !== selectedValue) {
                         option.disabled = true;
+                        option.innerText += ' (Dipilih)';
                     }
                     selectElement.appendChild(option);
                 });
@@ -181,35 +277,47 @@
 
             function updateAllDropdowns() {
                 const selectedValues = getSelectedValues();
-                container.querySelectorAll('.param-select').forEach(select => {
+                const allSelects = container.querySelectorAll('.param-select');
+                allSelects.forEach(select => {
                     const currentValue = select.value;
                     Array.from(select.options).forEach(option => {
                         if (!option.value) return;
                         if (option.value !== currentValue && selectedValues.has(option.value)) {
                             option.disabled = true;
+                            if(!option.innerText.includes('(Dipilih)')) option.innerText += ' (Dipilih)';
                         } else {
                             option.disabled = false;
+                            option.innerText = option.value;
                         }
                     });
                 });
-                addButton.disabled = (getSelectedValues().size >= predefinedParameters.length);
+                
+                if(getSelectedValues().size >= predefinedParameters.length) {
+                    addButton.classList.add('opacity-50', 'cursor-not-allowed');
+                    addButton.disabled = true;
+                } else {
+                    addButton.classList.remove('opacity-50', 'cursor-not-allowed');
+                    addButton.disabled = false;
+                }
             }
 
             function updateParameterInfo(rowElement, selectedValue) {
                 const unitElement = rowElement.querySelector('.param-unit');
                 const descElement = rowElement.querySelector('.param-desc');
                 const details = parameterDetails[selectedValue];
+
                 if (details) {
                     if (unitElement) unitElement.textContent = `Unit: ${details.unit}`;
-                    if (descElement) descElement.textContent = `Deskripsi: ${details.desc}`;
+                    if (descElement) descElement.textContent = details.desc;
                 } else {
                     if (unitElement) unitElement.textContent = 'Unit: -';
-                    if (descElement) descElement.textContent = 'Deskripsi: -';
+                    if (descElement) descElement.textContent = '';
                 }
             }
 
             function addParamRow(selectedValue = '') {
                 if (placeholder) placeholder.style.display = 'none';
+                
                 const clone = template.content.cloneNode(true);
                 const newRow = clone.querySelector('.parameter-row');
                 const selectElement = newRow.querySelector('.param-select');
@@ -224,10 +332,10 @@
                 });
 
                 removeButton.addEventListener('click', (e) => {
-                    e.target.closest('.parameter-row').remove();
+                    newRow.remove();
                     updateAllDropdowns();
                     if (container.querySelectorAll('.parameter-row').length === 0 && placeholder) {
-                        placeholder.style.display = 'block';
+                        placeholder.style.display = 'flex';
                     }
                 });
 
@@ -235,39 +343,8 @@
                 updateAllDropdowns();
             }
 
-            function initExistingRows() {
-                const existingRows = container.querySelectorAll('.parameter-row');
-                if (existingRows.length > 0 && placeholder) placeholder.style.display = 'none';
-                existingRows.forEach(row => {
-                    const selectElement = row.querySelector('.param-select');
-                    const pre = selectElement.dataset.selectedValue || selectElement.value || '';
-                    populateDropdown(selectElement, pre);
-                    updateParameterInfo(row, pre);
-
-                    selectElement.addEventListener('change', (e) => {
-                        updateAllDropdowns();
-                        updateParameterInfo(row, e.target.value);
-                    });
-
-                    const removeButton = row.querySelector('.remove-parameter-btn');
-                    removeButton.addEventListener('click', (e) => {
-                        e.target.closest('.parameter-row').remove();
-                        updateAllDropdowns();
-                        if (container.querySelectorAll('.parameter-row').length === 0 && placeholder) {
-                            placeholder.style.display = 'block';
-                        }
-                    });
-                });
-                updateAllDropdowns();
-            }
-
-            addButton.addEventListener('click', () => {
-                addParamRow();
-            });
-
-            initExistingRows();
+            addButton.addEventListener('click', () => { addParamRow(); });
         })();
     </script>
-
 </body>
 </html>

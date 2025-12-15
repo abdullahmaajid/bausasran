@@ -3,95 +3,236 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kelola Anggota</title>
-    <link rel="stylesheet" href="/css/style.css">
+    <title>Kelola Anggota - Admin Bausasran</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        main: '#003024',    // Background Gelap
+                        surface: '#004030', // Warna Kartu
+                        accent: '#83C540',  // Hijau Neon
+                        pale: '#F5FEF9',    // Teks Putih
+                        muted: '#A3C2B8',   // Teks Pudar
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style type="text/tailwindcss">
+        @layer base {
+            body {
+                @apply bg-main text-pale font-sans antialiased;
+            }
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #003024; }
+        ::-webkit-scrollbar-thumb { background: #004030; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #83C540; }
+    </style>
 </head>
-<body class="flex bg-gray-100">
+
+<body class="flex h-screen overflow-hidden">
+
     <%- include('../../partials/admin_sidebar.ejs') %>
-    <main class="flex-1 p-10">
-        <%- include('../../partials/flash.ejs') %>
-        
-        <div class="flex justify-between items-center mb-6">
-            <h1 class="text-3xl font-bold text-gray-800">Kelola Anggota</h1>
-            <a href="/admin/anggota/new" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg">
-                + Tambah Anggota
-            </a>
-        </div>
-        
-        <div class="bg-white p-6 rounded-lg shadow-lg overflow-x-auto">
-            <table class="min-w-full bg-white">
-                <thead class="bg-gray-200 text-gray-700">
-                    <tr>
-                        <th class="py-3 px-4 text-left">Foto</th>
-                        <th class="py-3 px-4 text-left">ID</th>
-                        <th class="py-3 px-4 text-left">Nama</th>
-                        <th class="py-3 px-4 text-left">Jabatan</th>
-                        <th class="py-3 px-4 text-left">Deskripsi</th>
-                        <th class="py-3 px-4 text-left">Username</th>
-                        <th class="py-3 px-4 text-left">Role</th>
-                        <th class="py-3 px-4 text-center">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody class="text-gray-700">
-                    <% if(anggotaList && anggotaList.length > 0) { %>
-                        <% for(let anggota of anggotaList) { %>
-                            <tr class="border-b border-gray-200 hover:bg-gray-50">
-                                
-                                <td class="py-3 px-4">
-                                    <% if (anggota.dataValues.fotoFile) { %>
-                                        <img src="/images/anggota/<%= anggota.dataValues.fotoFile %>" alt="<%= anggota.Nama %>" class="h-12 w-12 rounded-full object-cover">
-                                    <% } else { %>
-                                        <div class="h-12 w-12 rounded-full bg-gray-300 flex items-center justify-center text-xs text-gray-600">
-                                            NoImg
-                                        </div>
-                                    <% } %>
-                                </td>
 
-                                <td class="py-3 px-4 font-mono text-sm"><%= anggota.ID_Pengguna %></td>
-                                <td class="py-3 px-4"><%= anggota.Nama %></td>
-                                <td class="py-3 px-4"><%= anggota.Jabatan || '-' %></td>
-                                <td class="py-3 px-4 text-sm text-gray-600" title="<%= anggota.Deskripsi || '' %>">
-                                    <% if (anggota.Deskripsi && anggota.Deskripsi.length > 30) { %>
-                                        <%= anggota.Deskripsi.substring(0, 30) + '...' %>
-                                    <% } else { %>
-                                        <%= anggota.Deskripsi || '-' %>
-                                    <% } %>
-                                </td>
-                                <td class="py-3 px-4"><%= anggota.username %></td>
-                                <td class="py-3 px-4">
-                                    <span class="font-medium <%= anggota.Role === 'Admin' ? 'text-red-600' : 'text-green-600' %>">
-                                        <%= anggota.Role %>
-                                    </span>
-                                </td>
+    <main class="flex-1 overflow-y-auto relative">
+        <div class="absolute top-0 left-0 w-full h-48 bg-gradient-to-b from-surface to-main -z-10"></div>
 
-                                <td class="py-3 px-4 text-center flex items-center justify-center space-x-2">
-                                    
-                                    <a href="/admin/anggota/<%= anggota.ID_Pengguna %>" class="bg-green-500 hover:bg-green-600 text-white font-semibold py-1 px-3 rounded-lg text-sm">
-                                        Detail
-                                    </a>
+        <div class="p-6 md:p-10 max-w-7xl mx-auto">
+            <%- include('../../partials/flash.ejs') %>
+            
+            <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+                <div>
+                    <h1 class="text-3xl font-bold text-pale">Kelola Anggota</h1>
+                    <p class="text-muted text-sm mt-1">Manajemen data pengguna, admin, dan hak akses sistem.</p>
+                </div>
+                <a href="/admin/anggota/new" class="inline-flex items-center justify-center px-5 py-2.5 bg-accent hover:bg-white text-main font-bold rounded-xl transition-all shadow-lg hover:shadow-green-500/20 group">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                    Tambah Anggota
+                </a>
+            </div>
 
-                                    <a href="/admin/anggota/<%= anggota.ID_Pengguna %>/edit" class="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-1 px-3 rounded-lg text-sm">
-                                        Edit
-                                    </a>
-
-                                    <form action="/admin/anggota/<%= anggota.ID_Pengguna %>/delete" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus <%= anggota.Nama %>?');">
-                                        <button type="submit" class="bg-red-500 hover:bg-red-600 text-white font-semibold py-1 px-3 rounded-lg text-sm">
-                                            Hapus
-                                        </button>
-                                    </form>
-                                </td>
+            <div class="bg-surface p-4 rounded-2xl border border-white/10 mb-6 flex flex-col md:flex-row gap-4">
+                <div class="flex-1 relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <svg class="h-5 w-5 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    </div>
+                    <input type="text" id="searchInput" placeholder="Cari nama, username, atau jabatan..." 
+                        class="block w-full pl-10 pr-3 py-2.5 bg-main border border-white/10 rounded-xl text-pale placeholder-gray-500 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all sm:text-sm">
+                </div>
+                
+                <div class="w-full md:w-48 relative">
+                    <select id="roleFilter" class="block w-full pl-3 pr-10 py-2.5 bg-main border border-white/10 rounded-xl text-pale focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent sm:text-sm appearance-none cursor-pointer">
+                        <option value="">Semua Role</option>
+                        <option value="Admin">Admin</option>
+                        <option value="User">User</option>
+                    </select>
+                    <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none text-muted">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-surface rounded-2xl shadow-xl border border-white/5 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-main/50 border-b border-white/10 text-xs uppercase tracking-wider text-muted font-semibold">
+                                <th class="py-4 px-6">Pengguna</th>
+                                <th class="py-4 px-6">Jabatan & Info</th>
+                                <th class="py-4 px-6 text-center">Role</th>
+                                <th class="py-4 px-6 text-center">Status</th> <th class="py-4 px-6 text-center">Aksi</th>
                             </tr>
-                        <% } %>
-                    <% } else { %>
-                        <tr>
-                            <td colspan="8" class="py-4 px-4 text-center text-gray-500">
-                                Belum ada data anggota.
-                            </td>
-                        </tr>
-                    <% } %>
-                </tbody>
-            </table>
+                        </thead>
+                        <tbody id="anggotaTableBody" class="divide-y divide-white/5">
+                            <% if(anggotaList && anggotaList.length > 0) { %>
+                                <% for(let anggota of anggotaList) { %>
+                                    <tr class="hover:bg-white/5 transition-colors group anggota-row" 
+                                        data-name="<%= anggota.Nama.toLowerCase() %>" 
+                                        data-username="<%= anggota.username.toLowerCase() %>" 
+                                        data-role="<%= anggota.Role %>"
+                                        data-jabatan="<%= (anggota.Jabatan || '').toLowerCase() %>">
+                                        
+                                        <td class="py-4 px-6">
+                                            <div class="flex items-center">
+                                                <div class="h-10 w-10 md:h-12 md:w-12 flex-shrink-0">
+                                                    <% if (anggota.dataValues.fotoFile) { %>
+                                                        <img class="h-full w-full rounded-full object-cover border-2 border-surface group-hover:border-accent transition-colors" src="/images/anggota/<%= anggota.dataValues.fotoFile %>" alt="<%= anggota.Nama %>">
+                                                    <% } else { %>
+                                                        <div class="h-full w-full rounded-full bg-main border border-white/10 flex items-center justify-center text-muted text-xs font-bold group-hover:border-accent group-hover:text-accent transition-colors">
+                                                            <%= anggota.Nama.charAt(0) %>
+                                                        </div>
+                                                    <% } %>
+                                                </div>
+                                                <div class="ml-4">
+                                                    <div class="font-bold text-pale group-hover:text-accent transition-colors"><%= anggota.Nama %></div>
+                                                    <div class="text-sm text-muted">@<%= anggota.username %></div>
+                                                </div>
+                                            </div>
+                                        </td>
+
+                                        <td class="py-4 px-6">
+                                            <div class="text-sm text-pale font-medium"><%= anggota.Jabatan || '-' %></div>
+                                            <div class="text-xs text-muted mt-1 truncate max-w-xs" title="<%= anggota.Deskripsi || '' %>">
+                                                <% if (anggota.Deskripsi && anggota.Deskripsi.length > 40) { %>
+                                                    <%= anggota.Deskripsi.substring(0, 40) + '...' %>
+                                                <% } else { %>
+                                                    <%= anggota.Deskripsi || 'Tidak ada deskripsi' %>
+                                                <% } %>
+                                            </div>
+                                        </td>
+
+                                        <td class="py-4 px-6 text-center">
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border
+                                                <%= anggota.Role === 'Admin' 
+                                                    ? 'bg-red-500/10 text-red-400 border-red-500/20' 
+                                                    : 'bg-accent/10 text-accent border-accent/20' %>">
+                                                <%= anggota.Role %>
+                                            </span>
+                                        </td>
+
+                                        <td class="py-4 px-6 text-center text-xs text-muted font-mono">
+                                            ID: <%= anggota.ID_Pengguna %>
+                                        </td>
+
+                                        <td class="py-4 px-6">
+                                            <div class="flex items-center justify-center space-x-2">
+                                                <a href="/admin/anggota/<%= anggota.ID_Pengguna %>" class="p-2 bg-blue-500/10 text-blue-400 rounded-lg hover:bg-blue-500 hover:text-white transition-all border border-blue-500/20" title="Lihat Detail">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                                </a>
+
+                                                <a href="/admin/anggota/<%= anggota.ID_Pengguna %>/edit" class="p-2 bg-yellow-500/10 text-yellow-400 rounded-lg hover:bg-yellow-500 hover:text-white transition-all border border-yellow-500/20" title="Edit Data">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                                                </a>
+
+                                                <form action="/admin/anggota/<%= anggota.ID_Pengguna %>/delete" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus <%= anggota.Nama %>? Tindakan ini tidak dapat dibatalkan.');">
+                                                    <button type="submit" class="p-2 bg-red-500/10 text-red-400 rounded-lg hover:bg-red-500 hover:text-white transition-all border border-red-500/20" title="Hapus Anggota">
+                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                <% } %>
+                            <% } else { %>
+                                <tr id="noDataRow">
+                                    <td colspan="5" class="py-12 px-6 text-center text-muted">
+                                        <div class="flex flex-col items-center justify-center">
+                                            <svg class="w-12 h-12 mb-3 text-white/20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                                            Belum ada data anggota.
+                                        </div>
+                                    </td>
+                                </tr>
+                            <% } %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="noResult" class="hidden mt-4 text-center p-8 bg-surface rounded-2xl border border-white/10 text-muted">
+                <p>Tidak ditemukan anggota dengan kriteria tersebut.</p>
+            </div>
+
         </div>
     </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('searchInput');
+            const roleFilter = document.getElementById('roleFilter');
+            const tableBody = document.getElementById('anggotaTableBody');
+            const rows = document.querySelectorAll('.anggota-row');
+            const noResultDiv = document.getElementById('noResult');
+            const noDataRow = document.getElementById('noDataRow');
+
+            function filterTable() {
+                const searchTerm = searchInput.value.toLowerCase();
+                const selectedRole = roleFilter.value;
+                let visibleCount = 0;
+
+                rows.forEach(row => {
+                    const name = row.getAttribute('data-name');
+                    const username = row.getAttribute('data-username');
+                    const jabatan = row.getAttribute('data-jabatan');
+                    const role = row.getAttribute('data-role');
+
+                    const matchesSearch = name.includes(searchTerm) || 
+                                          username.includes(searchTerm) || 
+                                          jabatan.includes(searchTerm);
+                    
+                    const matchesRole = selectedRole === '' || role === selectedRole;
+
+                    if (matchesSearch && matchesRole) {
+                        row.classList.remove('hidden');
+                        visibleCount++;
+                    } else {
+                        row.classList.add('hidden');
+                    }
+                });
+
+                // Show "No Result" message if filter yields nothing (but data exists initially)
+                if (visibleCount === 0 && rows.length > 0) {
+                    noResultDiv.classList.remove('hidden');
+                    tableBody.classList.add('hidden'); // Optional: hide table header if no results
+                } else {
+                    noResultDiv.classList.add('hidden');
+                    tableBody.classList.remove('hidden');
+                }
+            }
+
+            // Event Listeners
+            searchInput.addEventListener('input', filterTable);
+            roleFilter.addEventListener('change', filterTable);
+        });
+    </script>
 </body>
 </html>

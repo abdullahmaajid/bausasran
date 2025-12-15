@@ -3,175 +3,298 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Kegiatan</title>
-    <link rel="stylesheet" href="/css/style.css">
-    <style>
-        dialog {
-            border: none; padding: 2rem; border-radius: 0.5rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    <title>Edit Kegiatan: <%= kegiatan.Judul %></title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        main: '#003024',    // Background Gelap
+                        surface: '#004030', // Warna Kartu
+                        accent: '#83C540',  // Hijau Neon
+                        pale: '#F5FEF9',    // Teks Putih
+                        muted: '#A3C2B8',   // Teks Pudar
+                        darker: '#00251a',  // Background Input
+                        danger: '#ff4d4d',  // Merah Error
+                        warning: '#FFC107', // Kuning Warning
+                        info: '#3B82F6',    // Biru Info
+                    },
+                    fontFamily: { sans: ['Inter', 'sans-serif'] }
+                }
+            }
         }
-        dialog::backdrop { background: rgba(0, 0, 0, 0.5); }
+    </script>
+    <style type="text/tailwindcss">
+        @layer base { body { @apply bg-main text-pale font-sans antialiased; } }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #004030; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #83C540; }
+
+        /* Input Styling */
+        .form-input {
+            @apply w-full bg-darker border border-white/10 rounded-xl px-4 py-3 text-sm text-pale focus:border-accent focus:ring-1 focus:ring-accent outline-none transition-all placeholder-white/20;
+        }
+        .form-label {
+            @apply block text-xs font-bold text-muted mb-2 uppercase tracking-wider;
+        }
+
+        /* Modal Styling */
+        dialog::backdrop { background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(2px); }
     </style>
 </head>
-<body class="flex bg-gray-100">
+
+<body class="flex h-screen overflow-hidden w-full">
+
     <%- include('../../partials/admin_sidebar.ejs') %>
-    <main class="flex-1 p-10">
+
+    <main class="flex-1 h-full overflow-y-auto overflow-x-hidden p-6 md:p-8 relative">
         <%- include('../../partials/flash.ejs') %>
-        <h1 class="text-3xl font-bold text-gray-800 mb-6">Edit Kegiatan: <%= kegiatan.Judul %></h1>
-        
-        <div class="bg-white p-8 rounded-lg shadow-lg max-w-2xl mx-auto mb-10">
-            <form action="/admin/kegiatan/<%= kegiatan.ID_Kegiatan %>/edit" method="POST" enctype="multipart/form-data">
-                
-                <div class="mb-4">
-                    <label for="Judul" class="block text-gray-700 text-sm font-semibold mb-2">Judul Kegiatan*</label>
-                    <input type="text" id="Judul" name="Judul" value="<%= kegiatan.Judul %>" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700" required>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                    <div>
-                        <label for="Tanggal" class="block text-gray-700 text-sm font-semibold mb-2">Tanggal Pelaksanaan*</label>
-                        <input type="date" id="Tanggal" name="Tanggal" value="<%= kegiatan.Tanggal %>" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700" required>
-                    </div>
-                    <div>
-                        <label for="Kategori" class="block text-gray-700 text-sm font-semibold mb-2">Kategori</label>
-                        <input type="text" id="Kategori" name="Kategori" value="<%= kegiatan.Kategori || '' %>" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700">
-                    </div>
-                </div>
-                <div class="mb-4">
-                    <label for="Status" class="block text-gray-700 text-sm font-semibold mb-2">Status*</label>
-                    <select id="Status" name="Status" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700" required>
-                        <option value="Upcoming" <%= kegiatan.Status === 'Upcoming' ? 'selected' : '' %>>Upcoming (Akan Datang)</option>
-                        <option value="Past" <%= kegiatan.Status === 'Past' ? 'selected' : '' %>>Past (Selesai)</option>
-                    </select>
-                </div>
-                <div class="mb-4">
-                    <label for="Deskripsi" class="block text-gray-700 text-sm font-semibold mb-2">Deskripsi (Konten)</label>
-                    <textarea id="Deskripsi" name="Deskripsi" rows="5" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700"><%= kegiatan.dataValues.Deskripsi || '' %></textarea>
-                </div>
-                <hr class="my-6">
-                <div class="mb-6">
-                    <label for="fotoKegiatan" class="block text-gray-700 text-sm font-semibold mb-2">Tambah Foto ke Galeri</label>
-                    <input type="file" id="fotoKegiatan" name="fotoKegiatan" accept="image/png, image/jpeg, image/jpg" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700" multiple>
-                    <p class="text-xs text-gray-500 mt-1">Kosongkan jika tidak ingin menambah foto.</p>
-                </div>
-                <div class="flex items-center space-x-4">
-                    <button type="submit" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
-                        Simpan Perubahan
-                    </button>
-                    <a href="/admin/kegiatan" class="w-full text-center bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded">
-                        Batal
-                    </a>
-                </div>
-            </form>
+
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+            <div>
+                <h1 class="text-3xl font-bold text-pale tracking-tight flex items-center gap-2">
+                    <span class="text-accent">Edit:</span> <%= kegiatan.Judul %>
+                </h1>
+                <p class="text-muted text-sm mt-1">Perbarui detail kegiatan dan kelola dokumentasi.</p>
+            </div>
+            <a href="/admin/kegiatan" class="bg-surface text-pale py-2 px-6 rounded-lg text-sm border border-white/10 hover:bg-white/5 transition-all text-center">
+                Kembali
+            </a>
         </div>
 
-
-        <div class="bg-white p-8 rounded-lg shadow-lg max-w-2xl mx-auto">
-            <h2 class="text-xl font-bold text-gray-800 mb-4">Kelola Galeri Foto Saat Ini</h2>
+        <form action="/admin/kegiatan/<%= kegiatan.ID_Kegiatan %>/edit" method="POST" enctype="multipart/form-data" class="space-y-8">
             
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                
+                <div class="lg:col-span-2 bg-surface rounded-2xl p-6 shadow-xl border border-white/5">
+                    <h3 class="text-lg font-bold text-pale mb-6 border-b border-white/5 pb-4 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                        Detail Kegiatan
+                    </h3>
+                    
+                    <div class="space-y-5">
+                        <div>
+                            <label for="Judul" class="form-label">Judul Kegiatan</label>
+                            <input type="text" id="Judul" name="Judul" value="<%= kegiatan.Judul %>" class="form-input text-lg font-bold" required>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                            <div>
+                                <label for="Tanggal" class="form-label">Tanggal Pelaksanaan</label>
+                                <input type="date" id="Tanggal" name="Tanggal" value="<%= kegiatan.Tanggal %>" class="form-input" required>
+                            </div>
+                            <div>
+                                <label for="Status" class="form-label">Status</label>
+                                <div class="relative">
+                                    <select id="Status" name="Status" class="form-input appearance-none cursor-pointer">
+                                        <option value="Upcoming" <%= kegiatan.Status === 'Upcoming' ? 'selected' : '' %>>Upcoming (Akan Datang)</option>
+                                        <option value="Past" <%= kegiatan.Status === 'Past' ? 'selected' : '' %>>Past (Selesai)</option>
+                                    </select>
+                                    <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
+                                        <svg class="w-4 h-4 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="Kategori" class="form-label">Kategori</label>
+                            <input type="text" id="Kategori" name="Kategori" value="<%= kegiatan.Kategori || '' %>" placeholder="Misal: Penyuluhan, Panen Raya" class="form-input">
+                        </div>
+
+                        <div>
+                            <label for="Deskripsi" class="form-label">Deskripsi Lengkap</label>
+                            <textarea id="Deskripsi" name="Deskripsi" rows="6" class="form-input leading-relaxed resize-y"><%= kegiatan.Deskripsi || (kegiatan.dataValues ? kegiatan.dataValues.Deskripsi : '') %></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex flex-col gap-6">
+                    <div class="bg-surface rounded-2xl p-6 shadow-xl border border-white/5 flex-1">
+                        <h3 class="text-lg font-bold text-pale mb-6 border-b border-white/5 pb-4 flex items-center gap-2">
+                            <svg class="w-5 h-5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                            Tambah Foto Baru
+                        </h3>
+                        
+                        <div class="relative group w-full h-40 bg-darker/50 border-2 border-dashed border-white/10 rounded-xl flex flex-col items-center justify-center hover:border-accent/50 transition-colors cursor-pointer">
+                            <input type="file" id="fotoKegiatan" name="fotoKegiatan" multiple accept="image/png, image/jpeg, image/jpg" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+                            <div class="flex flex-col items-center pointer-events-none">
+                                <svg class="w-8 h-8 text-muted mb-2 group-hover:text-accent transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                                <span class="text-xs text-muted font-bold uppercase tracking-wider group-hover:text-pale">Klik untuk Upload</span>
+                                <span class="text-[10px] text-white/30 mt-1">Bisa pilih banyak sekaligus</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-surface rounded-2xl p-6 shadow-xl border border-white/5">
+                        <button type="submit" class="w-full bg-accent hover:bg-accent/90 text-main font-bold py-3 px-6 rounded-xl shadow-lg shadow-accent/20 transition-all flex justify-center items-center gap-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            Simpan Perubahan
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+
+        <div class="mt-8 bg-surface rounded-2xl p-6 md:p-8 shadow-xl border border-white/5">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6 border-b border-white/5 pb-4">
+                <h3 class="text-lg font-bold text-pale flex items-center gap-2">
+                    <svg class="w-5 h-5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                    Manajemen Galeri
+                </h3>
+            </div>
+
             <% if (fotoList && fotoList.length > 0) { %>
                 <form action="/admin/kegiatan/<%= kegiatan.ID_Kegiatan %>/bulk-delete-fotos" method="POST" id="bulk-foto-form">
                     
-                    <div class="mb-4 flex justify-between items-center">
-                        <button type="submit" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg">
-                            Hapus Foto yang Dipilih
+                    <div class="flex items-center gap-4 mb-4 bg-darker/50 p-3 rounded-xl border border-white/5">
+                        <label class="flex items-center gap-2 cursor-pointer select-none text-sm text-muted hover:text-pale transition-colors">
+                            <input type="checkbox" id="select-all-fotos" class="accent-accent w-4 h-4 rounded cursor-pointer">
+                            <span>Pilih Semua</span>
+                        </label>
+                        <div class="h-4 w-px bg-white/10"></div>
+                        <button type="submit" id="btn-delete-bulk" disabled class="text-sm font-bold text-danger disabled:opacity-30 disabled:cursor-not-allowed hover:text-red-400 transition-colors flex items-center gap-1">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                            Hapus Terpilih
                         </button>
-                        <div class="flex items-center space-x-2">
-                            <input type="checkbox" id="select-all-fotos">
-                            <label for="select-all-fotos">Pilih Semua</label>
-                        </div>
                     </div>
-                    
-                    <div id="gallery-container" class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4">
+
+                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
                         <% fotoList.forEach(foto => { %>
-                            <div class="relative group" id="foto-wrapper-<%= foto.ID_Foto %>">
+                            <div class="relative group aspect-square rounded-xl overflow-hidden border border-white/10 bg-darker shadow-sm hover:border-accent/50 transition-all">
                                 
-                                <label for="foto-<%= foto.ID_Foto %>" class="cursor-pointer">
-                                    <img src="/images/kegiatan/<%= foto.Foto %>" alt="Foto Kegiatan" class="h-24 w-full object-cover rounded-md border-2 border-transparent peer-checked:border-blue-500">
-                                    <input type="checkbox" name="fotoIds" value="<%= foto.ID_Foto %>" id="foto-<%= foto.ID_Foto %>" class="absolute top-2 left-2 peer row-foto-checkbox">
-                                </label>
+                                <img src="/images/kegiatan/<%= foto.Foto %>" alt="Dokumentasi" class="w-full h-full object-cover">
                                 
+                                <div class="absolute top-2 left-2 z-20">
+                                    <input type="checkbox" name="fotoIds" value="<%= foto.ID_Foto %>" class="row-foto-checkbox accent-danger w-5 h-5 cursor-pointer shadow-md">
+                                </div>
+
                                 <% if (foto.ID_Foto === thumbnailId) { %>
-                                    <span class="absolute top-1 right-1 bg-green-600 text-white text-xs px-2 py-0.5 rounded-full font-semibold">
-                                        Thumbnail
-                                    </span>
-                                <% } else { %>
-                                    <button 
-                                        type="button" 
-                                        class="absolute top-1 right-1 bg-blue-500 hover:bg-blue-600 text-white text-xs px-2 py-0.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity" 
-                                        title="Jadikan Thumbnail"
-                                        onclick="setThumbnail('<%= kegiatan.ID_Kegiatan %>', '<%= foto.ID_Foto %>')">
-                                        Set Cover
-                                    </button>
+                                    <div class="absolute top-2 right-2 bg-accent text-main text-[10px] font-bold px-2 py-1 rounded-full shadow-lg z-20 border border-main/20">
+                                        COVER
+                                    </div>
                                 <% } %>
-                                <button type="button" 
-                                        class="absolute bottom-1 right-1 bg-yellow-500 hover:bg-yellow-600 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity"
-                                        onclick="openReplaceModal('<%= kegiatan.ID_Kegiatan %>', '<%= foto.ID_Foto %>')">
-                                    Ganti
-                                </button>
+
+                                <div class="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-center items-center gap-2 p-4">
+                                    
+                                    <% if (foto.ID_Foto !== thumbnailId) { %>
+                                        <button type="button" 
+                                            onclick="setThumbnail('<%= kegiatan.ID_Kegiatan %>', '<%= foto.ID_Foto %>')"
+                                            class="w-full py-1.5 bg-accent text-main text-xs font-bold rounded hover:bg-white hover:text-main transition-colors">
+                                            Jadikan Cover
+                                        </button>
+                                    <% } %>
+
+                                    <button type="button" 
+                                        onclick="openReplaceModal('<%= kegiatan.ID_Kegiatan %>', '<%= foto.ID_Foto %>')"
+                                        class="w-full py-1.5 bg-white/10 text-white text-xs font-bold rounded hover:bg-warning hover:text-black border border-white/20 hover:border-transparent transition-colors">
+                                        Ganti Foto
+                                    </button>
+                                </div>
                             </div>
                         <% }) %>
                     </div>
                 </form>
             <% } else { %>
-                <p class="text-sm text-gray-500 italic">Belum ada foto di galeri.</p>
+                <div class="text-center py-10 border-2 border-dashed border-white/5 rounded-xl">
+                    <p class="text-muted text-sm">Belum ada foto dokumentasi di galeri.</p>
+                </div>
             <% } %>
         </div>
+    </main>
 
-        <dialog id="replace-foto-modal" class="p-6 rounded-lg shadow-xl w-full max-w-md">
-            <h3 class="text-xl font-bold mb-4">Ganti Foto</h3>
+    <dialog id="replace-foto-modal" class="bg-surface p-0 rounded-2xl shadow-2xl w-full max-w-md backdrop:bg-black/80 border border-white/10">
+        <div class="p-6">
+            <h3 class="text-xl font-bold text-pale mb-4 border-b border-white/10 pb-2">Ganti Foto</h3>
+            
             <form id="replace-foto-form" method="POST" enctype="multipart/form-data">
                 <input type="hidden" name="_method" value="POST"> 
-                <div class="mb-4">
-                    <label for="newFoto" class="block text-gray-700 text-sm font-semibold mb-2">Pilih Foto Baru</label>
-                    <input type="file" id="newFoto" name="newFoto" accept="image/png, image/jpeg, image/jpg" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700" required>
+                
+                <div class="mb-6">
+                    <label for="newFoto" class="form-label">Pilih Foto Pengganti</label>
+                    <input type="file" id="newFoto" name="newFoto" accept="image/png, image/jpeg, image/jpg" class="form-input" required>
                 </div>
-                <div class="flex justify-end space-x-3">
-                    <button type="button" onclick="closeReplaceModal()" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded">
+
+                <div class="flex justify-end gap-3">
+                    <button type="button" onclick="closeReplaceModal()" class="px-4 py-2 text-sm text-pale hover:bg-white/5 rounded-lg transition-colors border border-transparent hover:border-white/10">
                         Batal
                     </button>
-                    <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
-                        Ganti Foto
+                    <button type="submit" class="bg-accent text-main font-bold py-2 px-6 rounded-lg text-sm hover:shadow-lg hover:shadow-accent/20 transition-all">
+                        Simpan
                     </button>
                 </div>
             </form>
-        </dialog>
-    </main>
+        </div>
+    </dialog>
 
     <script>
-        // Script untuk Bulk Delete Foto (Tidak berubah)
-        document.getElementById('select-all-fotos').addEventListener('change', function(e) {
-            const checkboxes = document.querySelectorAll('.row-foto-checkbox');
-            checkboxes.forEach(cb => { cb.checked = e.target.checked; });
-        });
-        document.getElementById('bulk-foto-form').addEventListener('submit', function(e) {
-            const checkedBoxes = document.querySelectorAll('.row-foto-checkbox:checked').length;
-            if (checkedBoxes === 0) {
-                e.preventDefault();
-                alert('Tidak ada foto yang dipilih untuk dihapus.');
-            } else if (!confirm(`Apakah Anda yakin ingin menghapus ${checkedBoxes} foto yang dipilih?`)) {
-                e.preventDefault();
-            }
-        });
+        // --- 1. LOGIKA BULK DELETE ---
+        const checkAll = document.getElementById('select-all-fotos');
+        const bulkBtn = document.getElementById('btn-delete-bulk');
+        const bulkForm = document.getElementById('bulk-foto-form');
+        
+        if (checkAll && bulkForm) {
+            checkAll.addEventListener('change', function(e) {
+                const checkboxes = document.querySelectorAll('.row-foto-checkbox');
+                checkboxes.forEach(cb => cb.checked = e.target.checked);
+                toggleBulkButton();
+            });
 
-        // Script untuk Ganti Foto Modal (Tidak berubah)
+            // Update button state on individual check
+            document.querySelectorAll('.row-foto-checkbox').forEach(cb => {
+                cb.addEventListener('change', toggleBulkButton);
+            });
+
+            function toggleBulkButton() {
+                const count = document.querySelectorAll('.row-foto-checkbox:checked').length;
+                bulkBtn.disabled = count === 0;
+                bulkBtn.innerHTML = count > 0 
+                    ? `<span class="text-danger">Hapus (${count}) Foto</span>` 
+                    : `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg> Hapus Terpilih`;
+            }
+
+            bulkForm.addEventListener('submit', function(e) {
+                const checkedBoxes = document.querySelectorAll('.row-foto-checkbox:checked').length;
+                if (checkedBoxes === 0) {
+                    e.preventDefault();
+                } else if (!confirm(`Yakin hapus ${checkedBoxes} foto ini secara permanen?`)) {
+                    e.preventDefault();
+                }
+            });
+        }
+
+        // --- 2. LOGIKA MODAL GANTI FOTO ---
         const replaceModal = document.getElementById('replace-foto-modal');
         const replaceForm = document.getElementById('replace-foto-form');
+
         function openReplaceModal(kegiatanId, fotoId) {
+            if(!replaceModal || !replaceForm) return;
             replaceForm.action = `/admin/kegiatan/${kegiatanId}/foto/${fotoId}/replace`;
             replaceModal.showModal();
         }
+
         function closeReplaceModal() {
+            if(!replaceModal) return;
             replaceModal.close();
             replaceForm.reset();
         }
 
-        // === SCRIPT BARU UNTUK "SET THUMBNAIL" ===
+        // Close modal when clicking backdrop
+        replaceModal.addEventListener('click', (e) => {
+            if (e.target === replaceModal) closeReplaceModal();
+        });
+
+        // --- 3. LOGIKA SET THUMBNAIL ---
         function setThumbnail(kegiatanId, fotoId) {
-            if (confirm('Jadikan foto ini sebagai thumbnail?')) {
+            if (confirm('Jadikan foto ini sebagai Cover Utama?')) {
                 const form = document.createElement('form');
                 form.method = 'POST';
                 form.action = `/admin/kegiatan/${kegiatanId}/foto/${fotoId}/set-thumbnail`;
-                
                 form.style.display = 'none';
                 document.body.appendChild(form);
                 form.submit();

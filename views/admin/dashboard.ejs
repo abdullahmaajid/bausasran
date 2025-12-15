@@ -4,233 +4,291 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard - Bausasran</title>
-    <link rel="stylesheet" href="/css/style.css">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        main: '#003024',    // Background Gelap
+                        surface: '#004030', // Warna Kartu
+                        accent: '#83C540',  // Hijau Neon
+                        pale: '#F5FEF9',    // Teks Putih
+                        muted: '#A3C2B8',   // Teks Pudar
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'neon': '0 0 10px rgba(131, 197, 64, 0.2)',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style type="text/tailwindcss">
+        @layer base {
+            body {
+                @apply bg-main text-pale font-sans antialiased;
+            }
+        }
+        /* Scrollbar kustom untuk dashboard */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #003024; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #004030; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #83C540; 
+        }
+    </style>
 </head>
-<body class="flex bg-gray-100">
+
+<body class="flex h-screen overflow-hidden bg-main">
 
     <%- include('../partials/admin_sidebar.ejs') %>
 
-    <main class="flex-1 p-10">
-        <%- include('../partials/flash.ejs') %>
+    <main class="flex-1 overflow-y-auto overflow-x-hidden relative">
+        <div class="absolute top-0 left-0 w-full h-64 bg-gradient-to-b from-surface to-main -z-10"></div>
 
-        <!-- Header -->
-        <div class="mb-8">
-            <h1 class="text-3xl font-bold text-gray-800 mb-2">Admin Dashboard</h1>
-            <p class="text-gray-600">Selamat datang, <span class="font-semibold text-blue-600"><%= currentUser.Nama %></span>! Kelola seluruh konten website dari sini.</p>
-        </div>
+        <div class="p-6 md:p-10 max-w-7xl mx-auto">
+            <%- include('../partials/flash.ejs') %>
 
-        <!-- Statistics Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-            <!-- Total Pengguna -->
-            <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm font-medium text-gray-600 mb-1">Total Pengguna</p>
-                        <p class="text-3xl font-bold text-blue-600"><%= stats.totalPengguna %></p>
-                        <p class="text-xs text-gray-500 mt-2">
-                            Admin: <%= stats.totalAdmin %> | User: <%= stats.totalUser %>
-                        </p>
-                    </div>
-                    <div class="p-3 bg-blue-100 rounded-full">
-                        <svg class="w-8 h-8 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/>
-                        </svg>
-                    </div>
+            <div class="flex flex-col md:flex-row md:items-center justify-between mb-10">
+                <div>
+                    <h1 class="text-3xl font-bold text-pale mb-1">Dashboard Ikhtisar</h1>
+                    <p class="text-muted">
+                        Halo, <span class="font-bold text-accent"><%= currentUser.Nama %></span>! Berikut adalah ringkasan aktivitas sistem.
+                    </p>
                 </div>
-                <a href="/admin/anggota" class="text-sm text-blue-600 hover:text-blue-800 mt-3 inline-block">Kelola →</a>
+                <div class="mt-4 md:mt-0">
+                    <span class="px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-sm text-muted backdrop-blur-sm">
+                        <%= new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) %>
+                    </span>
+                </div>
             </div>
 
-            <!-- Total Produk -->
-            <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm font-medium text-gray-600 mb-1">Total Produk</p>
-                        <p class="text-3xl font-bold text-green-600"><%= stats.totalProduk %></p>
-                    </div>
-                    <div class="p-3 bg-green-100 rounded-full">
-                        <svg class="w-8 h-8 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M10 2a4 4 0 00-4 4v1H5a1 1 0 00-.994.89l-1 9A1 1 0 004 18h12a1 1 0 00.994-1.11l-1-9A1 1 0 0015 7h-1V6a4 4 0 00-4-4zm2 5V6a2 2 0 10-4 0v1h4zm-6 3a1 1 0 112 0 1 1 0 01-2 0zm7-1a1 1 0 100 2 1 1 0 000-2z" clip-rule="evenodd"/>
-                        </svg>
-                    </div>
-                </div>
-                <a href="/admin/produk" class="text-sm text-green-600 hover:text-green-800 mt-3 inline-block">Kelola →</a>
-            </div>
-
-            <!-- Total Kegiatan -->
-            <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm font-medium text-gray-600 mb-1">Total Kegiatan</p>
-                        <p class="text-3xl font-bold text-yellow-600"><%= stats.totalKegiatan %></p>
-                        <p class="text-xs text-gray-500 mt-2">
-                            Upcoming: <%= stats.kegiatanUpcoming %> | Past: <%= stats.kegiatanPast %>
-                        </p>
-                    </div>
-                    <div class="p-3 bg-yellow-100 rounded-full">
-                        <svg class="w-8 h-8 text-yellow-600" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/>
-                        </svg>
-                    </div>
-                </div>
-                <a href="/admin/kegiatan" class="text-sm text-yellow-600 hover:text-yellow-800 mt-3 inline-block">Kelola →</a>
-            </div>
-
-            <!-- Total Prestasi -->
-            <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm font-medium text-gray-600 mb-1">Total Prestasi</p>
-                        <p class="text-3xl font-bold text-purple-600"><%= stats.totalPrestasi %></p>
-                    </div>
-                    <div class="p-3 bg-purple-100 rounded-full">
-                        <svg class="w-8 h-8 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                        </svg>
-                    </div>
-                </div>
-                <a href="/admin/prestasi" class="text-sm text-purple-600 hover:text-purple-800 mt-3 inline-block">Kelola →</a>
-            </div>
-
-            <!-- Total Galeri -->
-            <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm font-medium text-gray-600 mb-1">Album Galeri</p>
-                        <p class="text-3xl font-bold text-pink-600"><%= stats.totalGaleri %></p>
-                        <p class="text-xs text-gray-500 mt-2">
-                            <%= stats.totalFoto %> foto total
-                        </p>
-                    </div>
-                    <div class="p-3 bg-pink-100 rounded-full">
-                        <svg class="w-8 h-8 text-pink-600" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"/>
-                        </svg>
-                    </div>
-                </div>
-                <a href="/admin/galeri" class="text-sm text-pink-600 hover:text-pink-800 mt-3 inline-block">Kelola →</a>
-            </div>
-
-            <!-- Total Review -->
-            <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm font-medium text-gray-600 mb-1">Total Testimoni</p>
-                        <p class="text-3xl font-bold text-red-600"><%= stats.totalReview %></p>
-                    </div>
-                    <div class="p-3 bg-red-100 rounded-full">
-                        <svg class="w-8 h-8 text-red-600" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z" clip-rule="evenodd"/>
-                        </svg>
-                    </div>
-                </div>
-                <a href="/admin/testimoni" class="text-sm text-red-600 hover:text-red-800 mt-3 inline-block">Kelola →</a>
-            </div>
-        </div>
-
-        <!-- Two Column Layout -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-            <!-- Kegiatan Terbaru -->
-            <div class="bg-white rounded-lg shadow-md p-6">
-                <div class="flex items-center justify-between mb-4">
-                    <h2 class="text-xl font-bold text-gray-800">Kegiatan Terbaru</h2>
-                    <a href="/admin/kegiatan" class="text-sm text-blue-600 hover:text-blue-800">Lihat Semua →</a>
-                </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
                 
-                <% if (kegiatanTerbaru && kegiatanTerbaru.length > 0) { %>
-                    <div class="space-y-3">
-                        <% kegiatanTerbaru.forEach(kegiatan => { %>
-                            <div class="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-                                <div class="flex-1">
-                                    <p class="font-medium text-gray-800">
-                                        <%= kegiatan.Judul %>
-                                    </p>
-                                    <p class="text-xs text-gray-500 mt-1">
-                                        <%= new Date(kegiatan.Tanggal).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) %>
-                                        <% if (kegiatan.Kategori) { %> • <%= kegiatan.Kategori %><% } %>
-                                    </p>
-                                </div>
-                                <span class="px-2 py-1 text-xs font-semibold rounded-full <%= kegiatan.Status === 'Upcoming' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800' %>">
-                                    <%= kegiatan.Status %>
-                                </span>
-                            </div>
-                        <% }) %>
-                    </div>
-                <% } else { %>
-                    <p class="text-gray-500 text-center py-8">Belum ada kegiatan.</p>
-                <% } %>
-            </div>
-
-            <!-- Produk Terbaru -->
-            <div class="bg-white rounded-lg shadow-md p-6">
-                <div class="flex items-center justify-between mb-4">
-                    <h2 class="text-xl font-bold text-gray-800">Produk Terbaru</h2>
-                    <a href="/admin/produk" class="text-sm text-blue-600 hover:text-blue-800">Lihat Semua →</a>
-                </div>
-                
-                <% if (produkTerbaru && produkTerbaru.length > 0) { %>
-                    <div class="space-y-3">
-                        <% produkTerbaru.forEach(produk => { %>
-                            <div class="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-                                <div class="flex-1">
-                                    <p class="font-medium text-gray-800">
-                                        <%= produk.Nama %>
-                                    </p>
-                                    <p class="text-sm text-green-600 font-semibold mt-1">
-                                        Rp <%= produk.Harga.toLocaleString('id-ID') %>
-                                    </p>
-                                </div>
-                                <% if (produk.Kategori) { %>
-                                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
-                                        <%= produk.Kategori %>
-                                    </span>
-                                <% } %>
-                            </div>
-                        <% }) %>
-                    </div>
-                <% } else { %>
-                    <p class="text-gray-500 text-center py-8">Belum ada produk.</p>
-                <% } %>
-            </div>
-        </div>
-
-        <!-- Review Terbaru -->
-        <div class="bg-white rounded-lg shadow-md p-6">
-            <div class="flex items-center justify-between mb-4">
-                <h2 class="text-xl font-bold text-gray-800">Testimoni Terbaru</h2>
-                <a href="/admin/testimoni" class="text-sm text-blue-600 hover:text-blue-800">Lihat Semua →</a>
-            </div>
-            
-            <% if (reviewTerbaru && reviewTerbaru.length > 0) { %>
-                <div class="space-y-4">
-                    <% reviewTerbaru.forEach(review => { %>
-                        <div class="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-                            <div class="flex items-center justify-between mb-2">
-                                <div class="flex items-center space-x-2">
-                                    <% const stars = '⭐'.repeat(review.Rating); %>
-                                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                                        <%= stars %> <%= review.Rating %>/5
-                                    </span>
-                                    <span class="px-2 py-1 text-xs font-semibold rounded-full <%= review.Kategori === 'Product' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800' %>">
-                                        <%= review.Kategori %>
-                                    </span>
-                                    <% if (review.ID_Pengguna_pengguna) { %>
-                                        <span class="text-xs text-gray-600">
-                                            oleh <span class="font-semibold"><%= review.ID_Pengguna_pengguna.Nama %></span>
-                                        </span>
-                                    <% } %>
-                                </div>
-                            </div>
-                            <p class="text-gray-700 text-sm">
-                                <%= review.Ulasan && review.Ulasan.length > 100 ? review.Ulasan.substring(0, 100) + '...' : (review.Ulasan || 'Tidak ada ulasan') %>
+                <div class="bg-surface p-6 rounded-2xl border border-white/5 hover:border-cyan-500/50 transition-all duration-300 group shadow-lg">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-sm font-medium text-muted uppercase tracking-wider">Total Pengguna</p>
+                            <h3 class="text-3xl font-bold text-pale mt-2"><%= stats.totalPengguna %></h3>
+                            <p class="text-xs text-cyan-400 mt-2 bg-cyan-900/30 inline-block px-2 py-1 rounded">
+                                <%= stats.totalAdmin %> Admin • <%= stats.totalUser %> User
                             </p>
                         </div>
-                    <% }) %>
+                        <div class="p-3 bg-cyan-500/10 rounded-xl text-cyan-400 group-hover:bg-cyan-500 group-hover:text-main transition-colors">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                        </div>
+                    </div>
+                    <a href="/admin/anggota" class="text-xs text-muted hover:text-cyan-400 mt-4 block transition-colors">Kelola Anggota →</a>
                 </div>
-            <% } else { %>
-                <p class="text-gray-500 text-center py-8">Belum ada testimoni.</p>
-            <% } %>
-        </div>
 
+                <div class="bg-surface p-6 rounded-2xl border border-white/5 hover:border-accent/50 transition-all duration-300 group shadow-lg">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-sm font-medium text-muted uppercase tracking-wider">Total Produk</p>
+                            <h3 class="text-3xl font-bold text-pale mt-2"><%= stats.totalProduk %></h3>
+                            <p class="text-xs text-accent mt-2">Item tersedia di katalog</p>
+                        </div>
+                        <div class="p-3 bg-accent/10 rounded-xl text-accent group-hover:bg-accent group-hover:text-main transition-colors">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
+                        </div>
+                    </div>
+                    <a href="/admin/produk" class="text-xs text-muted hover:text-accent mt-4 block transition-colors">Kelola Produk →</a>
+                </div>
+
+                <div class="bg-surface p-6 rounded-2xl border border-white/5 hover:border-orange-500/50 transition-all duration-300 group shadow-lg">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-sm font-medium text-muted uppercase tracking-wider">Total Kegiatan</p>
+                            <h3 class="text-3xl font-bold text-pale mt-2"><%= stats.totalKegiatan %></h3>
+                            <p class="text-xs text-orange-400 mt-2 bg-orange-900/30 inline-block px-2 py-1 rounded">
+                                <%= stats.kegiatanUpcoming %> Upcoming • <%= stats.kegiatanPast %> Selesai
+                            </p>
+                        </div>
+                        <div class="p-3 bg-orange-500/10 rounded-xl text-orange-400 group-hover:bg-orange-500 group-hover:text-main transition-colors">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                        </div>
+                    </div>
+                    <a href="/admin/kegiatan" class="text-xs text-muted hover:text-orange-400 mt-4 block transition-colors">Kelola Kegiatan →</a>
+                </div>
+
+                <div class="bg-surface p-6 rounded-2xl border border-white/5 hover:border-purple-500/50 transition-all duration-300 group shadow-lg">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-sm font-medium text-muted uppercase tracking-wider">Total Prestasi</p>
+                            <h3 class="text-3xl font-bold text-pale mt-2"><%= stats.totalPrestasi %></h3>
+                            <p class="text-xs text-purple-400 mt-2">Pencapaian tercatat</p>
+                        </div>
+                        <div class="p-3 bg-purple-500/10 rounded-xl text-purple-400 group-hover:bg-purple-500 group-hover:text-main transition-colors">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path></svg>
+                        </div>
+                    </div>
+                    <a href="/admin/prestasi" class="text-xs text-muted hover:text-purple-400 mt-4 block transition-colors">Kelola Prestasi →</a>
+                </div>
+
+                <div class="bg-surface p-6 rounded-2xl border border-white/5 hover:border-pink-500/50 transition-all duration-300 group shadow-lg">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-sm font-medium text-muted uppercase tracking-wider">Album Galeri</p>
+                            <h3 class="text-3xl font-bold text-pale mt-2"><%= stats.totalGaleri %></h3>
+                            <p class="text-xs text-pink-400 mt-2 bg-pink-900/30 inline-block px-2 py-1 rounded">
+                                <%= stats.totalFoto %> Foto Total
+                            </p>
+                        </div>
+                        <div class="p-3 bg-pink-500/10 rounded-xl text-pink-400 group-hover:bg-pink-500 group-hover:text-main transition-colors">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                        </div>
+                    </div>
+                    <a href="/admin/galeri" class="text-xs text-muted hover:text-pink-400 mt-4 block transition-colors">Kelola Galeri →</a>
+                </div>
+
+                <div class="bg-surface p-6 rounded-2xl border border-white/5 hover:border-red-500/50 transition-all duration-300 group shadow-lg">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-sm font-medium text-muted uppercase tracking-wider">Testimoni</p>
+                            <h3 class="text-3xl font-bold text-pale mt-2"><%= stats.totalReview %></h3>
+                            <p class="text-xs text-red-400 mt-2">Ulasan masuk</p>
+                        </div>
+                        <div class="p-3 bg-red-500/10 rounded-xl text-red-400 group-hover:bg-red-500 group-hover:text-main transition-colors">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path></svg>
+                        </div>
+                    </div>
+                    <a href="/admin/testimoni" class="text-xs text-muted hover:text-red-400 mt-4 block transition-colors">Kelola Testimoni →</a>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                
+                <div class="bg-surface rounded-2xl border border-white/10 shadow-lg flex flex-col">
+                    <div class="p-6 border-b border-white/5 flex justify-between items-center">
+                        <h2 class="text-lg font-bold text-pale flex items-center">
+                            <span class="w-2 h-6 bg-orange-500 rounded-full mr-3"></span>
+                            Kegiatan Terbaru
+                        </h2>
+                        <a href="/admin/kegiatan" class="text-xs text-muted hover:text-white transition-colors">Lihat Semua →</a>
+                    </div>
+                    
+                    <div class="p-6 flex-1">
+                        <% if (kegiatanTerbaru && kegiatanTerbaru.length > 0) { %>
+                            <div class="space-y-4">
+                                <% kegiatanTerbaru.forEach(kegiatan => { %>
+                                    <div class="flex items-center justify-between p-4 rounded-xl bg-main border border-white/5 hover:border-orange-500/30 transition-colors">
+                                        <div class="flex-1 min-w-0 pr-4">
+                                            <p class="text-sm font-medium text-pale truncate">
+                                                <%= kegiatan.Judul %>
+                                            </p>
+                                            <p class="text-xs text-muted mt-1">
+                                                <%= new Date(kegiatan.Tanggal).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) %>
+                                                <% if (kegiatan.Kategori) { %> • <span class="text-orange-300"><%= kegiatan.Kategori %></span><% } %>
+                                            </p>
+                                        </div>
+                                        <span class="px-2.5 py-1 text-xs font-semibold rounded-full <%= kegiatan.Status === 'Upcoming' ? 'bg-accent/20 text-accent border border-accent/30' : 'bg-white/10 text-muted border border-white/10' %>">
+                                            <%= kegiatan.Status %>
+                                        </span>
+                                    </div>
+                                <% }) %>
+                            </div>
+                        <% } else { %>
+                            <div class="h-full flex items-center justify-center text-muted text-sm py-4">Belum ada kegiatan.</div>
+                        <% } %>
+                    </div>
+                </div>
+
+                <div class="bg-surface rounded-2xl border border-white/10 shadow-lg flex flex-col">
+                    <div class="p-6 border-b border-white/5 flex justify-between items-center">
+                        <h2 class="text-lg font-bold text-pale flex items-center">
+                            <span class="w-2 h-6 bg-accent rounded-full mr-3"></span>
+                            Produk Terbaru
+                        </h2>
+                        <a href="/admin/produk" class="text-xs text-muted hover:text-white transition-colors">Lihat Semua →</a>
+                    </div>
+                    
+                    <div class="p-6 flex-1">
+                        <% if (produkTerbaru && produkTerbaru.length > 0) { %>
+                            <div class="space-y-4">
+                                <% produkTerbaru.forEach(produk => { %>
+                                    <div class="flex items-center justify-between p-4 rounded-xl bg-main border border-white/5 hover:border-accent/30 transition-colors">
+                                        <div class="flex-1 min-w-0 pr-4">
+                                            <p class="text-sm font-medium text-pale truncate">
+                                                <%= produk.Nama %>
+                                            </p>
+                                            <p class="text-xs font-bold text-accent mt-1">
+                                                Rp <%= produk.Harga.toLocaleString('id-ID') %>
+                                            </p>
+                                        </div>
+                                        <% if (produk.Kategori) { %>
+                                            <span class="px-2.5 py-1 text-xs font-semibold rounded-full bg-cyan-500/10 text-cyan-300 border border-cyan-500/20">
+                                                <%= produk.Kategori %>
+                                            </span>
+                                        <% } %>
+                                    </div>
+                                <% }) %>
+                            </div>
+                        <% } else { %>
+                            <div class="h-full flex items-center justify-center text-muted text-sm py-4">Belum ada produk.</div>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-surface rounded-2xl border border-white/10 shadow-lg mb-10">
+                <div class="p-6 border-b border-white/5 flex justify-between items-center">
+                    <h2 class="text-lg font-bold text-pale flex items-center">
+                        <span class="w-2 h-6 bg-red-500 rounded-full mr-3"></span>
+                        Testimoni Terbaru
+                    </h2>
+                    <a href="/admin/testimoni" class="text-xs text-muted hover:text-white transition-colors">Lihat Semua →</a>
+                </div>
+                
+                <div class="p-6">
+                    <% if (reviewTerbaru && reviewTerbaru.length > 0) { %>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <% reviewTerbaru.forEach(review => { %>
+                                <div class="p-5 rounded-xl bg-main border border-white/5 flex flex-col h-full hover:border-red-500/30 transition-colors">
+                                    <div class="flex items-center justify-between mb-3">
+                                        <% const stars = '⭐'.repeat(review.Rating); %>
+                                        <span class="text-xs tracking-widest" title="<%= review.Rating %>/5"><%= stars %></span>
+                                        <span class="px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded border <%= review.Kategori === 'Product' ? 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20' : 'bg-accent/10 text-accent border-accent/20' %>">
+                                            <%= review.Kategori %>
+                                        </span>
+                                    </div>
+                                    
+                                    <p class="text-muted text-sm italic mb-4 flex-grow relative">
+                                        <span class="text-3xl text-white/5 absolute -top-2 -left-2">"</span>
+                                        <%= review.Ulasan && review.Ulasan.length > 80 ? review.Ulasan.substring(0, 80) + '...' : (review.Ulasan || 'Tidak ada ulasan') %>
+                                    </p>
+
+                                    <div class="flex items-center pt-3 border-t border-white/5">
+                                        <div class="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center text-xs font-bold text-pale mr-2">
+                                            <%= review.ID_Pengguna_pengguna ? review.ID_Pengguna_pengguna.Nama.charAt(0) : '?' %>
+                                        </div>
+                                        <span class="text-xs text-pale font-medium">
+                                            <%= review.ID_Pengguna_pengguna ? review.ID_Pengguna_pengguna.Nama : 'Anonim' %>
+                                        </span>
+                                    </div>
+                                </div>
+                            <% }) %>
+                        </div>
+                    <% } else { %>
+                        <p class="text-muted text-center py-4">Belum ada testimoni.</p>
+                    <% } %>
+                </div>
+            </div>
+
+        </div>
     </main>
+
 </body>
 </html>

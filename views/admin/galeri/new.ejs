@@ -3,92 +3,198 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tambah Galeri Baru</title>
-    <link rel="stylesheet" href="/css/style.css">
+    <title>Tambah Galeri Baru - Admin Bausasran</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        main: '#003024',    // Background Gelap
+                        surface: '#004030', // Warna Kartu
+                        accent: '#83C540',  // Hijau Neon
+                        pale: '#F5FEF9',    // Teks Putih
+                        muted: '#A3C2B8',   // Teks Pudar
+                        darker: '#00251a',  // Background Input
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style type="text/tailwindcss">
+        @layer base {
+            body { @apply bg-main text-pale font-sans antialiased; }
+        }
+        
+        /* Custom Scrollbar */
+        .custom-scroll::-webkit-scrollbar { width: 6px; }
+        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #004030; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); }
+        .custom-scroll::-webkit-scrollbar-thumb:hover { background: #83C540; }
+
+        /* Input Styles */
+        .form-input {
+            @apply w-full bg-darker border border-white/10 rounded-xl px-4 py-3 text-sm text-pale focus:border-accent focus:ring-1 focus:ring-accent outline-none transition-all placeholder-white/20;
+        }
+        .form-label {
+            @apply block text-sm font-bold text-muted mb-2 uppercase tracking-wider;
+        }
+        
+        /* Fix Date Input Icon */
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            filter: invert(1);
+            cursor: pointer;
+            opacity: 0.6;
+        }
+        input[type="date"]::-webkit-calendar-picker-indicator:hover { opacity: 1; }
+    </style>
 </head>
-<body class="flex bg-gray-100">
+
+<body class="flex h-screen overflow-hidden w-full">
 
     <%- include('../../partials/admin_sidebar.ejs') %>
 
-    <main class="flex-1 p-10">
+    <main class="flex-1 h-full overflow-y-auto overflow-x-hidden custom-scroll relative">
         <%- include('../../partials/flash.ejs') %>
 
-        <h1 class="text-3xl font-bold text-gray-800 mb-6">Tambah Galeri Baru</h1>
-        
-        <div class="bg-white p-8 rounded-lg shadow-lg max-w-3xl mx-auto">
-            <form action="/admin/galeri" method="POST" enctype="multipart/form-data">
+        <form action="/admin/galeri" method="POST" enctype="multipart/form-data" class="min-h-full p-6 md:p-8 flex flex-col">
+            
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 shrink-0">
+                <div>
+                    <h1 class="text-3xl font-bold text-pale tracking-tight">Tambah Galeri</h1>
+                    <p class="text-muted text-sm mt-1">Buat album foto baru untuk dokumentasi wilayah.</p>
+                </div>
+                <div class="md:hidden flex gap-2">
+                    <button type="submit" class="flex-1 bg-accent text-main font-bold py-2 px-4 rounded-lg text-sm">Simpan</button>
+                    <a href="/admin/galeri" class="bg-surface text-pale py-2 px-4 rounded-lg text-sm border border-white/10">Batal</a>
+                </div>
+            </div>
+
+            <div class="flex flex-col lg:flex-row gap-6 items-stretch flex-1">
                 
-                <div class="mb-6">
-                    <label for="Nama" class="block text-gray-700 text-sm font-semibold mb-2">Nama Galeri/Album*</label>
-                    <input type="text" id="Nama" name="Nama" placeholder="Cth: Kegiatan Pelatihan 2024" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700" required>
-                    <p class="text-xs text-gray-500 mt-1">Nama kategori atau album untuk galeri foto ini.</p>
-                </div>
-
-                <div class="mb-6">
-                    <label for="fotoGaleri" class="block text-gray-700 text-sm font-semibold mb-2">Upload Foto</label>
-                    <input type="file" id="fotoGaleri" name="fotoGaleri" accept="image/png, image/jpeg, image/jpg" multiple class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700">
-                    <p class="text-xs text-gray-500 mt-1">Pilih multiple foto (max 20). Hanya .png, .jpg, .jpeg. Maks 5MB per file.</p>
+                <div class="w-full lg:flex-1 min-w-0 flex flex-col">
                     
-                    <!-- Preview Container -->
-                    <div id="preview-container" class="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4"></div>
+                    <div class="bg-surface rounded-2xl p-6 md:p-8 shadow-xl border border-white/5 flex-1 flex flex-col h-full">
+                        
+                        <div class="mb-6 shrink-0">
+                            <label for="Nama" class="form-label text-xs mb-2">Nama Album / Galeri</label>
+                            <input type="text" id="Nama" name="Nama" 
+                                class="w-full bg-transparent border-b border-white/10 px-0 py-2 text-2xl md:text-3xl font-bold text-pale focus:border-accent outline-none transition-colors placeholder-white/20" 
+                                placeholder="Cth: Dokumentasi Kerja Bakti 2024" required>
+                        </div>
+
+                        <div class="mb-6 shrink-0">
+                            <label for="Tanggal" class="form-label text-xs mb-2">Tanggal Kegiatan</label>
+                            <input type="date" id="Tanggal" name="Tanggal" class="form-input">
+                        </div>
+
+                        <div class="flex-1 flex flex-col min-h-[200px]">
+                            <label for="Deskripsi" class="form-label text-xs mb-3 shrink-0">Deskripsi Singkat</label>
+                            <textarea id="Deskripsi" name="Deskripsi" 
+                                class="w-full h-full bg-darker/50 border border-white/10 rounded-xl p-5 text-base text-pale leading-relaxed focus:border-accent outline-none transition-all resize-none placeholder-white/20" 
+                                placeholder="Tuliskan keterangan singkat mengenai album foto ini..."></textarea>
+                        </div>
+                    </div>
+
                 </div>
 
-                <div class="flex items-center space-x-4">
-                    <button type="submit" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
-                        Simpan Galeri
-                    </button>
-                    <a href="/admin/galeri" class="w-full text-center bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded">
-                        Batal
-                    </a>
-                </div>
-            </form>
-        </div>
+                <div class="w-full lg:w-[400px] shrink-0 flex flex-col gap-6">
+                    
+                    <div class="bg-surface rounded-2xl p-6 shadow-xl border border-white/5 flex-1 flex flex-col">
+                        <h3 class="text-lg font-bold text-pale mb-4 flex items-center gap-2">
+                            <svg class="w-5 h-5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                            Upload Foto
+                        </h3>
+                        
+                        <div class="w-full bg-darker/50 border-2 border-dashed border-white/10 rounded-xl p-6 text-center hover:border-accent/50 transition-colors group relative overflow-hidden shrink-0">
+                            <input type="file" id="fotoGaleri" name="fotoGaleri" multiple accept="image/png, image/jpeg, image/jpg" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" onchange="previewImages()">
+                            
+                            <div class="flex flex-col items-center justify-center py-4">
+                                <div class="w-14 h-14 rounded-full bg-white/5 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                                    <svg class="w-7 h-7 text-muted group-hover:text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                                </div>
+                                <span class="text-sm font-bold text-pale group-hover:text-accent transition-colors">Pilih Foto</span>
+                                <span class="text-[10px] text-muted mt-1">Max 20 file (5MB/file)</span>
+                            </div>
+                        </div>
+
+                        <div class="mt-4 flex-1 overflow-y-auto custom-scroll min-h-[150px] border-t border-white/5 pt-4">
+                            <p id="empty-msg" class="text-xs text-muted text-center italic mt-10">Belum ada foto dipilih.</p>
+                            <div id="preview-container" class="grid grid-cols-3 gap-2">
+                                </div>
+                        </div>
+
+                        <div class="hidden md:flex flex-col gap-3 mt-6 pt-6 border-t border-white/10 shrink-0">
+                            <button type="submit" class="w-full bg-accent hover:bg-white text-main font-bold py-3 px-6 rounded-xl transition-all shadow-lg hover:shadow-accent/20 flex justify-center items-center gap-2">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                Simpan Galeri
+                            </button>
+                            <a href="/admin/galeri" class="w-full text-center py-2 text-sm text-muted hover:text-white transition-colors">
+                                Batalkan
+                            </a>
+                        </div>
+                    </div>
+
+                </div> </div> </form>
     </main>
 
     <script>
-        // Preview foto yang diupload
-        document.getElementById('fotoGaleri').addEventListener('change', function(e) {
-            const previewContainer = document.getElementById('preview-container');
-            previewContainer.innerHTML = '';
+        function previewImages() {
+            const input = document.getElementById('fotoGaleri');
+            const container = document.getElementById('preview-container');
+            const emptyMsg = document.getElementById('empty-msg');
             
-            const files = e.target.files;
+            // Bersihkan preview lama
+            container.innerHTML = '';
             
+            const files = input.files;
+
+            // Validasi Jumlah
             if (files.length > 20) {
-                alert('Maksimal 20 foto!');
-                e.target.value = '';
+                alert('Maksimal 20 foto sekaligus!');
+                input.value = ''; // Reset input
+                emptyMsg.style.display = 'block';
                 return;
             }
-            
-            for (let i = 0; i < files.length; i++) {
-                const file = files[i];
+
+            if (files.length > 0) {
+                emptyMsg.style.display = 'none';
                 
-                // Validasi ukuran
-                if (file.size > 5 * 1024 * 1024) {
-                    alert(`File ${file.name} terlalu besar (max 5MB)`);
-                    continue;
-                }
-                
-                // Validasi tipe
-                if (!file.type.match('image.*')) {
-                    alert(`File ${file.name} bukan gambar`);
-                    continue;
-                }
-                
-                const reader = new FileReader();
-                reader.onload = function(event) {
-                    const div = document.createElement('div');
-                    div.className = 'relative group';
-                    div.innerHTML = `
-                        <img src="${event.target.result}" class="w-full h-32 object-cover rounded-lg border-2 border-gray-200">
-                        <div class="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white text-xs p-1 rounded-b-lg truncate">
-                            ${file.name}
-                        </div>
-                    `;
-                    previewContainer.appendChild(div);
-                };
-                reader.readAsDataURL(file);
+                Array.from(files).forEach(file => {
+                    // Validasi Size
+                    if (file.size > 5 * 1024 * 1024) {
+                        alert(`File ${file.name} terlalu besar (Max 5MB)`);
+                        return;
+                    }
+                    // Validasi Tipe
+                    if (!file.type.match('image.*')) {
+                        return;
+                    }
+
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const div = document.createElement('div');
+                        div.className = "relative aspect-square rounded-lg overflow-hidden border border-white/10 group";
+                        div.innerHTML = `
+                            <img src="${e.target.result}" class="w-full h-full object-cover">
+                            <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center p-1">
+                                <span class="text-[10px] text-white text-center break-all leading-tight">${file.name}</span>
+                            </div>
+                        `;
+                        container.appendChild(div);
+                    };
+                    reader.readAsDataURL(file);
+                });
+            } else {
+                emptyMsg.style.display = 'block';
             }
-        });
+        }
     </script>
 </body>
 </html>

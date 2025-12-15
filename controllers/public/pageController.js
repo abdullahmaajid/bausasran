@@ -9,11 +9,30 @@ module.exports.renderKegiatan = async (req, res) => {
     try {
         // Ambil semua kegiatan
         const kegiatanList = await db.kegiatan.findAll({
+             include: [
+                {
+                    model: db.groupfoto,
+                    as: 'ID_GroupFoto_groupfoto',
+                    include: {
+                        model: db.foto,
+                        as: 'fotos',
+                        attributes: ['ID_Foto', 'Foto']
+                    }
+                }
+            ],
             order: [['Tanggal', 'DESC']]
+        });
+        const displayList = kegiatanList.map(k => {
+            const kJson = k.toJSON();
+            kJson.photos = [];
+            if (kJson.ID_GroupFoto_groupfoto && kJson.ID_GroupFoto_groupfoto.fotos) {
+                kJson.photos = kJson.ID_GroupFoto_groupfoto.fotos;
+            }
+            return kJson;
         });
 
         res.render('public/kegiatan', {
-            kegiatanList
+            kegiatanList: displayList
         });
     } catch (error) {
         console.error('Error di renderKegiatan:', error);
@@ -124,11 +143,24 @@ module.exports.renderProduk = async (req, res) => {
             order: [['ID_Product', 'DESC']]
         });
 
+        const displayList = produkList.map( p => {
+            const productJson  = p.toJSON();
+
+            if(productJson.ID_GroupFoto_groupfoto && productJson.ID_GroupFoto_groupfoto.fotos){
+                productJson.photos = productJson.ID_GroupFoto_groupfoto.fotos
+            }
+            else{
+                productJson.photos = []
+            }
+
+            return productJson
+        });
+
         // Convert to plain JSON for client-side usage if needed, or pass as instance
         // passing as instance works fine with EJS serialization usually
         
         res.render('public/produk', {
-            produkList
+            produkList: displayList
         });
     } catch (error) {
         console.error('Error di renderProduk:', error);

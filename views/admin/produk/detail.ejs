@@ -4,173 +4,256 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Detail Produk: <%= product.Nama %></title>
-    <link rel="stylesheet" href="/css/style.css">
+    
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-    <style>
-        .photo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 0.75rem; }
-        .photo-item img { height: 100px; width: 100%; object-fit: cover; border-radius: 0.375rem; border: 1px solid #e5e7eb; }
-        .parameter-table th, .parameter-table td { padding: 0.5rem 0.75rem; text-align: left; font-size: 0.875rem; border-bottom: 1px solid #f3f4f6; }
-        .parameter-table th { background-color: #f9fafb; color: #6b7280; font-weight: 500; }
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        main: '#003024',    // Background Gelap Utama
+                        surface: '#004030', // Warna Kartu/Container
+                        accent: '#83C540',  // Hijau Neon (Highlight)
+                        pale: '#F5FEF9',    // Teks Putih
+                        muted: '#A3C2B8',   // Teks Abu/Pudar
+                        darker: '#00251a',  // Background Input/Table Header
+                        danger: '#ff4d4d',  // Merah
+                        warning: '#FFC107', // Kuning
+                    },
+                    fontFamily: { sans: ['Inter', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer base { body { @apply bg-main text-pale font-sans antialiased; } }
+        
+        /* Custom Scrollbar yang halus */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #004030; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #83C540; }
+
+        .leaflet-container { background: #00251a; }
     </style>
 </head>
-<body class="flex bg-gray-100">
+
+<body class="flex h-screen overflow-hidden w-full">
 
     <%- include('../../partials/admin_sidebar.ejs') %>
 
-    <main class="flex-1 p-10">
+    <main class="flex-1 h-full overflow-y-auto overflow-x-hidden p-6 md:p-8 relative">
         <%- include('../../partials/flash.ejs') %>
 
-        <div class="flex justify-between items-center mb-6">
-            <h1 class="text-3xl font-bold text-gray-800">Detail Produk</h1>
-            <div>
-                 <a href="/admin/produk/<%= product.ID_Product %>/edit" class="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2 px-4 rounded-md text-sm shadow-sm mr-2">Edit Produk</a>
-                 <a href="/admin/produk" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded-md text-sm">Kembali ke Daftar</a>
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 border-b border-white/5 pb-6">
+            <div class="flex-1">
+                <div class="flex items-center gap-3 mb-1">
+                    <span class="px-3 py-1 rounded-full text-xs font-bold bg-accent/20 text-accent border border-accent/20 uppercase tracking-wider">
+                        <%= product.Kategori || 'Produk' %>
+                    </span>
+                    <h1 class="text-3xl font-bold text-pale tracking-tight">
+                        <%= product.Nama %>
+                    </h1>
+                </div>
+                <p class="text-muted text-sm">Kelola detail produk, harga, dan parameter syarat tumbuh.</p>
+            </div>
+            
+            <div class="flex items-center gap-3 shrink-0">
+                <a href="/admin/produk" class="bg-surface hover:bg-white/10 text-pale font-bold py-2.5 px-6 rounded-xl border border-white/10 transition-all text-sm shadow-lg">
+                    Kembali
+                </a>
+                <a href="/admin/produk/<%= product.ID_Product %>/edit" class="bg-warning hover:bg-warning/90 text-main font-bold py-2.5 px-6 rounded-xl shadow-lg transition-all flex items-center gap-2 text-sm">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                    Edit Data
+                </a>
             </div>
         </div>
 
-        <div class="bg-white p-8 rounded-lg shadow-lg max-w-4xl mx-auto">
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="md:col-span-1">
-                     <h2 class="text-xl font-semibold mb-3 text-gray-700">Foto Produk</h2>
-                     <% if (photos && photos.length > 0) { %>
-                        <div class="photo-grid">
-                            <% photos.forEach(photo => { %>
-                                <div class="photo-item">
-                                    <a href="/images/produk/<%= photo.Foto %>" target="_blank">
-                                        <img src="/images/produk/<%= photo.Foto %>" alt="Foto <%= product.Nama %>">
-                                    </a>
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-8">
+            
+            <div class="lg:col-span-4 flex flex-col gap-6">
+                
+                <div class="bg-surface rounded-2xl p-2 shadow-xl border border-white/5">
+                    <% if (photos && photos.length > 0) { %>
+                        <div class="relative aspect-[4/3] rounded-xl overflow-hidden group">
+                            <img src="/images/produk/<%= photos[0].Foto %>" alt="Main Photo" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                            <% if(photos.length > 1) { %>
+                                <div class="absolute bottom-3 right-3 bg-black/60 backdrop-blur-sm text-pale text-xs font-bold px-3 py-1 rounded-full border border-white/10">
+                                    +<%= photos.length - 1 %> Foto Lainnya
                                 </div>
-                            <% }) %>
+                            <% } %>
                         </div>
-                     <% } else { %>
-                        <p class="text-sm text-gray-500 italic">Tidak ada foto produk.</p>
-                     <% } %>
+                    <% } else { %>
+                        <div class="aspect-[4/3] bg-darker rounded-xl flex flex-col items-center justify-center border border-dashed border-white/10 text-muted">
+                            <span class="text-xs font-bold uppercase">No Image</span>
+                        </div>
+                    <% } %>
                 </div>
 
-                <div class="md:col-span-2 space-y-4">
-                     <h2 class="text-2xl font-bold text-gray-900"><%= product.Nama %></h2>
+                <div class="bg-gradient-to-br from-surface to-darker rounded-2xl p-6 shadow-xl border border-white/5 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 p-4 opacity-10">
+                        <svg class="w-24 h-24 text-accent" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1.41 16.09V20h-2.67v-1.93c-1.71-.36-3.15-1.46-3.27-3.4h1.96c.1 1.05.82 1.87 2.65 1.87 1.96 0 2.4-.98 2.4-1.59 0-.83-.44-1.61-2.67-2.14-2.48-.6-4.18-1.62-4.18-3.67 0-1.72 1.39-2.84 3.11-3.21V4h2.67v1.95c1.86.45 2.79 1.86 2.85 3.39h-2.05c-.15-.86-.82-1.69-2.66-1.69-1.74 0-2.35 1.03-2.35 1.62 0 .83.39 1.54 2.51 1.97 2.48.55 4.26 1.67 4.26 3.75 0 1.84-1.36 2.96-3.06 3.31z"></path></svg>
+                    </div>
 
-                     <div class="text-sm">
-                        <span class="font-medium text-gray-500">Kategori:</span>
-                        <span class="ml-2 bg-gray-100 text-gray-700 px-2 py-0.5 rounded"><%= product.Kategori || 'Tidak ada' %></span>
-                     </div>
+                    <h3 class="text-muted text-xs font-bold uppercase tracking-widest mb-1">Harga Satuan</h3>
+                    
+                    <% 
+                        const formattedPrice = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(product.Harga || 0);
+                        const discountPercent = product.Diskon ? (product.Diskon * 100).toFixed(0) : 0;
+                        const finalPrice = product.Harga * (1 - (product.Diskon || 0));
+                        const formattedFinalPrice = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(finalPrice);
+                    %>
 
-                     <div>
-                        <% const formattedPrice = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(product.Harga || 0); %>
-                        <% const discountPercent = product.Diskon ? (product.Diskon * 100).toFixed(1) + '%' : null; %>
-                        <% const finalPrice = product.Harga * (1 - (product.Diskon || 0)); %>
-                        <% const formattedFinalPrice = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(finalPrice); %>
-
-                        <span class="text-2xl font-bold text-blue-700"><%= formattedFinalPrice %></span>
-                         <% if (discountPercent) { %>
-                             <span class="ml-3 text-sm bg-red-100 text-red-700 font-medium px-2 py-0.5 rounded"><%= discountPercent %> OFF</span>
-                             <span class="ml-2 text-sm text-gray-400 line-through"><%= formattedPrice %></span>
-                         <% } else { %>
-                              <span class="ml-3 text-gray-500">(Harga Normal: <%= formattedPrice %>)</span>
-                         <% } %>
-                     </div>
-
-                     <div>
-                        <h3 class="text-base font-semibold text-gray-700 mb-1">Deskripsi</h3>
-                        <p class="text-sm text-gray-600"><%= product.Deskripsi || 'Tidak ada deskripsi.' %></p>
-                     </div>
-
-                     <div>
-                         <h3 class="text-base font-semibold text-gray-700 mb-2">Parameter Optimal</h3>
-                         <% if (parameters && parameters.length > 0) { %>
-                            <div class="overflow-x-auto border rounded">
-                                <table class="min-w-full parameter-table">
-                                    <thead>
-                                        <tr><th>Nama Parameter</th><th>Minimal</th><th>Maksimal</th></tr>
-                                    </thead>
-                                    <tbody>
-                                        <% parameters.forEach(param => { %>
-                                            <tr><td><%= param.Nama %></td><td><%= param.Minimal %></td><td><%= param.Maksimal %></td></tr>
-                                        <% }) %>
-                                    </tbody>
-                                </table>
+                    <div class="flex flex-col relative z-10">
+                        <% if (discountPercent > 0) { %>
+                            <div class="flex items-center gap-3 mb-2">
+                                <span class="bg-danger text-white text-xs font-bold px-2 py-0.5 rounded shadow-sm">-<%= discountPercent %>% OFF</span>
+                                <span class="text-sm text-muted line-through decoration-white/30"><%= formattedPrice %></span>
                             </div>
-                         <% } else { %>
-                             <p class="text-sm text-gray-500 italic">Produk ini tidak memiliki parameter optimal.</p>
-                         <% } %>
-                     </div>
+                        <% } %>
+                        <span class="text-4xl font-black text-accent tracking-tighter"><%= formattedFinalPrice %></span>
+                    </div>
+                </div>
 
+                <div class="bg-surface rounded-2xl p-6 shadow-xl border border-white/5 flex-1">
+                    <h3 class="text-pale font-bold mb-3 flex items-center gap-2 text-sm uppercase tracking-wider">
+                        <svg class="w-4 h-4 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"></path></svg>
+                        Tentang Produk
+                    </h3>
+                    <div class="prose prose-invert prose-sm max-w-none text-muted leading-relaxed text-sm">
+                        <%= product.Deskripsi || 'Belum ada deskripsi yang ditambahkan untuk produk ini.' %>
+                    </div>
                 </div>
             </div>
 
-            <!-- Simulasi Kecocokan Lahan -->
-            <div class="mt-8 pt-8 border-t border-gray-200">
-                <h2 class="text-xl font-bold text-gray-800 mb-4">Simulasi Kecocokan Lahan</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- Map Container -->
-                    <div class="border rounded-lg overflow-hidden shadow-sm relative">
-                        <div id="map" class="h-80 w-full z-0" style="min-height: 320px;"></div>
-                        <div class="absolute bottom-2 left-2 bg-white px-2 py-1 rounded shadow text-xs text-gray-600 z-10 opacity-90">
-                            Klik peta untuk simulasi
+            <div class="lg:col-span-8 flex flex-col h-full">
+                <div class="bg-surface rounded-2xl shadow-xl border border-white/5 flex flex-col h-full overflow-hidden">
+                    
+                    <div class="px-6 py-5 border-b border-white/5 bg-darker/30 flex items-center justify-between">
+                        <div>
+                            <h2 class="text-lg font-bold text-pale flex items-center gap-2">
+                                <svg class="w-5 h-5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                                Parameter Optimal (Syarat Tumbuh)
+                            </h2>
+                            <p class="text-xs text-muted mt-1">Daftar parameter lingkungan yang dibutuhkan agar tanaman tumbuh maksimal.</p>
                         </div>
+                        <span class="bg-white/5 text-pale text-xs font-bold px-3 py-1 rounded border border-white/10">
+                            <%= parameters ? parameters.length : 0 %> Item
+                        </span>
                     </div>
 
-                    <!-- Simulation Info -->
-                    <div>
-                         <div id="simulation-placeholder" class="h-full flex flex-col items-center justify-center text-gray-400 border-2 border-dashed rounded-lg bg-gray-50 p-6">
-                             <svg class="w-12 h-12 mb-2 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-                             <p class="text-sm">Klik lokasi di peta untuk melihat kecocokan.</p>
-                         </div>
+                    <div class="flex-1 overflow-auto bg-darker/20">
+                        <% if (parameters && parameters.length > 0) { %>
+                            <table class="w-full text-sm text-left">
+                                <thead class="bg-darker text-muted text-xs uppercase font-bold sticky top-0 z-10 shadow-sm">
+                                    <tr>
+                                        <th class="px-6 py-4 tracking-wider">Nama Parameter</th>
+                                        <th class="px-6 py-4 text-center w-32">Minimal</th>
+                                        <th class="px-6 py-4 text-center w-32">Maksimal</th>
+                                        <th class="px-6 py-4 text-right w-24">Satuan</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-white/5">
+                                    <% parameters.forEach((param, i) => { %>
+                                        <tr class="hover:bg-white/5 transition-colors group <%= i % 2 === 0 ? 'bg-transparent' : 'bg-white/[0.02]' %>">
+                                            <td class="px-6 py-4 font-medium text-pale group-hover:text-accent transition-colors">
+                                                <%= param.Nama %>
+                                            </td>
+                                            <td class="px-6 py-4 text-center">
+                                                <span class="inline-block bg-darker border border-white/10 text-pale px-3 py-1 rounded-md text-xs font-mono font-bold">
+                                                    <%= param.Minimal %>
+                                                </span>
+                                            </td>
+                                            <td class="px-6 py-4 text-center">
+                                                <span class="inline-block bg-darker border border-white/10 text-pale px-3 py-1 rounded-md text-xs font-mono font-bold">
+                                                    <%= param.Maksimal %>
+                                                </span>
+                                            </td>
+                                            <td class="px-6 py-4 text-right text-muted text-xs">
+                                                <%= param.Satuan || '-' %>
+                                            </td>
+                                        </tr>
+                                    <% }) %>
+                                </tbody>
+                            </table>
+                        <% } else { %>
+                            <div class="flex flex-col items-center justify-center h-64 text-muted opacity-60">
+                                <svg class="w-12 h-12 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                <p class="text-sm italic">Belum ada parameter yang diatur.</p>
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-                         <div id="simulation-loading" class="hidden h-full flex flex-col items-center justify-center text-gray-500 p-6">
-                             <svg class="animate-spin h-8 w-8 text-blue-500 mb-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                               <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                             </svg>
-                             <p class="text-sm">Menganalisis data satelit & tanah...</p>
-                         </div>
+        <div class="bg-surface rounded-2xl p-6 md:p-8 shadow-xl border border-white/5">
+            <h2 class="text-xl font-bold text-pale mb-6 flex items-center gap-2">
+                <svg class="w-6 h-6 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                Simulasi Kecocokan Lahan
+            </h2>
 
-                         <div id="simulation-status" class="hidden h-full flex flex-col">
-                             <div class="flex items-center justify-between mb-4">
-                                 <div>
-                                     <span class="text-xs text-gray-500 block uppercase tracking-wider font-bold">Skor Kecocokan</span>
-                                     <div class="flex items-baseline space-x-2">
-                                         <span id="sim-score-badge" class="text-3xl font-extrabold text-gray-800">--%</span>
-                                         <span id="sim-status-text" class="px-2 py-0.5 rounded text-xs font-bold bg-gray-200 text-gray-600">--</span>
-                                     </div>
-                                 </div>
-                                 <div class="text-right">
-                                     <span class="text-xs text-gray-500 block uppercase tracking-wider font-bold">Kondisi Lahan (Live)</span>
-                                     <div class="text-xs text-gray-700 font-mono">
-                                         <div>Temp: <span id="sim-temp" class="font-bold">-</span></div>
-                                         <div>Hujan: <span id="sim-rain" class="font-bold">-</span></div>
-                                     </div>
-                                 </div>
-                             </div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 h-[400px]">
+                <div class="relative h-full rounded-xl overflow-hidden border-2 border-white/10 shadow-inner group">
+                    <div id="map" class="h-full w-full z-0 bg-darker"></div>
+                    <div class="absolute bottom-4 left-4 z-[400] bg-darker/90 backdrop-blur-sm px-3 py-1.5 rounded-lg border border-white/10 shadow-lg pointer-events-none">
+                        <p class="text-xs font-bold text-accent flex items-center gap-1">
+                            <svg class="w-3 h-3 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"></path></svg>
+                            Klik peta untuk simulasi
+                        </p>
+                    </div>
+                </div>
 
-                             <div class="flex-grow overflow-hidden flex flex-col">
-                                 <h4 class="font-semibold text-gray-700 text-sm mb-2">Detail Parameter</h4>
-                                 <div class="overflow-y-auto border rounded bg-white flex-grow" id="sim-param-list" style="max-height: 200px;">
-                                     <!-- Parameters injected here -->
-                                 </div>
-                             </div>
-                         </div>
+                <div class="h-full flex flex-col bg-darker rounded-xl border border-white/10 overflow-hidden relative">
+                    <div id="simulation-placeholder" class="absolute inset-0 z-10 flex flex-col items-center justify-center p-6 text-center">
+                        <div class="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mb-4 animate-pulse">
+                            <svg class="w-8 h-8 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0121 18.382V7.618a1 1 0 01-.553-.894L15 4m0 13V4m0 0L9 7"></path></svg>
+                        </div>
+                        <h3 class="text-pale font-bold mb-1">Siap Simulasi</h3>
+                        <p class="text-sm text-muted">Pilih lokasi pada peta untuk analisis kecocokan lahan.</p>
+                    </div>
+
+                    <div id="simulation-loading" class="hidden absolute inset-0 z-20 flex flex-col items-center justify-center bg-darker p-6">
+                        <svg class="animate-spin h-10 w-10 text-accent mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                        <p class="text-sm text-accent font-bold animate-pulse">Mengambil data satelit...</p>
+                    </div>
+
+                    <div id="simulation-status" class="hidden h-full flex flex-col relative z-0">
+                        <div class="bg-surface p-4 border-b border-white/5 flex items-center justify-between shrink-0">
+                            <div>
+                                <span class="text-[10px] text-muted uppercase tracking-widest font-bold block mb-1">Skor Kecocokan</span>
+                                <div class="flex items-baseline gap-3">
+                                    <span id="sim-score-badge" class="text-4xl font-black text-pale">--%</span>
+                                    <span id="sim-status-text" class="px-2 py-0.5 rounded text-[10px] font-bold uppercase border">--</span>
+                                </div>
+                            </div>
+                            <div class="text-right bg-black/20 px-3 py-2 rounded-lg border border-white/5">
+                                <span class="text-[10px] text-muted uppercase tracking-widest font-bold block mb-1">Kondisi Live</span>
+                                <div class="text-xs text-pale font-mono grid grid-cols-2 gap-x-3 text-right">
+                                    <span>Temp: <span id="sim-temp" class="text-accent font-bold">-</span></span>
+                                    <span>Hujan: <span id="sim-rain" class="text-accent font-bold">-</span></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex-grow overflow-y-auto p-2 space-y-2 custom-scrollbar" id="sim-param-list"></div>
+                    </div>
                 </div>
             </div>
         </div>
     </main>
 
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <script src="/js/koncoTaniAdmin.js"></script>
+    
     <script>
-        // Prepare Data for KoncoTani Script
-        // We construct a single-item array with the structure expected by the script
+        // --- LOGIC JS SAMA PERSIS DENGAN SEBELUMNYA ---
         const productData = JSON.parse(decodeURIComponent('<%- encodeURIComponent(JSON.stringify(product)) %>'));
         const parametersData = JSON.parse(decodeURIComponent('<%- encodeURIComponent(JSON.stringify(parameters)) %>'));
-        
-        // Ensure structure matches what koncoTaniAdmin.js expects: product.groupparameter.parameters
         productData.groupparameter = { parameters: parametersData };
-        
-        // Global variable expected by the script logic we are injecting
         const allProductsData = [productData]; 
 
-        // Initialize with custom UI handlers for the Detail View
         document.addEventListener('DOMContentLoaded', () => {
             if (window.initKoncoTani) {
                 window.initKoncoTani({
@@ -184,90 +267,77 @@
                     },
                     displayError: (msg) => {
                         alert("Error Simulasi: " + msg);
+                        document.getElementById('simulation-placeholder').classList.remove('hidden');
                     },
                     displayInitialState: (msg) => {
-                        // Keep placeholder visible
                         document.getElementById('simulation-placeholder').classList.remove('hidden');
                         document.getElementById('simulation-status').classList.add('hidden');
                     },
                     updateLiveCards: (current, units) => {
                         const temp = (current.temperature_2m !== undefined ? current.temperature_2m : '-') + (units.temperature_2m || '');
                         const rain = (current.precipitation !== undefined ? current.precipitation : '-') + (units.precipitation || '');
-                        
                         document.getElementById('sim-temp').textContent = temp;
                         document.getElementById('sim-rain').textContent = rain;
                     },
                     displayResults: (calculatedProducts) => {
-                        const result = calculatedProducts[0]; // Single product result
-                        
+                        const result = calculatedProducts[0];
                         document.getElementById('simulation-status').classList.remove('hidden');
                         document.getElementById('simulation-loading').classList.add('hidden');
                         document.getElementById('simulation-placeholder').classList.add('hidden');
 
-                        // Update Score Badge
                         const badge = document.getElementById('sim-score-badge');
                         const statusText = document.getElementById('sim-status-text');
                         
                         badge.textContent = `${result.scorePercent.toFixed(0)}%`;
                         
-                        // Color Logic
                         if (result.paramCount === 0) {
-                            badge.className = "text-3xl font-extrabold text-gray-400";
-                            statusText.className = "px-2 py-0.5 rounded text-xs font-bold bg-gray-100 text-gray-500";
-                            statusText.textContent = "Tidak Ada Parameter";
+                            badge.className = "text-4xl font-black text-muted";
+                            statusText.className = "px-2 py-0.5 rounded text-[10px] font-bold uppercase border bg-white/5 text-muted border-white/10";
+                            statusText.textContent = "Data Tidak Lengkap";
                         } else if (result.scorePercent >= 80) {
-                            badge.className = "text-3xl font-extrabold text-green-600";
-                            statusText.className = "px-2 py-0.5 rounded text-xs font-bold bg-green-100 text-green-700";
+                            badge.className = "text-4xl font-black text-accent";
+                            statusText.className = "px-2 py-0.5 rounded text-[10px] font-bold uppercase border bg-accent/20 text-accent border-accent/30";
                             statusText.textContent = "Sangat Cocok";
                         } else if (result.scorePercent >= 50) {
-                            badge.className = "text-3xl font-extrabold text-yellow-600";
-                            statusText.className = "px-2 py-0.5 rounded text-xs font-bold bg-yellow-100 text-yellow-700";
+                            badge.className = "text-4xl font-black text-warning";
+                            statusText.className = "px-2 py-0.5 rounded text-[10px] font-bold uppercase border bg-warning/20 text-warning border-warning/30";
                             statusText.textContent = "Cukup Cocok";
                         } else {
-                            badge.className = "text-3xl font-extrabold text-red-600";
-                            statusText.className = "px-2 py-0.5 rounded text-xs font-bold bg-red-100 text-red-700";
+                            badge.className = "text-4xl font-black text-danger";
+                            statusText.className = "px-2 py-0.5 rounded text-[10px] font-bold uppercase border bg-danger/20 text-danger border-danger/30";
                             statusText.textContent = "Kurang Cocok";
                         }
 
-                        // Update Parameter List
                         const listContainer = document.getElementById('sim-param-list');
                         if (result.paramDetails && result.paramDetails.length > 0) {
                             listContainer.innerHTML = result.paramDetails.map(p => {
                                 const isCocok = p.isCocok;
-                                const colorClass = isCocok ? 'text-green-700 bg-green-50 border-green-200' : 'text-red-700 bg-red-50 border-red-200';
+                                const statusColor = isCocok ? 'text-accent' : 'text-danger';
+                                const bgClass = isCocok ? 'bg-accent/10 border-accent/20' : 'bg-danger/10 border-danger/20';
                                 const icon = isCocok ? 
-                                    '<svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>' : 
-                                    '<svg class="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>';
+                                    '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>' : 
+                                    '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>';
                                 
                                 return `
-                                <div class="p-3 border-b last:border-b-0 hover:bg-gray-50 transition-colors">
-                                    <div class="flex justify-between items-start">
-                                        <div>
-                                            <p class="text-sm font-medium text-gray-700">${p.Nama}</p>
-                                            <p class="text-xs text-gray-500">Target: ${p.Minimal} - ${p.Maksimal} ${p.Unit}</p>
-                                        </div>
-                                        <div class="text-right">
-                                            <div class="flex items-center justify-end space-x-1 mb-1">
-                                                ${icon}
-                                                <span class="text-sm font-bold ${isCocok ? 'text-green-700' : 'text-red-700'}">${p.actualValue}</span>
-                                            </div>
-                                            <span class="text-[10px] uppercase font-bold tracking-wide ${isCocok ? 'text-green-600' : 'text-red-600'}">${isCocok ? 'Masuk Range' : 'Diluar Range'}</span>
+                                <div class="p-3 rounded-lg border ${bgClass} flex justify-between items-center transition-all hover:bg-white/5">
+                                    <div>
+                                        <p class="text-sm font-bold text-pale">${p.Nama}</p>
+                                        <p class="text-[10px] text-muted mt-0.5">Range: ${p.Minimal} - ${p.Maksimal} ${p.Unit}</p>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="flex items-center justify-end gap-1 ${statusColor}">
+                                            ${icon}
+                                            <span class="text-sm font-mono font-bold">${p.actualValue}</span>
                                         </div>
                                     </div>
                                 </div>`;
                             }).join('');
                         } else {
-                            listContainer.innerHTML = `
-                                <div class="h-full flex flex-col items-center justify-center text-gray-400 p-4">
-                                    <p class="text-sm italic text-center">Produk ini belum memiliki parameter optimal yang diatur.</p>
-                                </div>`;
+                            listContainer.innerHTML = `<div class="p-4 text-center text-xs text-muted">Tidak ada parameter.</div>`;
                         }
                     },
-                    // We don't need getFilterValues as we are not filtering
                     getFilterValues: () => ({ search: '', category: 'Semua', sort: 'nama', grade: 0 }) 
                 });
-            } else {
-                console.error("koncoTaniAdmin.js init function not found!");
             }
         });
     </script>

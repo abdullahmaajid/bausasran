@@ -3,291 +3,338 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Analisis Kecocokan Lahan & Produk</title>
-    <link rel="stylesheet" href="/css/style.css" />
+    <title>Analisis Lahan - Admin Bausasran</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <style>
 
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        main: '#003024',    // Background Gelap
+                        surface: '#004030', // Warna Kartu
+                        accent: '#83C540',  // Hijau Neon
+                        pale: '#F5FEF9',    // Teks Putih
+                        muted: '#A3C2B8',   // Teks Pudar
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
 
+    <style type="text/tailwindcss">
+        @layer base {
+            body { @apply bg-main text-pale font-sans antialiased; }
+        }
+        
+        /* Map Styles */
+        #map { height: 100%; width: 100%; border-radius: 1rem; z-index: 1; }
+        
+        /* Range Slider Styling */
+        input[type=range] { @apply h-1.5 bg-surface rounded-lg appearance-none cursor-pointer border border-white/10; }
+        input[type=range]::-webkit-slider-thumb { @apply appearance-none w-4 h-4 bg-accent rounded-full shadow hover:scale-125 transition-transform; }
 
-        /* Map Height */
-        #map { height: 350px; border-radius: 0.5rem; border: 1px solid #e5e7eb; }
-
-        /* Scrollable parameter list inside cards */
-        .parameter-list-scroll { max-height: 140px; /* Adjust height as needed */ overflow-y: auto; padding-right: 0.5rem; margin-top: 0.75rem; /* mt-3 */ border-top: 1px solid #f3f4f6; padding-top: 0.75rem; /* pt-3 */}
-        .parameter-list-scroll::-webkit-scrollbar { width: 4px; }
-        .parameter-list-scroll::-webkit-scrollbar-track { background: #f9fafb; border-radius: 10px;}
-        .parameter-list-scroll::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 10px;}
-        .parameter-list-scroll::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
-
-        /* Status Badges */
-        .status-badge { padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
-        .status-cocok { background-color: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
-        .status-tidak-cocok { background-color: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
-        .status-na { background-color: #f3f4f6; color: #4b5563; border: 1px solid #e5e7eb; }
-
-        /* Parameter Comparison Visuals */
-        .param-item { display: flex; justify-content: space-between; align-items: center; padding: 0.375rem 0; border-bottom: 1px solid #f3f4f6; font-size: 0.875rem; }
-        .param-item:last-child { border-bottom: none; }
-        .param-name { color: #4b5563; flex-basis: 45%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .param-optimal-range { color: #6b7280; font-size: 0.75rem; text-align: right; flex-basis: 30%;}
-        .param-actual-value { font-weight: 600; text-align: right; flex-basis: 25%;}
-        .param-cocok { color: #10b981; }
-        .param-tidak-cocok { color: #ef4444; }
-        .param-na { color: #9ca3af; }
-
-        /* Input styling */
-        .form-input, .form-select { border-color: #d1d5db; border-radius: 0.375rem; box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05); font-size: 0.875rem; }
-        .form-input:focus, .form-select:focus { border-color: #3b82f6; box-shadow: 0 0 0 1px #3b82f6; }
-        input[type=range]::-webkit-slider-thumb { appearance: none; width: 16px; height: 16px; background: #3b82f6; border-radius: 50%; cursor: pointer; }
-        input[type=range]::-moz-range-thumb { width: 16px; height: 16px; background: #3b82f6; border-radius: 50%; cursor: pointer; border: none;}
-
-        /* Image styles */
-        .product-image-placeholder { height: 150px; /* Taller image */ background-color: #e5e7eb; display: flex; align-items: center; justify-content: center; color: #9ca3af; font-size: 0.875rem; border-bottom: 1px solid #e5e7eb; }
-        .product-image { height: 150px; /* Taller image */ width: 100%; object-fit: cover; border-bottom: 1px solid #e5e7eb; }
+        /* Scrollbar */
+        .custom-scroll::-webkit-scrollbar { width: 6px; }
+        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #004030; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); }
+        .custom-scroll::-webkit-scrollbar-thumb:hover { background: #83C540; }
     </style>
 </head>
-<body class="flex bg-gray-50 text-gray-800">
+
+<body class="flex h-screen overflow-hidden">
 
     <%- include('../../partials/admin_sidebar.ejs') %>
 
-    <main class="flex-1 p-6 md:p-8 space-y-6 overflow-y-auto">
+    <main class="flex-1 flex flex-col h-screen overflow-hidden relative">
         <%- include('../../partials/flash.ejs') %>
 
-        <!-- Header -->
-        <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-4">
-            <div>
-                <h1 class="text-2xl font-bold text-gray-900">Analisis Kecocokan Lahan</h1>
-                <p class="text-gray-600 text-sm mt-1">Pilih lokasi di peta untuk melihat produk pertanian yang cocok.</p>
-            </div>
-            <a href="/admin/produk/new" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-md text-sm whitespace-nowrap shadow-sm">
-                + Tambah Produk Pertanian
-            </a>
-        </div>
-
-        <!-- Section 1: Map, Filters, Live Data (Grid for medium screens and up) -->
-        <section class="grid grid-cols-1 md:grid-cols-12 gap-6">
-            <!-- Map (Takes more space) -->
-            <div class="md:col-span-8 lg:col-span-9 bg-white p-4 sm:p-5 rounded-lg shadow border border-gray-200">
-                 <div class="flex justify-between items-center mb-3">
-                     <h2 class="text-lg font-semibold text-gray-800">Peta Lokasi</h2>
-                     <p class="text-xs text-gray-500">Klik pada peta untuk memilih lokasi</p>
-                 </div>
-                 <div id="map"></div>
-                 <div id="map-loading" class="text-center text-blue-600 mt-2 text-sm font-medium" style="display: none;"> <span class="animate-spin inline-block w-4 h-4 border-2 border-current border-t-transparent rounded-full mr-2" role="status" aria-hidden="true"></span> Mengambil data API... </div>
-            </div>
-
-            <!-- Filters & Live Data (Stacked on right) -->
-            <div class="md:col-span-4 lg:col-span-3 space-y-6">
-                 <!-- Live Data -->
-                 <div>
-                    <h2 class="text-base font-semibold text-gray-700 mb-2 px-1">Data Aktual Lokasi</h2>
-                     <div id="live-weather-cards" class="grid grid-cols-2 gap-3" style="display: none;">
-                         <div class="bg-white p-3 rounded-lg shadow border border-gray-200 text-center"> <div class="text-xs font-medium text-gray-500 mb-1">Suhu</div> <div id="live-temp" class="text-xl font-bold text-blue-600">-</div> </div>
-                         <div class="bg-white p-3 rounded-lg shadow border border-gray-200 text-center"> <div class="text-xs font-medium text-gray-500 mb-1">Kelembapan</div> <div id="live-humidity" class="text-xl font-bold text-blue-600">-</div> </div>
-                         <div class="bg-white p-3 rounded-lg shadow border border-gray-200 text-center"> <div class="text-xs font-medium text-gray-500 mb-1">Curah Hujan</div> <div id="live-precip" class="text-xl font-bold text-blue-600">-</div> </div>
-                         <div class="bg-white p-3 rounded-lg shadow border border-gray-200 text-center"> <div class="text-xs font-medium text-gray-500 mb-1">Produk Cocok</div> <div id="live-cocok" class="text-xl font-bold text-green-600">-</div> </div>
-                    </div>
-                     <div id="live-weather-placeholder" class="grid grid-cols-2 gap-3">
-                         <div class="bg-gray-200 rounded-lg shadow animate-pulse h-[76px]"></div> <div class="bg-gray-200 rounded-lg shadow animate-pulse h-[76px]"></div> <div class="bg-gray-200 rounded-lg shadow animate-pulse h-[76px]"></div> <div class="bg-gray-200 rounded-lg shadow animate-pulse h-[76px]"></div>
-                     </div>
-                 </div>
-                 <!-- Filters -->
-                 <div class="bg-white p-4 sm:p-5 rounded-lg shadow border border-gray-200 sticky top-4">
-                    <h2 class="text-lg font-semibold mb-4 text-gray-800">Filter Hasil</h2>
-                    <div class="space-y-4">
-                        <div> <label for="filter-search" class="block text-xs font-medium text-gray-600 mb-1">Cari Produk</label> <input type="text" id="filter-search" placeholder="Contoh: Cabai" class="form-input block w-full"> </div>
-                        <div> <label for="filter-grade" class="block text-xs font-medium text-gray-600 mb-1">Minimal Kecocokan</label> <div class="flex items-center space-x-3"> <input type="range" id="filter-grade" min="0" max="100" value="0" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"> <span id="filter-grade-value" class="font-semibold text-gray-700 w-12 text-right text-sm">0%</span> </div> </div>
-                        <div> <label for="filter-category" class="block text-xs font-medium text-gray-600 mb-1">Kategori Produk</label> <select id="filter-category" class="form-select block w-full"> <option value="Semua">Semua Kategori</option> <% categories.forEach(cat => { %> <option value="<%= cat %>"><%= cat %></option> <% }) %> </select> </div>
-                        <div> <label for="filter-sort" class="block text-xs font-medium text-gray-600 mb-1">Urutkan Berdasarkan</label> <select id="filter-sort" class="form-select block w-full"> <option value="nama">Nama (A-Z)</option> <option value="cocok">Kecocokan Tertinggi</option> </select> </div>
-                    </div>
-                 </div>
-            </div>
-        </section>
-
-        <!-- Section 2: Hasil Pencocokan (Full Width, Wider Grid) -->
-        <section class="bg-white rounded-lg shadow border border-gray-200">
-            <div class="px-4 sm:px-5 py-3 border-b border-gray-200 flex justify-between items-center">
-                <h2 class="text-lg font-semibold text-gray-800">Hasil Analisis Produk</h2>
-                <p id="results-summary" class="text-xs text-gray-500 font-medium">Pilih lokasi di peta.</p>
-            </div>
-            <!-- Wadah untuk list hasil (cards) - Wider Grid -->
-            <div id="results-list" class="p-4 sm:p-5 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5"> 
-                <div id="initial-message" class="col-span-full text-center py-8 text-gray-500 text-sm">
-                    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"> <path vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /> <path vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /> </svg>
-                    <span class="mt-2 block">Pilih lokasi di peta untuk melihat hasil kecocokan produk pertanian.</span>
+        <div class="flex-1 overflow-y-auto custom-scroll p-6 md:p-8">
+            
+            <div class="flex justify-between items-end mb-6">
+                <div>
+                    <h1 class="text-2xl font-bold text-pale tracking-tight">Analisis Kecocokan Lahan</h1>
+                    <p class="text-muted text-sm mt-1">Pilih lokasi di peta untuk melihat potensi produk.</p>
                 </div>
-               
+                <a href="/admin/produk/new" class="hidden md:flex items-center gap-2 px-4 py-2 bg-surface hover:bg-white/5 border border-white/10 rounded-lg text-sm font-medium text-accent transition-all">
+                    <span>+ Tambah Produk</span>
+                </a>
             </div>
-        </section>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8 h-[500px] lg:h-[450px]">
+                
+                <div class="lg:col-span-2 relative bg-surface rounded-2xl border border-white/10 shadow-xl overflow-hidden group">
+                    <div id="map" class="h-full w-full"></div>
+                    
+                    <div id="map-loading" class="absolute inset-0 bg-main/80 backdrop-blur-sm z-[400] flex flex-col items-center justify-center hidden">
+                        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-accent mb-3"></div>
+                        <span class="text-accent text-sm font-medium animate-pulse">Sinkronisasi Satelit...</span>
+                    </div>
+
+                    <div class="absolute top-4 left-4 bg-main/90 backdrop-blur px-3 py-1.5 rounded-lg border border-white/10 text-xs font-mono text-accent z-[400] shadow-lg">
+                        <span class="w-2 h-2 bg-red-500 rounded-full inline-block mr-2 animate-pulse"></span>Mode Interaktif
+                    </div>
+                </div>
+
+                <div class="flex flex-col gap-4 h-full">
+                    <div class="bg-surface rounded-2xl p-5 border border-white/10 flex-shrink-0">
+                        <h3 class="text-sm font-bold text-muted uppercase tracking-wider mb-1">Kondisi Lahan</h3>
+                        <p class="text-xs text-white/40" id="location-status">Menunggu pemilihan lokasi...</p>
+                    </div>
+
+                    <div id="live-weather-placeholder" class="flex-1 bg-surface rounded-2xl border border-white/10 p-6 flex flex-col items-center justify-center text-center space-y-4">
+                        <div class="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center animate-pulse">
+                            <svg class="w-8 h-8 text-white/20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                        </div>
+                        <p class="text-muted text-sm px-4">Silakan klik titik lokasi pada peta untuk memuat data cuaca real-time.</p>
+                    </div>
+
+                    <div id="live-weather-cards" class="flex-1 grid grid-cols-2 gap-3 hidden">
+                        <div class="bg-surface rounded-xl p-4 border border-white/10 flex flex-col justify-center items-center relative overflow-hidden group">
+                            <div class="absolute top-0 right-0 p-2 opacity-10 group-hover:opacity-20 transition-opacity">
+                                <svg class="w-12 h-12 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                            </div>
+                            <span class="text-xs text-muted uppercase tracking-wide mb-1">Suhu Rata-rata</span>
+                            <span id="live-temp" class="text-2xl font-bold text-accent">-</span>
+                        </div>
+                        <div class="bg-surface rounded-xl p-4 border border-white/10 flex flex-col justify-center items-center relative overflow-hidden group">
+                             <div class="absolute top-0 right-0 p-2 opacity-10 group-hover:opacity-20 transition-opacity">
+                                <svg class="w-12 h-12 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>
+                            </div>
+                            <span class="text-xs text-muted uppercase tracking-wide mb-1">Kelembapan</span>
+                            <span id="live-humidity" class="text-2xl font-bold text-cyan-400">-</span>
+                        </div>
+                        <div class="bg-surface rounded-xl p-4 border border-white/10 flex flex-col justify-center items-center relative overflow-hidden group">
+                            <span class="text-xs text-muted uppercase tracking-wide mb-1">Curah Hujan</span>
+                            <span id="live-precip" class="text-2xl font-bold text-blue-400">-</span>
+                        </div>
+                         <div class="bg-surface rounded-xl p-4 border border-accent/30 flex flex-col justify-center items-center bg-accent/5">
+                            <span class="text-xs text-accent uppercase tracking-wide mb-1 font-semibold">Produk Cocok</span>
+                            <span id="live-cocok" class="text-2xl font-bold text-white">-</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sticky top-0 z-30 bg-main/95 backdrop-blur-md py-4 border-b border-white/5 mb-6">
+                <div class="flex flex-col md:flex-row gap-4 items-center justify-between">
+                    
+                    <div class="relative w-full md:w-64">
+                        <input type="text" id="filter-search" placeholder="Cari produk..." 
+                            class="w-full bg-surface border border-white/10 rounded-lg pl-9 pr-3 py-2 text-sm text-pale focus:border-accent focus:ring-1 focus:ring-accent outline-none placeholder-white/20 transition-all">
+                        <svg class="w-4 h-4 text-white/30 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    </div>
+
+                    <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
+                        
+                        <div class="bg-surface px-3 py-1.5 rounded-lg border border-white/10 flex items-center gap-3 flex-1 md:flex-none min-w-[200px]">
+                            <label class="text-[10px] text-muted uppercase font-bold whitespace-nowrap">Min. Cocok:</label>
+                            <input type="range" id="filter-grade" min="0" max="100" value="0" step="5" class="w-24">
+                            <span id="filter-grade-value" class="text-xs font-bold text-accent w-8 text-right">0%</span>
+                        </div>
+
+                        <select id="filter-category" class="bg-surface border border-white/10 rounded-lg px-3 py-2 text-sm text-pale focus:border-accent outline-none cursor-pointer hover:bg-white/5 transition-colors">
+                            <option value="Semua">Semua Kategori</option>
+                            <% categories.forEach(cat => { %>
+                                <option value="<%= cat %>"><%= cat %></option>
+                            <% }) %>
+                        </select>
+
+                        <select id="filter-sort" class="bg-surface border border-white/10 rounded-lg px-3 py-2 text-sm text-pale focus:border-accent outline-none cursor-pointer hover:bg-white/5 transition-colors">
+                            <option value="cocok">Kecocokan Tertinggi</option>
+                            <option value="nama">Nama (A-Z)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div id="results-list" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-5 pb-10">
+                <div id="initial-message" class="col-span-full py-20 flex flex-col items-center justify-center text-muted opacity-50">
+                    <div class="text-6xl mb-4">🌱</div>
+                    <h3 class="text-xl font-medium text-pale">Siap Menganalisis</h3>
+                    <p class="text-sm mt-2">Pilih lokasi pada peta untuk memulai.</p>
+                </div>
+            </div>
+
+        </div>
     </main>
 
-    <!-- Data Produk & Scripts -->
-    <script> const allProductsData = JSON.parse(decodeURIComponent('<%- encodeURIComponent(JSON.stringify(productsWithParams)) %>')); </script>
+    <script>
+        const allProductsData = JSON.parse(decodeURIComponent('<%- encodeURIComponent(JSON.stringify(productsWithParams)) %>'));
+    </script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="/js/koncoTaniAdmin.js"></script>
 
-    <!-- UI Functions Script (Needs Update for Wider Card Content) -->
     <script>
-        // DOM Elements (same as before)
-        const uiMapLoading = document.getElementById('map-loading'); /* ... etc ... */
-        const uiResultsList = document.getElementById('results-list');
-        const uiResultsSummary = document.getElementById('results-summary');
-        const uiLiveWeatherCards = document.getElementById('live-weather-cards');
-        const uiLiveTemp = document.getElementById('live-temp');
-        const uiLiveHumidity = document.getElementById('live-humidity');
-        const uiLivePrecip = document.getElementById('live-precip');
-        const uiLiveCocok = document.getElementById('live-cocok');
-        const uiLivePlaceholder = document.getElementById('live-weather-placeholder');
-        const uiFilterGradeValue = document.getElementById('filter-grade-value');
-        const uiFilterSearch = document.getElementById('filter-search');
-        const uiFilterGrade = document.getElementById('filter-grade');
-        const uiFilterCategory = document.getElementById('filter-category');
-        const uiFilterSort = document.getElementById('filter-sort');
-
-
-        // Helper: Create Card HTML (Updated for Wider Layout)
-        function createCardHTML_UI(product, isVisible) {
-            let isCocok = false; let statusText = 'N/A'; let statusClass = 'status-na';
-            const passingGradeValue = parseInt(uiFilterGrade.value, 10);
-
-            if (product.paramCount > 0 && currentApiData && currentApiData.current) {
-                isCocok = product.scorePercent >= passingGradeValue;
-                statusText = isCocok ? 'Cocok' : 'Tidak Cocok';
-                statusClass = isCocok ? 'status-cocok' : 'status-tidak-cocok';
-            } else if (!currentApiData || !currentApiData.current) { statusText = 'Pilih Lokasi'; statusClass = 'status-na'; }
-            else { statusText = 'Parameter N/A'; statusClass = 'status-na'; }
-
-            const formattedPrice = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(product.Harga || 0);
-            const discountPercent = product.Diskon ? (product.Diskon * 100).toFixed(1) + '%' : null;
-            const originalPrice = (product.Diskon && product.Harga > 0) ? new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(product.Harga / (1 - product.Diskon)) : null;
-
-            const paramsHTML = product.paramDetails && product.paramDetails.length > 0 && currentApiData && currentApiData.current
-                ? product.paramDetails
-                    .filter(param => typeof parameterApiMapping !== 'undefined' && parameterApiMapping[param.Nama])
-                    .map(param => {
-                        const paramStatusClass = param.isCocok ? 'param-cocok' : 'param-tidak-cocok';
-                        const actualText = param.actualValue;
-                        return `
-                        <li class="param-item">
-                            <span class="param-name" title="${param.Nama}">${param.Nama} (${param.Unit || 'N/A'})</span>
-                            <span class="param-optimal-range">Opt: ${param.Minimal}–${param.Maksimal}</span>
-                            <span class="param-actual-value ${paramStatusClass}">${actualText}</span>
-                        </li>`;
-                    }).join('')
-                : `<li class="text-xs text-gray-400 italic py-3 text-center">${currentApiData && currentApiData.current ? 'Parameter optimal tidak ditemukan/tercocokkan.' : 'Pilih lokasi di peta.'}</li>`;
-
-            const scoreText = product.paramCount > 0 && currentApiData && currentApiData.current ? `Kecocokan: <strong>${product.score}/${product.paramCount}</strong> (${product.scorePercent.toFixed(1)}%)` : `Kecocokan: <strong>N/A</strong>`;
-
-            const firstPhoto = product.photos && product.photos.length > 0 ? product.photos[0].Foto : null;
-            const imageHTML = firstPhoto ? `<img src="/images/produk/${firstPhoto}" alt="${product.Nama}" class="product-image block">` : `<div class="product-image-placeholder">[ Tidak Ada Foto ]</div>`;
-
-            // Added Description back, adjusted spacing
-            return `
-                <div class="product-card bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden flex flex-col h-full" data-product-id="${product.ID_Product}">
-                    ${imageHTML}
-                    <div class="p-4 flex flex-col flex-grow space-y-2">
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <h3 class="text-lg font-semibold text-gray-800 product-name leading-tight">${product.Nama}</h3>
-                                <p class="text-xs text-gray-500 product-category">${product.Kategori || 'Tanpa Kategori'}</p>
-                            </div>
-                            <span class="status-badge ${statusClass} mt-1"> ${statusText} </span>
-                        </div>
-                         <div class="text-sm">
-                            <span class="text-lg font-semibold text-blue-700">${formattedPrice}</span>
-                            ${discountPercent ? `<span class="ml-2 text-xs bg-red-100 text-red-700 font-medium px-1.5 py-0.5 rounded">${discountPercent} OFF</span>` : ''}
-                            ${originalPrice ? `<span class="ml-2 text-xs text-gray-400 line-through">${originalPrice}</span>` : ''}
-                        </div>
-             
-                         <p class="text-xs text-gray-600 description-full flex-grow min-h-[30px]"> 
-                            ${product.Deskripsi ? (product.Deskripsi.length > 120 ? product.Deskripsi.substring(0, 120) + '...' : product.Deskripsi) : 'Tidak ada deskripsi.'}
-                         </p>
-                        <p class="text-sm text-gray-600 product-score"> ${scoreText} </p>
-                        <details class="product-details text-sm">
-                            <summary class="cursor-pointer text-blue-600 hover:text-blue-800 font-medium text-xs">Detail Parameter</summary>
-                            <div class="parameter-list-scroll"> <ul class="product-params">${paramsHTML}</ul> </div>
-                        </details>
-                        <div class="mt-auto pt-3 border-t border-gray-100 flex justify-end space-x-2">
-                             <a href="/admin/produk/${product.ID_Product}" class="bg-blue-100 hover:bg-blue-200 text-blue-800 text-xs font-medium py-1 px-2.5 rounded border border-blue-200 hover:border-blue-300"> Detail </a>
-                             <a href="/admin/produk/${product.ID_Product}/edit" class="bg-gray-100 hover:bg-yellow-100 text-gray-700 hover:text-yellow-800 text-xs font-medium py-1 px-2.5 rounded border border-gray-200 hover:border-yellow-200"> Edit </a>
-                             <form action="/admin/produk/${product.ID_Product}/delete" method="POST" onsubmit="return confirm('Hapus produk ${product.Nama}?');"> <button type="submit" class="bg-gray-100 hover:bg-red-100 text-gray-700 hover:text-red-800 text-xs font-medium py-1 px-2.5 rounded border border-gray-200 hover:border-red-200"> Hapus </button> </form>
-                        </div>
-                    </div>
-                </div>`;
-        }
-
-        // UI Functions Object (remains the same as previous)
-        const uiFunctions = {
-            showLoadingState: () => { 
-                if(uiMapLoading) uiMapLoading.style.display = 'block'; 
-                if(uiResultsSummary) uiResultsSummary.textContent = 'Mengambil data dari API eksternal...'; 
-                if(uiLiveWeatherCards) uiLiveWeatherCards.style.display = 'none'; 
-                if(uiLivePlaceholder) uiLivePlaceholder.style.display = 'grid'; 
-            },
-            hideLoadingState: () => { 
-                if(uiMapLoading) uiMapLoading.style.display = 'none'; 
-            },
-            updateLiveCards: (current, units) => { 
-                if (uiLivePlaceholder) uiLivePlaceholder.style.display = 'none';
-                if (uiLiveWeatherCards) uiLiveWeatherCards.style.display = 'grid';
-                if (uiLiveTemp) uiLiveTemp.textContent = `${current.temperature_2m ?? 'N/A'}${units?.temperature_2m || '°C'}`;
-                if (uiLiveHumidity) uiLiveHumidity.textContent = `${current.relative_humidity_2m ?? 'N/A'}${units?.relative_humidity_2m || '%'}`;
-                if (uiLivePrecip) uiLivePrecip.textContent = `${current.precipitation ?? 'N/A'} ${units?.precipitation || 'mm'}`;
-            },
-            displayResults: (calculatedProducts, passingGrade, totalProducts) => {
-                const visibleProducts = calculatedProducts.filter(p => p.isVisible); const cocokCount = visibleProducts.filter(p => p.paramCount > 0 && p.scorePercent >= passingGrade).length;
-                if(uiLiveCocok) uiLiveCocok.textContent = `${cocokCount} Produk`; if(uiResultsSummary) uiResultsSummary.textContent = `Menampilkan ${visibleProducts.length} dari ${totalProducts} produk (Min. Kecocokan: ${passingGrade}%)`;
-                if(uiResultsList) uiResultsList.innerHTML = '';
-                if (visibleProducts.length === 0) { const initialMsg = document.getElementById('initial-message'); if (initialMsg) initialMsg.style.display = 'none'; if(uiResultsList) uiResultsList.innerHTML = `<div class="col-span-full text-center py-8 text-gray-500 text-sm"><svg class="mx-auto h-10 w-10 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg><span class="mt-2 block">Tidak ada produk cocok...</span></div>`; }
-                else { const initialMsg = document.getElementById('initial-message'); if (initialMsg) initialMsg.style.display = 'none'; visibleProducts.forEach(product => { if(uiResultsList) uiResultsList.innerHTML += createCardHTML_UI(product, true); }); } },
-            displayInitialState: (message = 'Pilih lokasi...') => { 
-                if(uiResultsList) {
-                    const initialMsgDiv = document.getElementById('initial-message');
-                     if (!initialMsgDiv) {
-                         uiResultsList.innerHTML = `
-                            <div id="initial-message" class="col-span-full text-center py-8 text-gray-500 text-sm">
-                                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /> <path vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-                                <span class="mt-2 block">${message}</span>
-                            </div>`;
-                     } else {
-                         initialMsgDiv.style.display = 'block';
-                         const span = initialMsgDiv.querySelector('span.mt-2');
-                         if (span) span.textContent = message;
-                         uiResultsList.querySelectorAll('.product-card').forEach(card => card.remove());
-                     }
-                }
-                if(uiResultsSummary) uiResultsSummary.textContent = 'Pilih lokasi di peta.';
-                if(uiLiveWeatherCards) uiLiveWeatherCards.style.display = 'none';
-                if(uiLivePlaceholder) uiLivePlaceholder.style.display = 'grid';
-            },
-            displayError: (errorMessage) => { 
-                 if(uiResultsSummary) uiResultsSummary.textContent = `Error: ${errorMessage}`;
-                 if(uiResultsList) uiResultsList.innerHTML = `<p class="col-span-full text-red-500 text-center py-6">${errorMessage}</p>`;
-                 if(uiLivePlaceholder) uiLivePlaceholder.style.display = 'grid';
-                 if(uiLiveWeatherCards) uiLiveWeatherCards.style.display = 'none';
-            },
-            updateFilterGradeValue: (value) => { 
-                if(uiFilterGradeValue) uiFilterGradeValue.textContent = `${value}%`; 
-            },
-            getFilterValues: () => { 
-                return {
-                    search: uiFilterSearch ? uiFilterSearch.value.toLowerCase() : '',
-                    category: uiFilterCategory ? uiFilterCategory.value : 'Semua',
-                    sort: uiFilterSort ? uiFilterSort.value : 'nama',
-                    grade: uiFilterGrade ? parseInt(uiFilterGrade.value, 10) : 0
-                };
-            },
-            addMapMarker: (lat, lng) => { /* Not used in this view */ }
+        // DOM Cache
+        const els = {
+            loading: document.getElementById('map-loading'),
+            resultsList: document.getElementById('results-list'),
+            locStatus: document.getElementById('location-status'),
+            liveCards: document.getElementById('live-weather-cards'),
+            livePlaceholder: document.getElementById('live-weather-placeholder'),
+            liveTemp: document.getElementById('live-temp'),
+            liveHumidity: document.getElementById('live-humidity'),
+            livePrecip: document.getElementById('live-precip'),
+            liveCocok: document.getElementById('live-cocok'),
+            search: document.getElementById('filter-search'),
+            grade: document.getElementById('filter-grade'),
+            gradeVal: document.getElementById('filter-grade-value'),
+            category: document.getElementById('filter-category'),
+            sort: document.getElementById('filter-sort')
         };
 
-        // Initialize (remains the same)
+        // UI Builder: Create Product Card
+        function createCardHTML_UI(product) {
+            const passingGrade = parseInt(els.grade.value, 10);
+            let isCocok = false;
+            let scoreColor = 'bg-red-500';
+            
+            if (product.paramCount > 0 && currentApiData) {
+                isCocok = product.scorePercent >= passingGrade;
+                scoreColor = product.scorePercent >= 80 ? 'bg-accent' : (product.scorePercent >= 50 ? 'bg-yellow-500' : 'bg-red-500');
+            }
+
+            // Status Badge
+            const statusBadge = isCocok 
+                ? `<span class="absolute top-3 right-3 bg-accent text-main px-2 py-1 rounded text-[10px] font-bold uppercase shadow-lg z-10">Cocok</span>` 
+                : (currentApiData ? `<span class="absolute top-3 right-3 bg-black/50 text-white px-2 py-1 rounded text-[10px] font-bold uppercase backdrop-blur border border-white/10 z-10">Tidak Cocok</span>` : '');
+
+            // Image
+            const imgUrl = (product.photos && product.photos.length > 0) 
+                ? `/images/produk/${product.photos[0].Foto}` 
+                : null;
+            
+            const imgHTML = imgUrl 
+                ? `<img src="${imgUrl}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">`
+                : `<div class="w-full h-full bg-surface flex items-center justify-center text-white/20 text-xs">No Image</div>`;
+
+            // Parameters List
+            let paramsHTML = '';
+            if (product.paramDetails && currentApiData) {
+                paramsHTML = product.paramDetails.filter(p => parameterApiMapping && parameterApiMapping[p.Nama]).map(p => {
+                    const icon = p.isCocok ? `<span class="text-accent">✓</span>` : `<span class="text-red-400">✕</span>`;
+                    return `
+                        <div class="flex justify-between items-center py-1.5 border-b border-white/5 last:border-0 text-xs">
+                            <span class="text-muted">${p.Nama}</span>
+                            <div class="flex items-center gap-2">
+                                <span class="text-pale font-mono">${p.actualValue}</span>
+                                ${icon}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            // Price
+            const price = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(product.Harga || 0);
+
+            return `
+                <div class="bg-surface rounded-xl border border-white/10 shadow hover:shadow-2xl hover:border-accent/30 transition-all duration-300 group flex flex-col overflow-hidden h-full">
+                    
+                    <div class="relative h-40 overflow-hidden border-b border-white/5">
+                        ${statusBadge}
+                        ${imgHTML}
+                        <div class="absolute bottom-0 left-0 w-full bg-gradient-to-t from-surface to-transparent h-12"></div>
+                    </div>
+
+                    <div class="p-4 flex flex-col flex-grow">
+                        <div class="mb-3">
+                            <div class="flex justify-between items-start">
+                                <h3 class="font-bold text-pale text-base leading-tight group-hover:text-accent transition-colors line-clamp-1" title="${product.Nama}">${product.Nama}</h3>
+                            </div>
+                            <span class="text-[10px] text-muted uppercase tracking-wider">${product.Kategori || 'Umum'}</span>
+                        </div>
+
+                        <div class="mb-4">
+                            <div class="flex justify-between text-[10px] mb-1">
+                                <span class="text-white/40">Tingkat Kecocokan</span>
+                                <span class="font-bold text-pale">${product.scorePercent ? product.scorePercent.toFixed(0) : 0}%</span>
+                            </div>
+                            <div class="w-full bg-black/20 rounded-full h-1.5 overflow-hidden">
+                                <div class="h-full rounded-full ${scoreColor} transition-all duration-1000" style="width: ${product.scorePercent || 0}%"></div>
+                            </div>
+                        </div>
+
+                        <div class="flex-grow"></div>
+
+                        <details class="group/details mt-2">
+                            <summary class="list-none cursor-pointer flex items-center justify-between text-xs font-medium text-white/50 hover:text-white bg-white/5 rounded px-2 py-1.5 transition-colors">
+                                <span>Detail Parameter</span>
+                                <svg class="w-3 h-3 transition-transform group-open/details:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </summary>
+                            <div class="mt-2 bg-black/20 rounded-lg p-2 max-h-32 overflow-y-auto custom-scroll">
+                                ${paramsHTML || '<div class="text-[10px] text-center italic text-white/30">Menunggu data...</div>'}
+                            </div>
+                        </details>
+                    </div>
+                    
+                    <div class="px-4 py-3 bg-black/20 border-t border-white/5 flex justify-between items-center">
+                        <span class="text-sm font-bold text-accent">${price}</span>
+                        <a href="/admin/produk/${product.ID_Product}" class="text-[10px] text-pale hover:underline opacity-60 hover:opacity-100">Lihat Full →</a>
+                    </div>
+                </div>
+            `;
+        }
+
+        // --- Controller Interface ---
+        const uiFunctions = {
+            showLoadingState: () => {
+                els.loading.classList.remove('hidden'); els.loading.classList.add('flex');
+                els.liveCards.classList.add('hidden'); els.livePlaceholder.classList.remove('hidden');
+                els.locStatus.textContent = "Mengambil data satelit...";
+            },
+            hideLoadingState: () => {
+                els.loading.classList.add('hidden'); els.loading.classList.remove('flex');
+            },
+            updateLiveCards: (current, units) => {
+                els.livePlaceholder.classList.add('hidden');
+                els.liveCards.classList.remove('hidden'); els.liveCards.classList.add('grid');
+                els.liveTemp.textContent = `${current.temperature_2m ?? '-'}${units?.temperature_2m || '°C'}`;
+                els.liveHumidity.textContent = `${current.relative_humidity_2m ?? '-'}${units?.relative_humidity_2m || '%'}`;
+                els.livePrecip.textContent = `${current.precipitation ?? '-'}${units?.precipitation || 'mm'}`;
+                els.locStatus.textContent = "Data cuaca berhasil dimuat";
+            },
+            displayResults: (calculatedProducts, passingGrade, totalProducts) => {
+                const visible = calculatedProducts.filter(p => p.isVisible);
+                const cocokCount = visible.filter(p => p.paramCount > 0 && p.scorePercent >= passingGrade).length;
+                els.liveCocok.textContent = cocokCount;
+                
+                els.resultsList.innerHTML = '';
+                if(visible.length === 0) {
+                    els.resultsList.innerHTML = `<div class="col-span-full py-10 text-center text-muted border border-white/5 rounded-xl bg-surface/50">Tidak ada produk ditemukan dengan filter ini.</div>`;
+                } else {
+                    visible.forEach(p => els.resultsList.innerHTML += createCardHTML_UI(p));
+                }
+            },
+            displayInitialState: (msg) => {
+                els.resultsList.innerHTML = '';
+                const div = document.createElement('div');
+                div.className = 'col-span-full py-20 flex flex-col items-center justify-center text-muted opacity-50';
+                div.innerHTML = `<div class="text-6xl mb-4">📍</div><h3 class="text-xl text-pale">Lokasi Belum Dipilih</h3><p class="text-sm">${msg || 'Klik peta untuk mulai.'}</p>`;
+                els.resultsList.appendChild(div);
+            },
+            displayError: (msg) => {
+                els.resultsList.innerHTML = `<div class="col-span-full text-red-400 text-center py-4 bg-red-500/10 border border-red-500/20 rounded-xl">${msg}</div>`;
+            },
+            updateFilterGradeValue: (val) => { els.gradeVal.textContent = `${val}%`; },
+            getFilterValues: () => ({
+                search: els.search.value.toLowerCase(),
+                category: els.category.value,
+                sort: els.sort.value,
+                grade: parseInt(els.grade.value, 10)
+            }),
+            addMapMarker: () => {}
+        };
+
         document.addEventListener('DOMContentLoaded', () => {
-            if (typeof initKoncoTani === 'function') {
-                initKoncoTani(uiFunctions);
-            } else { console.error("koncoTaniAdmin.js not loaded."); /* ... */ }
+            if (typeof initKoncoTani === 'function') initKoncoTani(uiFunctions);
         });
     </script>
-
 </body>
 </html>

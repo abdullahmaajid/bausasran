@@ -1,38 +1,79 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-R">
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Publik - Bausasran</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        main: '#003024',    // Background Gelap
+                        surface: '#004030', // Warna Kartu
+                        accent: '#83C540',  // Warna Hijau Terang (Heading/Tombol)
+                        pale: '#F5FEF9',    // Warna Teks Putih Gading
+                        muted: '#A3C2B8',   // Warna Teks Pudar
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'], // Pastikan font enak dibaca
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style type="text/tailwindcss">
+        @layer base {
+            body {
+                @apply bg-main text-pale font-sans antialiased;
+            }
+        }
+    </style>
+
     <link rel="stylesheet" href="/css/style.css">
 </head>
-<body class="bg-gray-100 font-sans">
+
+<body class="flex flex-col min-h-screen">
 
     <%- include('../partials/navbar.ejs') %>
 
-    <header class="bg-blue-600 text-white text-center p-16 md:p-24">
-        <h1 class="text-4xl md:text-5xl font-bold mb-4">Selamat Datang di Bausasran</h1>
-        <p class="text-lg md:text-xl text-blue-100">Menjelajahi Potensi, Mengukir Prestasi.</p>
+    <header class="relative bg-gradient-to-b from-surface to-main pt-24 pb-16 px-6 text-center border-b border-white/5">
+        <div class="max-w-4xl mx-auto">
+            <h1 class="text-4xl md:text-6xl font-bold mb-6 text-pale">
+                Selamat Datang di <span class="text-accent">Bausasran</span>
+            </h1>
+            <p class="text-lg md:text-xl text-muted max-w-2xl mx-auto">
+                Menjelajahi Potensi Alam, Melestarikan Budaya, dan Mengukir Prestasi Bersama.
+            </p>
+        </div>
     </header>
 
-    <main class="container mx-auto p-6 md:p-12">
+    <main class="container mx-auto px-4 py-12 flex-grow">
     
         <%- include('../partials/flash.ejs') %>
 
-        <section id="kegiatan" class="mb-12 scroll-mt-20">
-            <h2 class="text-3xl font-bold text-gray-800 text-center mb-8">Kegiatan Terbaru</h2>
+        <section id="kegiatan" class="mb-20 scroll-mt-24">
+            <div class="flex items-center justify-between mb-8">
+                <h2 class="text-3xl font-bold text-accent">Kegiatan Terbaru</h2>
+                </div>
             
             <% if(kegiatan && kegiatan.length > 0) { %>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                     <% for(let item of kegiatan) { %>
-                        <div class="bg-white rounded-lg shadow-lg overflow-hidden transition-transform transform hover:-translate-y-1">
-                            <img src="https://via.placeholder.com/400x250?text=Foto+Kegiatan" alt="Foto Kegiatan" class="w-full h-48 object-cover">
-                            <div class="p-5">
-                                <p class="text-sm text-gray-500 mb-1">
+                        <div class="bg-surface border border-white/5 rounded-xl overflow-hidden shadow-lg hover:shadow-accent/20 transition-all duration-300 hover:-translate-y-1">
+                            <div class="relative h-48 overflow-hidden">
+                                <img src="<%= (item.photos && item.photos.length > 0) ? '/images/kegiatan/' + item.photos[0].Foto : 'https://via.placeholder.com/400x250?text=' + encodeURIComponent(item.Judul) %>" alt="<%= item.Judul %>" class="w-full h-48 object-cover">
+                            </div>
+                            <div class="p-6">
+                                <p class="text-sm text-accent font-semibold mb-2">
                                     <%= new Date(item.Tanggal).toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) %>
                                 </p>
-                                <h3 class="text-xl font-semibold text-gray-900 mb-2 truncate"><%= item.Judul %></h3>
-                                <a href="/kegiatan/<%= item.ID_Kegiatan %>" class="text-blue-500 hover:text-blue-600 font-medium">
+                                <h3 class="text-xl font-bold text-pale mb-3 truncate"><%= item.Judul %></h3>
+                                <a href="/kegiatan/<%= item.ID_Kegiatan %>" class="inline-block text-muted hover:text-white border-b border-accent/50 hover:border-accent pb-0.5 transition-colors">
                                     Lihat Detail &rarr;
                                 </a>
                             </div>
@@ -40,40 +81,50 @@
                     <% } %>
                 </div>
             <% } else { %>
-                <p class="text-center text-gray-500">Belum ada data kegiatan untuk ditampilkan.</p>
+                <p class="text-center text-muted py-10 border border-dashed border-white/10 rounded-lg">
+                    Belum ada data kegiatan untuk ditampilkan.
+                </p>
             <% } %>
         </section>
 
-        <section id="produk" class="mb-12 scroll-mt-20">
-            <h2 class="text-3xl font-bold text-gray-800 text-center mb-8">Produk Unggulan</h2>
+        <section id="produk" class="mb-12 scroll-mt-24">
+            <h2 class="text-3xl font-bold text-accent text-center mb-10">Produk Unggulan</h2>
+            
             <% if(produk && produk.length > 0) { %>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                     <% for(let item of produk) { %>
-                        <div class="bg-white rounded-lg shadow-lg overflow-hidden transition-transform transform hover:-translate-y-1">
-                            <img src="https://via.placeholder.com/400x250?text=Foto+Produk" alt="Foto Produk" class="w-full h-48 object-cover">
-                            <div class="p-5">
-                                <span class="inline-block bg-blue-100 text-blue-700 text-xs font-semibold px-2 py-1 rounded-full mb-2">
+                        <div class="bg-surface border border-white/5 rounded-xl overflow-hidden shadow-lg hover:shadow-accent/20 transition-all duration-300 group">
+                            <div class="relative h-56 overflow-hidden bg-black/20">
+                                <img src="<%= (item.photos && item.photos.length > 0) ? '/images/produk/' + item.photos[0].Foto : 'https://via.placeholder.com/400x250?text=' + encodeURIComponent(item.Nama) %>" alt="<%= item.Nama %>" class="w-full h-48 object-cover">
+                                <span class="absolute top-3 right-3 bg-accent text-main text-xs font-bold px-3 py-1 rounded-full">
                                     <%= item.Kategori || 'Umum' %>
                                 </span>
-                                <h3 class="text-xl font-semibold text-gray-900 mb-2 truncate"><%= item.Nama %></h3>
-                                <p class="text-2xl font-bold text-blue-600 mb-3">
-                                    Rp <%= new Intl.NumberFormat('id-ID').format(item.Harga) %>
-                                </p>
-                                <a href="/produk/<%= item.ID_Product %>" class="w-full text-center block bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg">
-                                    Lihat Produk
-                                </a>
+                            </div>
+                            
+                            <div class="p-6">
+                                <h3 class="text-xl font-bold text-pale mb-2 truncate"><%= item.Nama %></h3>
+                                <div class="flex items-center justify-between mt-4">
+                                    <p class="text-2xl font-bold text-accent">
+                                        Rp <%= new Intl.NumberFormat('id-ID').format(item.Harga) %>
+                                    </p>
+                                    <a href="/produk/<%= item.ID_Product %>" class="bg-accent text-main font-bold py-2 px-4 rounded-lg hover:bg-opacity-90 transition-colors">
+                                        Lihat
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     <% } %>
                 </div>
             <% } else { %>
-                <p class="text-center text-gray-500">Belum ada data produk untuk ditampilkan.</p>
+                <p class="text-center text-muted py-10 border border-dashed border-white/10 rounded-lg">
+                    Belum ada data produk untuk ditampilkan.
+                </p>
             <% } %>
         </section>
     </main>
 
-    <footer class="bg-gray-800 text-gray-300 text-center p-8 mt-12">
-        <p>&copy; 2024 Bausasran. All rights reserved.</p>
+    <footer class="bg-surface border-t border-white/5 text-muted text-center py-8 mt-auto">
+        <p>&copy; 2024 Kampung Wisata Bausasran. All rights reserved.</p>
     </footer>
 
 </body>

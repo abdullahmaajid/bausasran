@@ -3,94 +3,198 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tambah Review Baru</title>
-    <link rel="stylesheet" href="/css/style.css">
+    <title>Tambah Review Baru - Admin Bausasran</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        main: '#003024',    // Background Gelap
+                        surface: '#004030', // Warna Kartu
+                        accent: '#83C540',  // Hijau Neon
+                        pale: '#F5FEF9',    // Teks Putih
+                        muted: '#A3C2B8',   // Teks Pudar
+                        darker: '#00251a',  // Background Input
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style type="text/tailwindcss">
+        @layer base {
+            body { @apply bg-main text-pale font-sans antialiased; }
+        }
+        
+        /* Custom Scrollbar */
+        .custom-scroll::-webkit-scrollbar { width: 6px; }
+        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #004030; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); }
+        .custom-scroll::-webkit-scrollbar-thumb:hover { background: #83C540; }
+
+        /* Input Styles */
+        .form-input {
+            @apply w-full bg-darker border border-white/10 rounded-xl px-4 py-3 text-sm text-pale focus:border-accent focus:ring-1 focus:ring-accent outline-none transition-all placeholder-white/20 appearance-none;
+        }
+        .form-label {
+            @apply block text-sm font-bold text-muted mb-2 uppercase tracking-wider;
+        }
+        
+        /* Select Dropdown Arrow Customization */
+        .select-wrapper {
+            @apply relative;
+        }
+        .select-wrapper::after {
+            content: '';
+            @apply absolute right-4 top-1/2 -translate-y-1/2 w-2 h-2 border-r-2 border-b-2 border-muted pointer-events-none rotate-45;
+        }
+    </style>
 </head>
-<body class="flex bg-gray-100">
+
+<body class="flex h-screen overflow-hidden w-full">
 
     <%- include('../../partials/admin_sidebar.ejs') %>
 
-    <main class="flex-1 p-10">
+    <main class="flex-1 h-full overflow-y-auto overflow-x-hidden custom-scroll relative">
         <%- include('../../partials/flash.ejs') %>
 
-        <h1 class="text-3xl font-bold text-gray-800 mb-6">Tambah Review Baru</h1>
-        
-        <div class="bg-white p-8 rounded-lg shadow-lg max-w-2xl mx-auto">
-            <form action="/admin/testimoni" method="POST">
+        <form action="/admin/testimoni" method="POST" class="min-h-full p-6 md:p-8 flex flex-col">
+            
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 shrink-0">
+                <div>
+                    <h1 class="text-3xl font-bold text-pale tracking-tight">Tambah Review</h1>
+                    <p class="text-muted text-sm mt-1">Input manual testimoni warga atau pelanggan.</p>
+                </div>
+                <div class="md:hidden flex gap-2">
+                    <button type="submit" class="flex-1 bg-accent text-main font-bold py-2 px-4 rounded-lg text-sm">Simpan</button>
+                    <a href="/admin/testimoni" class="bg-surface text-pale py-2 px-4 rounded-lg text-sm border border-white/10">Batal</a>
+                </div>
+            </div>
+
+            <div class="flex flex-col lg:flex-row gap-6 items-stretch flex-1">
                 
-                <div class="mb-4">
-                    <label for="ID_Pengguna" class="block text-gray-700 text-sm font-semibold mb-2">Pengguna (Pemberi Review)*</label>
-                    <select id="ID_Pengguna" name="ID_Pengguna" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700" required>
-                        <option value="">-- Pilih Pengguna --</option>
-                        <% if(penggunaList && penggunaList.length > 0) { %>
-                            <% for(let pengguna of penggunaList) { %>
-                                <option value="<%= pengguna.ID_Pengguna %>"><%= pengguna.Nama %> (<%= pengguna.Role %>)</option>
-                            <% } %>
-                        <% } %>
-                    </select>
+                <div class="w-full lg:flex-1 min-w-0 flex flex-col">
+                    
+                    <div class="bg-surface rounded-2xl p-6 md:p-8 shadow-xl border border-white/5 flex-1 flex flex-col h-full">
+                        
+                        <div class="mb-6">
+                            <label for="ID_Pengguna" class="form-label">Pengguna (Pemberi Review)</label>
+                            <div class="select-wrapper">
+                                <select id="ID_Pengguna" name="ID_Pengguna" class="form-input cursor-pointer" required>
+                                    <option value="" disabled selected>-- Pilih Warga / User --</option>
+                                    <% if(typeof penggunaList !== 'undefined' && penggunaList.length > 0) { %>
+                                        <% for(let pengguna of penggunaList) { %>
+                                            <option value="<%= pengguna.ID_Pengguna %>">
+                                                <%= pengguna.Nama %> (<%= pengguna.Role %>)
+                                            </option>
+                                        <% } %>
+                                    <% } else { %>
+                                        <option value="" disabled>Data pengguna tidak tersedia</option>
+                                    <% } %>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="mb-6">
+                            <label for="Rating" class="form-label">Berikan Rating</label>
+                            <div class="select-wrapper">
+                                <select id="Rating" name="Rating" class="form-input cursor-pointer text-yellow-400 font-bold" required>
+                                    <option value="" disabled selected class="text-gray-400">-- Pilih Bintang --</option>
+                                    <option value="5">⭐⭐⭐⭐⭐ (5) - Sangat Puas</option>
+                                    <option value="4">⭐⭐⭐⭐ (4) - Puas</option>
+                                    <option value="3">⭐⭐⭐ (3) - Cukup</option>
+                                    <option value="2">⭐⭐ (2) - Kurang</option>
+                                    <option value="1">⭐ (1) - Kecewa</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="flex-1 flex flex-col min-h-[200px]">
+                            <label for="Ulasan" class="form-label text-xs mb-3 shrink-0">Komentar / Ulasan</label>
+                            <textarea id="Ulasan" name="Ulasan" 
+                                class="w-full h-full bg-darker/50 border border-white/10 rounded-xl p-5 text-base text-pale leading-relaxed focus:border-accent outline-none transition-all resize-none placeholder-white/20" 
+                                placeholder="Tuliskan detail pengalaman, saran, atau kritik membangun..."></textarea>
+                        </div>
+                    </div>
+
                 </div>
 
-                <div class="mb-4">
-                    <label for="Kategori" class="block text-gray-700 text-sm font-semibold mb-2">Kategori Review*</label>
-                    <select id="Kategori" name="Kategori" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700" required onchange="toggleKategori(this.value)">
-                        <option value="">-- Pilih Kategori --</option>
-                        <option value="Product">Product (Produk)</option>
-                        <option value="Kegiatan">Kegiatan</option>
-                    </select>
-                </div>
+                <div class="w-full lg:w-[350px] shrink-0 flex flex-col gap-6">
+                    
+                    <div class="bg-surface rounded-2xl p-6 shadow-xl border border-white/5 h-full flex flex-col">
+                        <h3 class="text-lg font-bold text-pale mb-4 flex items-center gap-2">
+                            <svg class="w-5 h-5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path></svg>
+                            Target Review
+                        </h3>
+                        
+                        <div class="space-y-6 flex-1">
+                            
+                            <div>
+                                <label for="Kategori" class="form-label">Tipe Objek</label>
+                                <div class="select-wrapper">
+                                    <select id="Kategori" name="Kategori" class="form-input cursor-pointer" required onchange="toggleKategori(this.value)">
+                                        <option value="" disabled selected>-- Pilih Tipe --</option>
+                                        <option value="Product">🛒 Produk UMKM</option>
+                                        <option value="Kegiatan">🗓️ Kegiatan / Acara</option>
+                                    </select>
+                                </div>
+                                <p class="text-[10px] text-muted mt-2 leading-relaxed">Pilih apakah review ini ditujukan untuk barang jualan (Produk) atau acara desa (Kegiatan).</p>
+                            </div>
 
-                <div class="mb-4" id="produk-section" style="display: none;">
-                    <label for="ID_Product" class="block text-gray-700 text-sm font-semibold mb-2">Pilih Produk</label>
-                    <select id="ID_Product" name="ID_Product" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700">
-                        <option value="">-- Pilih Produk --</option>
-                        <% if(produkList && produkList.length > 0) { %>
-                            <% for(let produk of produkList) { %>
-                                <option value="<%= produk.ID_Product %>"><%= produk.Nama %></option>
-                            <% } %>
-                        <% } %>
-                    </select>
-                </div>
+                            <hr class="border-white/10">
 
-                <div class="mb-4" id="kegiatan-section" style="display: none;">
-                    <label for="ID_Kegiatan" class="block text-gray-700 text-sm font-semibold mb-2">Pilih Kegiatan</label>
-                    <select id="ID_Kegiatan" name="ID_Kegiatan" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700">
-                        <option value="">-- Pilih Kegiatan --</option>
-                        <% if(kegiatanList && kegiatanList.length > 0) { %>
-                            <% for(let kegiatan of kegiatanList) { %>
-                                <option value="<%= kegiatan.ID_Kegiatan %>"><%= kegiatan.Judul %></option>
-                            <% } %>
-                        <% } %>
-                    </select>
-                </div>
+                            <div id="produk-section" class="hidden animate-fade-in">
+                                <label for="ID_Product" class="form-label text-accent">Pilih Produk</label>
+                                <div class="select-wrapper">
+                                    <select id="ID_Product" name="ID_Product" class="form-input cursor-pointer bg-darker/80 border-accent/30 focus:border-accent">
+                                        <option value="">-- Cari Produk --</option>
+                                        <% if(typeof produkList !== 'undefined' && produkList.length > 0) { %>
+                                            <% for(let produk of produkList) { %>
+                                                <option value="<%= produk.ID_Product %>"><%= produk.Nama %></option>
+                                            <% } %>
+                                        <% } else { %>
+                                            <option value="" disabled>Data produk kosong</option>
+                                        <% } %>
+                                    </select>
+                                </div>
+                            </div>
 
-                <div class="mb-4">
-                    <label for="Rating" class="block text-gray-700 text-sm font-semibold mb-2">Rating*</label>
-                    <select id="Rating" name="Rating" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700" required>
-                        <option value="">-- Pilih Rating --</option>
-                        <option value="1">⭐ 1 - Sangat Buruk</option>
-                        <option value="2">⭐⭐ 2 - Buruk</option>
-                        <option value="3">⭐⭐⭐ 3 - Cukup</option>
-                        <option value="4">⭐⭐⭐⭐ 4 - Baik</option>
-                        <option value="5">⭐⭐⭐⭐⭐ 5 - Sangat Baik</option>
-                    </select>
-                </div>
+                            <div id="kegiatan-section" class="hidden animate-fade-in">
+                                <label for="ID_Kegiatan" class="form-label text-accent">Pilih Kegiatan</label>
+                                <div class="select-wrapper">
+                                    <select id="ID_Kegiatan" name="ID_Kegiatan" class="form-input cursor-pointer bg-darker/80 border-accent/30 focus:border-accent">
+                                        <option value="">-- Cari Kegiatan --</option>
+                                        <% if(typeof kegiatanList !== 'undefined' && kegiatanList.length > 0) { %>
+                                            <% for(let kegiatan of kegiatanList) { %>
+                                                <option value="<%= kegiatan.ID_Kegiatan %>"><%= kegiatan.Judul %></option>
+                                            <% } %>
+                                        <% } else { %>
+                                            <option value="" disabled>Data kegiatan kosong</option>
+                                        <% } %>
+                                    </select>
+                                </div>
+                            </div>
 
-                <div class="mb-6">
-                    <label for="Ulasan" class="block text-gray-700 text-sm font-semibold mb-2">Ulasan/Komentar</label>
-                    <textarea id="Ulasan" name="Ulasan" rows="4" placeholder="Tulis ulasan atau komentar..." class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700"></textarea>
-                    <p class="text-xs text-gray-500 mt-1">Opsional. Jelaskan pengalaman atau pendapat.</p>
-                </div>
+                        </div>
 
-                <div class="flex items-center space-x-4">
-                    <button type="submit" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
-                        Simpan Review
-                    </button>
-                    <a href="/admin/testimoni" class="w-full text-center bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded">
-                        Batal
-                    </a>
-                </div>
-            </form>
-        </div>
+                        <div class="hidden md:flex flex-col gap-3 mt-8 pt-6 border-t border-white/10">
+                            <button type="submit" class="w-full bg-accent hover:bg-white text-main font-bold py-3 px-6 rounded-xl transition-all shadow-lg hover:shadow-accent/20 flex justify-center items-center gap-2">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                Simpan Review
+                            </button>
+                            <a href="/admin/testimoni" class="w-full text-center py-2 text-sm text-muted hover:text-white transition-colors">
+                                Batalkan
+                            </a>
+                        </div>
+                    </div>
+
+                </div> </div> </form>
     </main>
 
     <script>
@@ -100,25 +204,51 @@
             const produkSelect = document.getElementById('ID_Product');
             const kegiatanSelect = document.getElementById('ID_Kegiatan');
 
+            // Reset Animation Classes
+            produkSection.classList.remove('hidden');
+            kegiatanSection.classList.remove('hidden');
+
             if (kategori === 'Product') {
+                // Show Produk
                 produkSection.style.display = 'block';
-                kegiatanSection.style.display = 'none';
+                kegiatanSection.style.display = 'none'; // Gunakan style display agar tidak bentrok dgn class transition
+                produkSection.classList.add('block');
+                kegiatanSection.classList.add('hidden');
+                
+                // Set Requirement
                 produkSelect.required = true;
                 kegiatanSelect.required = false;
-                kegiatanSelect.value = ''; // Reset kegiatan
+                kegiatanSelect.value = ''; 
+
             } else if (kategori === 'Kegiatan') {
+                // Show Kegiatan
                 produkSection.style.display = 'none';
                 kegiatanSection.style.display = 'block';
+                produkSection.classList.add('hidden');
+                kegiatanSection.classList.add('block');
+
+                // Set Requirement
                 produkSelect.required = false;
                 kegiatanSelect.required = true;
-                produkSelect.value = ''; // Reset produk
+                produkSelect.value = '';
+
             } else {
+                // Hide All
+                produkSection.classList.add('hidden');
+                kegiatanSection.classList.add('hidden');
                 produkSection.style.display = 'none';
                 kegiatanSection.style.display = 'none';
+                
                 produkSelect.required = false;
                 kegiatanSelect.required = false;
             }
         }
+
+        // Initialize state on load (in case browser caches selection)
+        document.addEventListener('DOMContentLoaded', () => {
+            const currentVal = document.getElementById('Kategori').value;
+            if(currentVal) toggleKategori(currentVal);
+        });
     </script>
 </body>
 </html>

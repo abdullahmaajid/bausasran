@@ -3,95 +3,199 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tambah Prestasi Baru</title>
-    <link rel="stylesheet" href="/css/style.css">
+    <title>Tambah Prestasi Baru - Admin Bausasran</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        main: '#003024',    // Background Gelap
+                        surface: '#004030', // Warna Kartu
+                        accent: '#83C540',  // Hijau Neon
+                        pale: '#F5FEF9',    // Teks Putih
+                        muted: '#A3C2B8',   // Teks Pudar
+                        darker: '#00251a',  // Background Input
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style type="text/tailwindcss">
+        @layer base {
+            body { @apply bg-main text-pale font-sans antialiased; }
+        }
+        
+        /* Custom Scrollbar */
+        .custom-scroll::-webkit-scrollbar { width: 6px; }
+        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #004030; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); }
+        .custom-scroll::-webkit-scrollbar-thumb:hover { background: #83C540; }
+
+        /* Input Styles */
+        .form-input {
+            @apply w-full bg-darker border border-white/10 rounded-xl px-4 py-3 text-sm text-pale focus:border-accent focus:ring-1 focus:ring-accent outline-none transition-all placeholder-white/20;
+        }
+        .form-label {
+            @apply block text-sm font-bold text-muted mb-2 uppercase tracking-wider;
+        }
+        
+        /* Fix Date Input Icon */
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            filter: invert(1);
+            cursor: pointer;
+            opacity: 0.6;
+        }
+        input[type="date"]::-webkit-calendar-picker-indicator:hover { opacity: 1; }
+    </style>
 </head>
-<body class="flex bg-gray-100">
+
+<body class="flex h-screen overflow-hidden w-full">
+
     <%- include('../../partials/admin_sidebar.ejs') %>
-    <main class="flex-1 p-10">
+
+    <main class="flex-1 h-full overflow-y-auto overflow-x-hidden custom-scroll relative">
         <%- include('../../partials/flash.ejs') %>
-        <h1 class="text-3xl font-bold text-gray-800 mb-6">Tambah Prestasi Baru</h1>
-        <div class="bg-white p-8 rounded-lg shadow-lg max-w-2xl mx-auto">
-            <form action="/admin/prestasi" method="POST" enctype="multipart/form-data">
+
+        <form action="/admin/prestasi" method="POST" enctype="multipart/form-data" class="min-h-full p-6 md:p-8 flex flex-col">
+            
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 shrink-0">
+                <div>
+                    <h1 class="text-3xl font-bold text-pale tracking-tight">Tambah Prestasi</h1>
+                    <p class="text-muted text-sm mt-1">Arsip penghargaan dan pencapaian wilayah.</p>
+                </div>
+                <div class="md:hidden flex gap-2">
+                    <button type="submit" class="flex-1 bg-accent text-main font-bold py-2 px-4 rounded-lg text-sm">Simpan</button>
+                    <a href="/admin/prestasi" class="bg-surface text-pale py-2 px-4 rounded-lg text-sm border border-white/10">Batal</a>
+                </div>
+            </div>
+
+            <div class="flex flex-col lg:flex-row gap-6 items-stretch flex-1">
                 
-                <div class="mb-4">
-                    <label for="Judul" class="block text-gray-700 text-sm font-semibold mb-2">Judul Prestasi/Penghargaan*</label>
-                    <input type="text" id="Judul" name="Judul" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700" required>
-                </div>
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                    <div>
-                        <label for="Tanggal" class="block text-gray-700 text-sm font-semibold mb-2">Tanggal Diraih*</label>
-                        <input type="date" id="Tanggal" name="Tanggal" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700" required>
-                    </div>
-                    <div>
-                        <label for="Kategori" class="block text-gray-700 text-sm font-semibold mb-2">Kategori</label>
-                        <input type="text" id="Kategori" name="Kategori" placeholder="Cth: Nasional, Lokal" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700">
-                    </div>
-                </div>
+                <div class="w-full lg:flex-1 min-w-0 flex flex-col">
+                    
+                    <div class="bg-surface rounded-2xl p-6 md:p-8 shadow-xl border border-white/5 flex-1 flex flex-col h-full">
+                        
+                        <div class="mb-6 shrink-0">
+                            <label for="Judul" class="form-label text-xs mb-2">Nama Penghargaan / Juara</label>
+                            <input type="text" id="Judul" name="Judul" 
+                                class="w-full bg-transparent border-b border-white/10 px-0 py-2 text-2xl md:text-3xl font-bold text-pale focus:border-accent outline-none transition-colors placeholder-white/20" 
+                                placeholder="Cth: Juara 1 Lomba Kebersihan Tingkat Provinsi" required>
+                        </div>
 
-                <div class="mb-6">
-                    <label for="fotoPrestasi" class="block text-gray-700 text-sm font-semibold mb-2">Galeri Foto (Sertifikat/Dokumentasi)</label>
-                    <input 
-                        type="file" 
-                        id="fotoPrestasi" 
-                        name="fotoPrestasi" 
-                        accept="image/png, image/jpeg, image/jpg" 
-                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700"
-                        multiple 
-                    >
-                    <p class="text-xs text-gray-500 mt-1">Bisa lebih dari 1 file. Maks 5MB per file.</p>
-                </div>
-
-                <div id="foto-preview-container" class="mt-4 grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4">
+                        <div class="flex-1 flex flex-col min-h-[300px]">
+                            <label for="Deskripsi" class="form-label text-xs mb-3 shrink-0">Deskripsi Pencapaian (Opsional)</label>
+                            <textarea id="Deskripsi" name="Deskripsi" 
+                                class="w-full h-full bg-darker/50 border border-white/10 rounded-xl p-5 text-base text-pale leading-relaxed focus:border-accent outline-none transition-all resize-none placeholder-white/20" 
+                                placeholder="Ceritakan detail prestasi, siapa penerimanya, dan konteks penghargaan tersebut..."></textarea>
+                        </div>
                     </div>
 
-
-                <div class="flex items-center space-x-4 mt-6">
-                    <button type="submit" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
-                        Simpan Data Prestasi
-                    </button>
-                    <a href="/admin/prestasi" class="w-full text-center bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded">
-                        Batal
-                    </a>
                 </div>
-            </form>
-        </div>
+
+                <div class="w-full lg:w-[350px] shrink-0 flex flex-col gap-6">
+                    
+                    <div class="bg-surface rounded-2xl p-6 shadow-xl border border-white/5">
+                        <h3 class="text-lg font-bold text-pale mb-4 flex items-center gap-2">
+                            <svg class="w-5 h-5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path></svg>
+                            Detail Prestasi
+                        </h3>
+                        
+                        <div class="space-y-4">
+                            <div>
+                                <label for="Tanggal" class="text-xs text-muted font-semibold block mb-1.5">Tanggal Diraih</label>
+                                <input type="date" id="Tanggal" name="Tanggal" class="form-input" required>
+                            </div>
+
+                            <div>
+                                <label for="Kategori" class="text-xs text-muted font-semibold block mb-1.5">Tingkat / Kategori</label>
+                                <div class="relative">
+                                    <input type="text" id="Kategori" name="Kategori" list="kategoriList" class="form-input" placeholder="Pilih atau ketik...">
+                                    <div class="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-muted">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                    </div>
+                                    <datalist id="kategoriList">
+                                        <option value="Kelurahan">
+                                        <option value="Kecamatan">
+                                        <option value="Kota Yogyakarta">
+                                        <option value="Provinsi DIY">
+                                        <option value="Nasional">
+                                    </datalist>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="hidden md:flex flex-col gap-3 mt-6 pt-6 border-t border-white/10">
+                            <button type="submit" class="w-full bg-accent hover:bg-white text-main font-bold py-3 px-6 rounded-xl transition-all shadow-lg hover:shadow-accent/20 flex justify-center items-center gap-2">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                Simpan Data
+                            </button>
+                            <a href="/admin/prestasi" class="w-full text-center py-2 text-sm text-muted hover:text-white transition-colors">
+                                Batalkan
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="bg-surface rounded-2xl p-6 shadow-xl border border-white/5 flex-1 flex flex-col justify-center">
+                        <h3 class="text-lg font-bold text-pale mb-4 flex items-center gap-2">
+                            <svg class="w-5 h-5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                            Sertifikat / Foto
+                        </h3>
+                        
+                        <div class="w-full bg-darker/50 border-2 border-dashed border-white/10 rounded-xl p-4 text-center hover:border-accent/50 transition-colors group relative overflow-hidden flex-1 flex flex-col justify-center min-h-[150px]">
+                            <input type="file" id="fotoPrestasi" name="fotoPrestasi" multiple accept="image/png, image/jpeg, image/jpg" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" onchange="previewFiles()">
+                            
+                            <div class="flex flex-col items-center justify-center py-2">
+                                <div class="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                                    <svg class="w-6 h-6 text-muted group-hover:text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+                                </div>
+                                <span class="text-sm font-bold text-pale group-hover:text-accent transition-colors">Upload Dokumentasi</span>
+                                <span class="text-[10px] text-muted mt-1">Max 5MB (JPG/PNG)</span>
+                            </div>
+                        </div>
+
+                        <div id="filePreview" class="mt-4 hidden">
+                            <p class="text-[10px] text-muted font-bold uppercase mb-2">File Terpilih:</p>
+                            <ul id="fileList" class="space-y-2"></ul>
+                        </div>
+                    </div>
+
+                </div> </div> </form>
     </main>
 
     <script>
-        function setupImagePreview(inputId, containerId) {
-            const inputElement = document.getElementById(inputId);
-            const previewContainer = document.getElementById(containerId);
+        // File Preview Logic (Menampilkan nama file yang dipilih)
+        function previewFiles() {
+            const input = document.getElementById('fotoPrestasi');
+            const container = document.getElementById('filePreview');
+            const list = document.getElementById('fileList');
+            
+            list.innerHTML = ''; 
+            
+            if (input.files.length > 0) {
+                container.classList.remove('hidden');
+                Array.from(input.files).forEach(file => {
+                    // Validasi tipe file simple
+                    if (!file.type.startsWith('image/')) return;
 
-            if (!inputElement || !previewContainer) return;
-
-            inputElement.addEventListener('change', function(event) {
-                previewContainer.innerHTML = ''; 
-                if (!this.files || this.files.length === 0) return;
-
-                Array.from(this.files).forEach(file => {
-                    
-                    // === INI YANG DIUBAH ===
-                    // 'continue;' diganti menjadi 'return;'
-                    if (!file.type.startsWith('image/')) return; 
-                    // ======================
-
-                    const reader = new FileReader();
-
-                    reader.onload = function(e) {
-                        const img = document.createElement('img');
-                        img.src = e.target.result;
-                        img.className = 'h-24 w-full object-cover rounded-md shadow-md'; 
-                        previewContainer.appendChild(img);
-                    }
-                    reader.readAsDataURL(file);
+                    const li = document.createElement('li');
+                    li.className = "text-xs text-pale bg-white/5 px-2 py-1.5 rounded border border-white/5 flex items-center gap-2 truncate";
+                    li.innerHTML = `
+                        <svg class="w-3 h-3 text-accent shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                        <span class="truncate">${file.name}</span>
+                    `;
+                    list.appendChild(li);
                 });
-            });
+            } else {
+                container.classList.add('hidden');
+            }
         }
-
-        // Panggil fungsi untuk halaman ini
-        setupImagePreview('fotoPrestasi', 'foto-preview-container');
     </script>
 </body>
 </html>

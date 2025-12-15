@@ -3,184 +3,208 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Galeri - <%= groupFoto.Nama %></title>
-    <link rel="stylesheet" href="/css/style.css">
+    <title>Edit Galeri: <%= groupFoto.Nama %></title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        main: '#003024',    // Background Gelap
+                        surface: '#004030', // Warna Kartu
+                        accent: '#83C540',  // Hijau Neon
+                        pale: '#F5FEF9',    // Teks Putih
+                        muted: '#A3C2B8',   // Teks Pudar
+                        darker: '#00251a',  // Background Input
+                        danger: '#ff4d4d',  // Merah Error
+                        warning: '#FFC107', // Kuning Warning
+                    },
+                    fontFamily: { sans: ['Inter', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer base { body { @apply bg-main text-pale font-sans antialiased; } }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #004030; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #83C540; }
+
+        /* Input Styling */
+        .form-input {
+            @apply w-full bg-darker border border-white/10 rounded-xl px-4 py-3 text-sm text-pale focus:border-accent focus:ring-1 focus:ring-accent outline-none transition-all placeholder-white/20;
+        }
+        .form-label {
+            @apply block text-xs font-bold text-muted mb-2 uppercase tracking-wider;
+        }
+    </style>
 </head>
-<body class="flex bg-gray-100">
+
+<body class="flex h-screen overflow-hidden w-full">
 
     <%- include('../../partials/admin_sidebar.ejs') %>
 
-    <main class="flex-1 p-10">
+    <main class="flex-1 h-full overflow-y-auto overflow-x-hidden p-6 md:p-8 relative">
         <%- include('../../partials/flash.ejs') %>
 
-        <h1 class="text-3xl font-bold text-gray-800 mb-6">Edit Galeri: <%= groupFoto.Nama %></h1>
-        
-        <!-- Form Edit Nama & Tambah Foto -->
-        <div class="bg-white p-8 rounded-lg shadow-lg mb-6">
-            <h2 class="text-xl font-bold text-gray-800 mb-4">Informasi Galeri</h2>
-            <form action="/admin/galeri/<%= groupFoto.ID_GroupFoto %>/edit" method="POST" enctype="multipart/form-data">
+        <form action="/admin/galeri/<%= groupFoto.ID_GroupFoto %>/edit" method="POST" enctype="multipart/form-data">
+            
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
                 
-                <div class="mb-6">
-                    <label for="Nama" class="block text-gray-700 text-sm font-semibold mb-2">Nama Galeri/Album*</label>
-                    <input type="text" id="Nama" name="Nama" value="<%= groupFoto.Nama %>" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700" required>
+                <div class="flex-1">
+                    <h1 class="text-3xl font-bold text-pale tracking-tight flex items-center gap-2">
+                        <span class="text-accent">Edit Galeri:</span> <%= groupFoto.Nama %>
+                    </h1>
+                    <p class="text-muted text-sm mt-1">Perbarui nama album dan tambahkan foto dokumentasi baru.</p>
                 </div>
 
-                <div class="mb-6">
-                    <label for="fotoGaleri" class="block text-gray-700 text-sm font-semibold mb-2">Tambah Foto Baru (Opsional)</label>
-                    <input type="file" id="fotoGaleri" name="fotoGaleri" accept="image/png, image/jpeg, image/jpg" multiple class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700">
-                    <p class="text-xs text-gray-500 mt-1">Pilih multiple foto (max 20). Hanya .png, .jpg, .jpeg. Maks 5MB per file.</p>
-                    
-                    <!-- Preview Container -->
-                    <div id="preview-container" class="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4"></div>
-                </div>
-
-                <div class="flex items-center space-x-4">
-                    <button type="submit" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
+                <div class="flex items-center gap-3 shrink-0">
+                    <a href="/admin/galeri" class="bg-surface hover:bg-white/10 text-pale font-bold py-2.5 px-6 rounded-xl border border-white/10 transition-all text-sm shadow-lg text-center">
+                        Kembali
+                    </a>
+                    <button type="submit" class="bg-accent hover:bg-accent/90 text-main font-bold py-2.5 px-6 rounded-xl shadow-lg shadow-accent/20 transition-all flex items-center gap-2 text-sm">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                         Simpan Perubahan
                     </button>
-                    <a href="/admin/galeri" class="w-full text-center bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded">
-                        Batal
-                    </a>
                 </div>
-            </form>
-        </div>
-
-        <!-- Kelola Foto Existing -->
-        <div class="bg-white p-8 rounded-lg shadow-lg">
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-xl font-bold text-gray-800">Foto yang Ada (<%= fotoList.length %> foto)</h2>
-                <button type="button" onclick="deleteSelected()" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg">
-                    Hapus yang Dipilih
-                </button>
             </div>
 
-            <% if(fotoList && fotoList.length > 0) { %>
-                <form id="bulk-delete-form" action="/admin/galeri/<%= groupFoto.ID_GroupFoto %>/bulk-delete-fotos" method="POST">
-                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                        <% for(let foto of fotoList) { %>
-                            <div class="relative group">
-                                <!-- Checkbox -->
-                                <div class="absolute top-2 left-2 z-10">
-                                    <input type="checkbox" name="selectedFotoIds" value="<%= foto.ID_Foto %>" class="foto-checkbox w-5 h-5">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
+                
+                <div class="lg:col-span-2 bg-surface rounded-2xl p-6 shadow-xl border border-white/5 flex flex-col h-full">
+                    <h3 class="text-lg font-bold text-pale mb-6 border-b border-white/5 pb-4 flex items-center gap-2 shrink-0">
+                        <svg class="w-5 h-5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                        Informasi Album
+                    </h3>
+                    
+                    <div class="space-y-5 h-full">
+                        <div>
+                            <label for="Nama" class="form-label">Nama Galeri / Album</label>
+                            <input type="text" id="Nama" name="Nama" value="<%= groupFoto.Nama %>" class="form-input text-lg font-bold" placeholder="Contoh: Kegiatan Maulid Nabi 2024" required>
+                            <p class="text-xs text-muted mt-2 opacity-60">Nama ini akan muncul sebagai judul album di halaman depan.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-1 h-full">
+                    <div class="bg-surface rounded-2xl p-6 shadow-xl border border-white/5 flex flex-col h-full">
+                        <h3 class="text-lg font-bold text-pale mb-6 border-b border-white/5 pb-4 flex items-center gap-2 shrink-0">
+                            <svg class="w-5 h-5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                            Tambah Foto Baru
+                        </h3>
+                        
+                        <div class="relative group w-full flex-1 min-h-[160px] bg-darker/50 border-2 border-dashed border-white/10 rounded-xl flex flex-col items-center justify-center hover:border-accent/50 transition-colors cursor-pointer mb-4">
+                            <input type="file" id="fotoGaleri" name="fotoGaleri" multiple accept="image/png, image/jpeg, image/jpg" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+                            <div class="flex flex-col items-center pointer-events-none p-4 text-center">
+                                <svg class="w-10 h-10 text-muted mb-3 group-hover:text-accent transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                                <span class="text-xs text-muted font-bold uppercase tracking-wider group-hover:text-pale">Klik untuk Upload</span>
+                                <span class="text-[10px] text-muted mt-1 opacity-50">Max 5MB / file</span>
+                            </div>
+                        </div>
+
+                        <div id="foto-preview-container" class="grid grid-cols-3 gap-2 shrink-0 empty:hidden"></div>
+                    </div>
+                </div>
+            </div>
+        </form>
+
+        <div class="mt-8 bg-surface rounded-2xl p-6 md:p-8 shadow-xl border border-white/5">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6 border-b border-white/5 pb-4">
+                <h3 class="text-lg font-bold text-pale flex items-center gap-2">
+                    <svg class="w-5 h-5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+                    Manajemen Foto (<%= fotoList ? fotoList.length : 0 %>)
+                </h3>
+            </div>
+
+            <% if (fotoList && fotoList.length > 0) { %>
+                <form action="/admin/galeri/<%= groupFoto.ID_GroupFoto %>/bulk-delete-fotos" method="POST" id="bulk-foto-form">
+                    
+                    <div class="flex items-center gap-4 mb-4 bg-darker/50 p-3 rounded-xl border border-white/5">
+                        <label class="flex items-center gap-2 cursor-pointer select-none text-sm text-muted hover:text-pale transition-colors">
+                            <input type="checkbox" id="select-all-fotos" class="accent-accent w-4 h-4 rounded cursor-pointer">
+                            <span>Pilih Semua</span>
+                        </label>
+                        <div class="h-4 w-px bg-white/10"></div>
+                        <button type="submit" id="btn-delete-bulk" disabled class="text-sm font-bold text-danger disabled:opacity-30 disabled:cursor-not-allowed hover:text-red-400 transition-colors flex items-center gap-1">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                            Hapus Terpilih
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                        <% fotoList.forEach(foto => { %>
+                            <div class="relative group aspect-square rounded-xl overflow-hidden border border-white/10 bg-darker shadow-sm hover:border-accent/50 transition-all">
+                                
+                                <img src="/images/galeri/<%= foto.Foto %>" alt="Dokumentasi" class="w-full h-full object-cover">
+                                
+                                <div class="absolute top-2 left-2 z-20">
+                                    <input type="checkbox" name="selectedFotoIds" value="<%= foto.ID_Foto %>" class="row-foto-checkbox accent-danger w-5 h-5 cursor-pointer shadow-md">
                                 </div>
-                                
-                                <!-- Image -->
-                                <img src="/images/galeri/<%= foto.Foto %>" 
-                                     alt="Foto #<%= foto.ID_Foto %>" 
-                                     class="w-full h-48 object-cover rounded-lg shadow-md cursor-pointer hover:shadow-xl transition-shadow duration-300"
-                                     onclick="openLightbox('<%= foto.Foto %>')">
-                                
-                                <!-- Delete Button Overlay -->
-                                <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition-opacity duration-300 rounded-lg flex items-center justify-center">
-                                    <button 
-                                        type="button"
+
+                                <div class="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-center items-center gap-2 p-4">
+                                    <button type="button" 
                                         onclick="deleteSingleFoto('<%= foto.ID_Foto %>')"
-                                        class="opacity-0 group-hover:opacity-100 bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded-lg transition-opacity duration-300">
-                                        Hapus
+                                        class="w-full py-2 bg-danger hover:bg-red-600 text-white text-xs font-bold rounded shadow-lg transition-colors flex items-center justify-center gap-1">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                        Hapus Foto
                                     </button>
                                 </div>
-                                
-                                <p class="text-xs text-gray-600 mt-2 text-center truncate" title="<%= foto.Foto %>">
-                                    <%= foto.Foto %>
-                                </p>
                             </div>
-                        <% } %>
+                        <% }) %>
                     </div>
                 </form>
             <% } else { %>
-                <div class="text-center py-12">
-                    <svg class="mx-auto h-16 w-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                    </svg>
-                    <p class="mt-4 text-gray-500 text-lg">Belum ada foto di galeri ini.</p>
+                <div class="flex flex-col items-center justify-center py-16 border-2 border-dashed border-white/5 rounded-xl text-center">
+                    <svg class="w-16 h-16 text-muted/30 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                    <p class="text-muted font-bold text-lg">Belum ada foto di album ini.</p>
+                    <p class="text-xs text-muted/50 mt-1">Silakan upload foto baru pada panel di atas.</p>
                 </div>
             <% } %>
         </div>
     </main>
 
-    <!-- Lightbox Modal -->
-    <div id="lightbox" class="hidden fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4" onclick="closeLightbox()">
-        <div class="relative max-w-5xl max-h-full">
-            <button onclick="closeLightbox()" class="absolute top-4 right-4 text-white text-4xl font-bold hover:text-gray-300">
-                &times;
-            </button>
-            <img id="lightbox-img" src="" class="max-w-full max-h-screen object-contain">
-        </div>
-    </div>
-
     <script>
-        // Preview foto baru yang diupload
-        document.getElementById('fotoGaleri').addEventListener('change', function(e) {
-            const previewContainer = document.getElementById('preview-container');
-            previewContainer.innerHTML = '';
-            
-            const files = e.target.files;
-            
-            if (files.length > 20) {
-                alert('Maksimal 20 foto!');
-                e.target.value = '';
-                return;
+        // --- 1. LOGIKA BULK DELETE ---
+        const checkAll = document.getElementById('select-all-fotos');
+        const bulkBtn = document.getElementById('btn-delete-bulk');
+        const bulkForm = document.getElementById('bulk-foto-form');
+        
+        if (checkAll && bulkForm) {
+            checkAll.addEventListener('change', function(e) {
+                const checkboxes = document.querySelectorAll('.row-foto-checkbox');
+                checkboxes.forEach(cb => cb.checked = e.target.checked);
+                toggleBulkButton();
+            });
+
+            document.querySelectorAll('.row-foto-checkbox').forEach(cb => {
+                cb.addEventListener('change', toggleBulkButton);
+            });
+
+            function toggleBulkButton() {
+                const count = document.querySelectorAll('.row-foto-checkbox:checked').length;
+                bulkBtn.disabled = count === 0;
+                bulkBtn.innerHTML = count > 0 
+                    ? `<span class="text-danger">Hapus (${count}) Foto</span>` 
+                    : `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg> Hapus Terpilih`;
             }
-            
-            for (let i = 0; i < files.length; i++) {
-                const file = files[i];
-                
-                if (file.size > 5 * 1024 * 1024) {
-                    alert(`File ${file.name} terlalu besar (max 5MB)`);
-                    continue;
+
+            bulkForm.addEventListener('submit', function(e) {
+                const checkedBoxes = document.querySelectorAll('.row-foto-checkbox:checked').length;
+                if (checkedBoxes === 0) {
+                    e.preventDefault();
+                } else if (!confirm(`Yakin hapus ${checkedBoxes} foto ini dari album?`)) {
+                    e.preventDefault();
                 }
-                
-                if (!file.type.match('image.*')) {
-                    alert(`File ${file.name} bukan gambar`);
-                    continue;
-                }
-                
-                const reader = new FileReader();
-                reader.onload = function(event) {
-                    const div = document.createElement('div');
-                    div.className = 'relative';
-                    div.innerHTML = `
-                        <img src="${event.target.result}" class="w-full h-32 object-cover rounded-lg border-2 border-gray-200">
-                        <div class="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white text-xs p-1 rounded-b-lg truncate">
-                            ${file.name}
-                        </div>
-                    `;
-                    previewContainer.appendChild(div);
-                };
-                reader.readAsDataURL(file);
-            }
-        });
-
-        // Lightbox functions
-        function openLightbox(filename) {
-            document.getElementById('lightbox').classList.remove('hidden');
-            document.getElementById('lightbox-img').src = '/images/galeri/' + filename;
+            });
         }
 
-        function closeLightbox() {
-            document.getElementById('lightbox').classList.add('hidden');
-        }
-
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') closeLightbox();
-        });
-
-        // Delete selected photos
-        function deleteSelected() {
-            const checkedBoxes = document.querySelectorAll('.foto-checkbox:checked');
-            if (checkedBoxes.length === 0) {
-                alert('Tidak ada foto yang dipilih untuk dihapus.');
-                return;
-            }
-            
-            if (confirm(`Apakah Anda yakin ingin menghapus ${checkedBoxes.length} foto yang dipilih?`)) {
-                document.getElementById('bulk-delete-form').submit();
-            }
-        }
-
-        // Delete single photo
+        // --- 2. LOGIKA HAPUS SATU FOTO ---
         function deleteSingleFoto(fotoId) {
-            if (confirm('Apakah Anda yakin ingin menghapus foto ini?')) {
+            if (confirm('Apakah Anda yakin ingin menghapus foto ini secara permanen?')) {
                 const form = document.createElement('form');
                 form.method = 'POST';
                 form.action = `/admin/galeri/<%= groupFoto.ID_GroupFoto %>/foto/${fotoId}/delete`;
@@ -188,6 +212,36 @@
                 document.body.appendChild(form);
                 form.submit();
             }
+        }
+
+        // --- 3. PREVIEW GAMBAR (UPLOAD BARU) ---
+        const inputUpload = document.getElementById('fotoGaleri');
+        const previewContainer = document.getElementById('foto-preview-container');
+
+        if (inputUpload && previewContainer) {
+            inputUpload.addEventListener('change', function(event) {
+                previewContainer.innerHTML = '';
+                const files = Array.from(this.files);
+
+                if (files.length > 20) {
+                    alert('Maksimal upload 20 foto sekaligus!');
+                    this.value = ''; // Reset input
+                    return;
+                }
+
+                files.forEach(file => {
+                    if (file.type.startsWith('image/')) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            const img = document.createElement('img');
+                            img.src = e.target.result;
+                            img.className = 'w-full h-16 object-cover rounded border border-white/20';
+                            previewContainer.appendChild(img);
+                        }
+                        reader.readAsDataURL(file);
+                    }
+                });
+            });
         }
     </script>
 </body>

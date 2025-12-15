@@ -3,131 +3,358 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kelola Kegiatan</title>
-    <link rel="stylesheet" href="/css/style.css">
-</head>
-<body class="flex bg-gray-100">
-    <%- include('../../partials/admin_sidebar.ejs') %>
-    <main class="flex-1 p-10">
-        <%- include('../../partials/flash.ejs') %>
+    <title>Kelola Kegiatan - Admin Bausasran</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        main: '#003024',    // Background Gelap
+                        surface: '#004030', // Warna Kartu
+                        accent: '#83C540',  // Hijau Neon
+                        pale: '#F5FEF9',    // Teks Putih
+                        muted: '#A3C2B8',   // Teks Pudar
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style type="text/tailwindcss">
+        @layer base {
+            body { @apply bg-main text-pale font-sans antialiased; }
+        }
+        /* Custom Checkbox */
+        .custom-checkbox {
+            @apply appearance-none h-5 w-5 border border-white/20 rounded bg-main checked:bg-accent checked:border-accent cursor-pointer transition-all relative;
+        }
+        .custom-checkbox:checked::after {
+            content: '✓';
+            @apply absolute inset-0 flex items-center justify-center text-main font-bold text-xs;
+        }
         
-        <div class="flex justify-between items-center mb-6">
-            <h1 class="text-3xl font-bold text-gray-800">Kelola Kegiatan</h1>
-            <a href="/admin/kegiatan/new" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg">
-                + Tambah Kegiatan
+        /* Date Input Dark Mode Fix */
+        input[type="date"] {
+            color-scheme: dark;
+        }
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            filter: invert(1);
+            opacity: 0.6;
+            cursor: pointer;
+        }
+        input[type="date"]::-webkit-calendar-picker-indicator:hover {
+            opacity: 1;
+        }
+    </style>
+</head>
+
+<body class="flex h-screen overflow-hidden">
+
+    <%- include('../../partials/admin_sidebar.ejs') %>
+
+    <main class="flex-1 overflow-y-auto relative p-6 md:p-10 custom-scroll">
+        <%- include('../../partials/flash.ejs') %>
+
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+            <div>
+                <h1 class="text-3xl font-bold text-pale">Kelola Kegiatan</h1>
+                <p class="text-muted text-sm mt-1">Manajemen agenda, acara, dan dokumentasi kegiatan.</p>
+            </div>
+            <a href="/admin/kegiatan/new" class="inline-flex items-center justify-center px-5 py-2.5 bg-accent hover:bg-white text-main font-bold rounded-xl transition-all shadow-lg hover:shadow-green-500/20 group">
+                <span class="mr-2 text-lg">+</span> Tambah Kegiatan
             </a>
         </div>
-        
+
+        <div class="bg-surface p-5 rounded-2xl border border-white/10 mb-6 space-y-4">
+            
+            <div class="w-full">
+                <div class="relative">
+                    <input type="text" id="searchInput" placeholder="Cari judul kegiatan atau deskripsi..." 
+                        class="w-full bg-main border border-white/10 rounded-xl px-4 py-3 text-sm text-pale focus:border-accent focus:ring-1 focus:ring-accent outline-none transition-all placeholder-white/20">
+                    <svg class="w-5 h-5 text-white/30 absolute right-4 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                </div>
+            </div>
+
+            <div class="flex flex-col xl:flex-row gap-4 justify-between items-start xl:items-center">
+                
+                <div class="flex flex-col sm:flex-row items-center gap-2 w-full xl:w-auto bg-main/50 p-1.5 rounded-xl border border-white/5">
+                    <div class="relative w-full sm:w-auto">
+                        <span class="absolute left-3 top-2.5 text-[10px] text-muted uppercase font-bold tracking-wider pointer-events-none">Dari</span>
+                        <input type="date" id="startDate" class="bg-surface border border-white/10 rounded-lg pl-12 pr-2 py-1.5 text-sm text-pale focus:border-accent outline-none w-full sm:w-40 h-10">
+                    </div>
+                    <span class="text-muted hidden sm:inline">-</span>
+                    <div class="relative w-full sm:w-auto">
+                        <span class="absolute left-3 top-2.5 text-[10px] text-muted uppercase font-bold tracking-wider pointer-events-none">Sampai</span>
+                        <input type="date" id="endDate" class="bg-surface border border-white/10 rounded-lg pl-14 pr-2 py-1.5 text-sm text-pale focus:border-accent outline-none w-full sm:w-40 h-10">
+                    </div>
+                </div>
+
+                <div class="flex flex-wrap gap-3 w-full xl:w-auto">
+                    <select id="statusFilter" class="bg-main border border-white/10 rounded-xl px-4 py-2.5 text-sm text-pale focus:border-accent outline-none cursor-pointer flex-1 xl:flex-none min-w-[140px]">
+                        <option value="">Semua Status</option>
+                        <option value="Upcoming">Upcoming</option>
+                        <option value="Selesai">Selesai</option>
+                    </select>
+                    
+                    <select id="categoryFilter" class="bg-main border border-white/10 rounded-xl px-4 py-2.5 text-sm text-pale focus:border-accent outline-none cursor-pointer flex-1 xl:flex-none min-w-[140px]">
+                        <option value="">Semua Kategori</option>
+                        <option value="Penyuluhan">Penyuluhan</option>
+                        <option value="Panen">Panen</option>
+                        <option value="Rapat">Rapat</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
         <form action="/admin/kegiatan/bulk-action" method="POST" id="bulk-form">
             <input type="hidden" name="action" value="delete">
-            <div class="mb-4">
-                <button type="submit" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg">
-                    Hapus yang Dipilih
-                </button>
-            </div>
             
-            <div class="bg-white p-6 rounded-lg shadow-lg overflow-x-auto">
-                <table class="min-w-full bg-white">
-                    <thead class="bg-gray-200 text-gray-700">
-                        <tr>
-                            <th class="py-3 px-4 text-center w-12">
-                                <input type="checkbox" id="select-all">
-                            </th>
-                            <th class="py-3 px-4 text-left">Thumbnail</th>
-                            <th class="py-3 px-4 text-left">Judul</th>
-                            <th class="py-3 px-4 text-left">Tanggal</th>
-                            <th class="py-3 px-4 text-left">Kategori</th>
-                            <th class="py-3 px-4 text-left">Status</th>
-                            <th class="py-3 px-4 text-center">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody class="text-gray-700">
-                        <% if(kegiatanList && kegiatanList.length > 0) { %>
-                            <% for(let kegiatan of kegiatanList) { %>
-                                <tr class="border-b border-gray-200 hover:bg-gray-50">
-                                    <td class="py-3 px-4 text-center">
-                                        <input type="checkbox" name="selectedIds" value="<%= kegiatan.ID_Kegiatan %>" class="row-checkbox">
-                                    </td>
-                                    <td class="py-3 px-4">
-                                        <% if (kegiatan.dataValues.thumbnailFile) { %>
-                                            <img src="/images/kegiatan/<%= kegiatan.dataValues.thumbnailFile %>" alt="<%= kegiatan.Judul %>" class="h-12 w-16 rounded object-cover">
-                                        <% } else { %>
-                                            <div class="h-12 w-16 rounded bg-gray-300 flex items-center justify-center text-xs text-gray-600">
-                                                NoImg
-                                            </div>
-                                        <% } %>
-                                    </td>
-                                    <td class="py-3 px-4"><%= kegiatan.Judul %></td>
-                                    <td class="py-3 px-4">
-                                        <%= new Date(kegiatan.Tanggal).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' }) %>
-                                    </td>
-                                    <td class="py-3 px-4"><%= kegiatan.Kategori || '-' %></td>
-                                    <td class="py-3 px-4">
-                                        <span class="font-medium <%= kegiatan.Status === 'Upcoming' ? 'text-green-600' : 'text-gray-600' %>">
-                                            <%= kegiatan.Status %>
-                                        </span>
-                                    </td>
-                                    <td class="py-3 px-4 text-center flex items-center justify-center space-x-2">
-                                        <a href="/admin/kegiatan/<%= kegiatan.ID_Kegiatan %>" class="bg-green-500 hover:bg-green-600 text-white font-semibold py-1 px-3 rounded-lg text-sm">
-                                            Detail
-                                        </a>
-                                        <a href="/admin/kegiatan/<%= kegiatan.ID_Kegiatan %>/edit" class="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-1 px-3 rounded-lg text-sm">
-                                            Edit
-                                        </a>
+            <div class="bg-surface rounded-2xl shadow-xl border border-white/5 overflow-hidden">
+                
+                <div id="bulk-action-bar" class="hidden bg-red-500/10 border-b border-red-500/20 p-3 flex justify-between items-center px-6 animate-pulse">
+                    <span class="text-red-400 text-sm font-medium"><span id="selected-count">0</span> item terpilih</span>
+                    <button type="submit" class="text-xs bg-red-500 hover:bg-red-600 text-white font-bold py-1.5 px-4 rounded-lg transition-colors shadow-lg shadow-red-500/20">
+                        Hapus Terpilih
+                    </button>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="min-w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-main/50 border-b border-white/10 text-xs uppercase tracking-wider text-muted font-semibold">
+                                <th class="py-4 px-6 text-center w-12">
+                                    <input type="checkbox" id="select-all" class="custom-checkbox">
+                                </th>
+                                <th class="py-4 px-6">Kegiatan</th>
+                                <th class="py-4 px-6">Waktu & Jenis</th>
+                                <th class="py-4 px-6 text-center">Status</th>
+                                <th class="py-4 px-6 text-center">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="kegiatanTableBody" class="divide-y divide-white/5">
+                            <% if(kegiatanList && kegiatanList.length > 0) { %>
+                                <% for(let kegiatan of kegiatanList) { %>
+                                    <tr class="hover:bg-white/5 transition-colors group kegiatan-row"
+                                        data-title="<%= kegiatan.Judul.toLowerCase() %>"
+                                        data-status="<%= kegiatan.Status %>"
+                                        data-category="<%= kegiatan.Kategori %>"
+                                        data-date="<%= new Date(kegiatan.Tanggal).toISOString().split('T')[0] %>">
                                         
-                                        <button 
-                                            type="button" 
-                                            class="bg-red-500 hover:bg-red-600 text-white font-semibold py-1 px-3 rounded-lg text-sm"
-                                            onclick="deleteItem('<%= kegiatan.ID_Kegiatan %>', '<%= kegiatan.Judul.replace(/'/g, "\\'") %>')">
-                                            Hapus
-                                        </button>
+                                        <td class="py-4 px-6 text-center">
+                                            <input type="checkbox" name="selectedIds" value="<%= kegiatan.ID_Kegiatan %>" class="row-checkbox custom-checkbox">
                                         </td>
+
+                                        <td class="py-4 px-6">
+                                            <div class="flex items-center gap-4">
+                                                <div class="h-16 w-24 flex-shrink-0 rounded-lg overflow-hidden border border-white/10 bg-main relative group-hover:border-accent/50 transition-colors">
+                                                    <% if (kegiatan.dataValues.thumbnailFile) { %>
+                                                        <img src="/images/kegiatan/<%= kegiatan.dataValues.thumbnailFile %>" alt="<%= kegiatan.Judul %>" class="h-full w-full object-cover">
+                                                    <% } else { %>
+                                                        <div class="h-full w-full flex items-center justify-center text-xs text-muted flex-col">
+                                                            <span>📷</span>
+                                                            <span class="text-[10px] mt-1">No Img</span>
+                                                        </div>
+                                                    <% } %>
+                                                </div>
+                                                <div>
+                                                    <div class="font-bold text-pale group-hover:text-accent transition-colors text-base line-clamp-1"><%= kegiatan.Judul %></div>
+                                                    <div class="text-xs text-muted mt-1 line-clamp-1 opacity-70"><%= kegiatan.Deskripsi || 'Tidak ada deskripsi singkat.' %></div>
+                                                </div>
+                                            </div>
+                                        </td>
+
+                                        <td class="py-4 px-6">
+                                            <div class="flex flex-col gap-1.5">
+                                                <div class="flex items-center text-sm text-pale font-mono">
+                                                    <svg class="w-4 h-4 mr-2 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                                    <%= new Date(kegiatan.Tanggal).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) %>
+                                                </div>
+                                                <span class="inline-flex w-fit items-center px-2 py-0.5 rounded text-[10px] uppercase font-bold tracking-wider bg-white/5 text-muted border border-white/10">
+                                                    <%= kegiatan.Kategori || 'Umum' %>
+                                                </span>
+                                            </div>
+                                        </td>
+
+                                        <td class="py-4 px-6 text-center">
+                                            <% if (kegiatan.Status === 'Upcoming') { %>
+                                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-accent/10 text-accent border border-accent/20">
+                                                    <span class="w-1.5 h-1.5 bg-accent rounded-full mr-1.5 animate-pulse"></span>
+                                                    Akan Datang
+                                                </span>
+                                            <% } else { %>
+                                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-gray-500/10 text-gray-400 border border-gray-500/20">
+                                                    <span class="w-1.5 h-1.5 bg-gray-500 rounded-full mr-1.5"></span>
+                                                    Selesai
+                                                </span>
+                                            <% } %>
+                                        </td>
+
+                                        <td class="py-4 px-6 text-center">
+                                            <div class="flex items-center justify-center space-x-2">
+                                                <a href="/admin/kegiatan/<%= kegiatan.ID_Kegiatan %>" class="p-2 bg-blue-500/10 text-blue-400 rounded-lg hover:bg-blue-500 hover:text-white transition-all border border-blue-500/20 group/btn" title="Detail">
+                                                    <svg class="w-4 h-4 transform group-hover/btn:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                                </a>
+
+                                                <a href="/admin/kegiatan/<%= kegiatan.ID_Kegiatan %>/edit" class="p-2 bg-yellow-500/10 text-yellow-400 rounded-lg hover:bg-yellow-500 hover:text-white transition-all border border-yellow-500/20 group/btn" title="Edit">
+                                                    <svg class="w-4 h-4 transform group-hover/btn:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                                                </a>
+
+                                                <button type="button" 
+                                                    onclick="deleteItem('<%= kegiatan.ID_Kegiatan %>', '<%= kegiatan.Judul.replace(/'/g, "\\'") %>')"
+                                                    class="p-2 bg-red-500/10 text-red-400 rounded-lg hover:bg-red-500 hover:text-white transition-all border border-red-500/20 group/btn" title="Hapus">
+                                                    <svg class="w-4 h-4 transform group-hover/btn:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                <% } %>
+                            <% } else { %>
+                                <tr id="noDataRow">
+                                    <td colspan="5" class="py-12 px-6 text-center text-muted">
+                                        <div class="flex flex-col items-center justify-center">
+                                            <svg class="w-12 h-12 mb-3 text-white/20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                            <p>Belum ada data kegiatan.</p>
+                                        </div>
+                                    </td>
                                 </tr>
                             <% } %>
-                        <% } else { %>
-                            <tr>
-                                <td colspan="7" class="py-4 px-4 text-center text-gray-500">
-                                    Belum ada data kegiatan.
+                            <tr id="noSearchResultsRow" class="hidden">
+                                <td colspan="5" class="py-12 px-6 text-center text-muted">
+                                    <p>Tidak ditemukan kegiatan yang cocok dengan filter Anda.</p>
                                 </td>
                             </tr>
-                        <% } %>
-                    </tbody>
-                </table>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </form>
     </main>
 
     <script>
-        document.getElementById('select-all').addEventListener('change', function(e) {
+        document.addEventListener('DOMContentLoaded', function() {
+            // --- 1. SEARCH & FILTER LOGIC (UPDATED WITH DATE) ---
+            const searchInput = document.getElementById('searchInput');
+            const statusFilter = document.getElementById('statusFilter');
+            const categoryFilter = document.getElementById('categoryFilter');
+            const startDateInput = document.getElementById('startDate');
+            const endDateInput = document.getElementById('endDate');
+            
+            const rows = document.querySelectorAll('.kegiatan-row');
+            const noSearchResultsRow = document.getElementById('noSearchResultsRow');
+            const noDataRow = document.getElementById('noDataRow'); // The original EJS no data
+
+            function filterTable() {
+                const searchTerm = searchInput.value.toLowerCase();
+                const selectedStatus = statusFilter.value;
+                const selectedCategory = categoryFilter.value;
+                const startDate = startDateInput.value; // YYYY-MM-DD
+                const endDate = endDateInput.value;     // YYYY-MM-DD
+
+                let visibleCount = 0;
+
+                rows.forEach(row => {
+                    const title = row.getAttribute('data-title');
+                    const status = row.getAttribute('data-status');
+                    const category = row.getAttribute('data-category');
+                    const rowDate = row.getAttribute('data-date'); // YYYY-MM-DD
+
+                    const matchesSearch = title.includes(searchTerm);
+                    const matchesStatus = selectedStatus === '' || status === selectedStatus;
+                    const matchesCategory = selectedCategory === '' || category === selectedCategory;
+                    
+                    // Date Logic:
+                    // If startDate is set, rowDate must be >= startDate
+                    // If endDate is set, rowDate must be <= endDate
+                    const matchesStartDate = !startDate || rowDate >= startDate;
+                    const matchesEndDate = !endDate || rowDate <= endDate;
+
+                    if (matchesSearch && matchesStatus && matchesCategory && matchesStartDate && matchesEndDate) {
+                        row.style.display = '';
+                        visibleCount++;
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+
+                // Show "No Results" message if data exists but filters hide everything
+                if (rows.length > 0) {
+                    if (visibleCount === 0) {
+                        noSearchResultsRow.classList.remove('hidden');
+                    } else {
+                        noSearchResultsRow.classList.add('hidden');
+                    }
+                }
+            }
+
+            // Add Event Listeners
+            if(searchInput) searchInput.addEventListener('input', filterTable);
+            if(statusFilter) statusFilter.addEventListener('change', filterTable);
+            if(categoryFilter) categoryFilter.addEventListener('change', filterTable);
+            if(startDateInput) startDateInput.addEventListener('change', filterTable);
+            if(endDateInput) endDateInput.addEventListener('change', filterTable);
+
+
+            // --- 2. BULK ACTION LOGIC ---
+            const selectAll = document.getElementById('select-all');
             const checkboxes = document.querySelectorAll('.row-checkbox');
+            const bulkActionBar = document.getElementById('bulk-action-bar');
+            const selectedCountSpan = document.getElementById('selected-count');
+
+            function updateBulkActionState() {
+                const checkedCount = document.querySelectorAll('.row-checkbox:checked').length;
+                selectedCountSpan.innerText = checkedCount;
+                
+                if (checkedCount > 0) {
+                    bulkActionBar.classList.remove('hidden');
+                    bulkActionBar.classList.add('flex');
+                } else {
+                    bulkActionBar.classList.add('hidden');
+                    bulkActionBar.classList.remove('flex');
+                }
+            }
+
+            if(selectAll) {
+                selectAll.addEventListener('change', function(e) {
+                    checkboxes.forEach(cb => {
+                        // Only verify visible rows to prevent selecting hidden items
+                        if(cb.closest('tr').style.display !== 'none') {
+                            cb.checked = e.target.checked;
+                        }
+                    });
+                    updateBulkActionState();
+                });
+            }
+
             checkboxes.forEach(cb => {
-                cb.checked = e.target.checked;
+                cb.addEventListener('change', updateBulkActionState);
+            });
+
+            document.getElementById('bulk-form').addEventListener('submit', function(e) {
+                const checkedCount = document.querySelectorAll('.row-checkbox:checked').length;
+                if (checkedCount === 0) {
+                    e.preventDefault();
+                    return;
+                }
+                if (!confirm(`Apakah Anda yakin ingin menghapus ${checkedCount} kegiatan terpilih? Tindakan ini tidak dapat dibatalkan.`)) {
+                    e.preventDefault();
+                }
             });
         });
 
-        document.getElementById('bulk-form').addEventListener('submit', function(e) {
-            const checkedBoxes = document.querySelectorAll('.row-checkbox:checked').length;
-            if (checkedBoxes === 0) {
-                e.preventDefault();
-                alert('Tidak ada item yang dipilih untuk dihapus.');
-            } else if (!confirm(`Apakah Anda yakin ingin menghapus ${checkedBoxes} item yang dipilih?`)) {
-                e.preventDefault();
-            }
-        });
-
-        // === SCRIPT BARU UNTUK HAPUS SATUAN ===
+        // --- 3. SINGLE DELETE LOGIC ---
         function deleteItem(id, name) {
-            if (confirm(`Apakah Anda yakin ingin menghapus "${name}"? Ini akan menghapus semua galeri dan konten terkait.`)) {
-                // Buat form sementara
+            if (confirm(`Apakah Anda yakin ingin menghapus kegiatan "${name}"? \n\nPERHATIAN: Semua galeri foto terkait juga akan dihapus.`)) {
                 const form = document.createElement('form');
                 form.method = 'POST';
-                form.action = `/admin/kegiatan/${id}/delete`; // Target URL
-                
-                // Sembunyikan dan tambahkan ke halaman
+                form.action = `/admin/kegiatan/${id}/delete`;
                 form.style.display = 'none';
                 document.body.appendChild(form);
-                
-                // Kirim form
                 form.submit();
             }
         }

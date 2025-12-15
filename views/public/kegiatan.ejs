@@ -3,84 +3,160 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kegiatan - Bausasran</title>
-    <link rel="stylesheet" href="/css/style.css">
+    <title>Daftar Kegiatan - Bausasran</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        main: '#003024',    // Background Gelap
+                        surface: '#004030', // Warna Kartu
+                        accent: '#83C540',  // Hijau Neon
+                        pale: '#F5FEF9',    // Teks Putih
+                        muted: '#A3C2B8',   // Teks Pudar
+                    },
+                    fontFamily: { sans: ['Inter', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer base { body { @apply bg-main text-pale font-sans antialiased; } }
+    </style>
 </head>
-<body class="bg-gray-100">
+
+<body class="flex flex-col min-h-screen">
 
     <%- include('../partials/navbar.ejs') %>
 
-    <main class="container mx-auto p-6 md:p-12">
+    <main class="container mx-auto px-4 py-12 flex-grow">
+        
         <%- include('../partials/flash.ejs') %>
 
-        <!-- Header -->
         <div class="text-center mb-12">
-            <h1 class="text-4xl font-bold text-gray-800 mb-4">Kegiatan Kami</h1>
-            <p class="text-lg text-gray-600">Berbagai kegiatan yang telah dan akan dilaksanakan oleh Bausasran</p>
+            <h1 class="text-4xl md:text-5xl font-bold text-pale mb-4">
+                Kegiatan <span class="text-accent">Kami</span>
+            </h1>
+            <p class="text-lg text-muted max-w-2xl mx-auto">
+                Ikuti berbagai agenda menarik, pelatihan, dan festival budaya yang diselenggarakan di Kampung Wisata Bausasran.
+            </p>
         </div>
 
-        <!-- Filter Tabs -->
-        <div class="flex justify-center mb-8">
-            <div class="inline-flex rounded-lg border border-gray-300 bg-white p-1">
-                <button onclick="filterKegiatan('all')" id="btnAll" class="px-6 py-2 rounded-md text-sm font-semibold bg-blue-500 text-white">
+        <div class="flex justify-center mb-10">
+            <div class="inline-flex rounded-xl bg-surface border border-white/10 p-1.5 shadow-lg">
+                <button onclick="filterKegiatan('all')" id="btnAll" 
+                    class="filter-btn active px-6 py-2 rounded-lg text-sm font-bold transition-all duration-300">
                     Semua
                 </button>
-                <button onclick="filterKegiatan('upcoming')" id="btnUpcoming" class="px-6 py-2 rounded-md text-sm font-semibold text-gray-700 hover:bg-gray-100">
-                    Upcoming
+                <button onclick="filterKegiatan('upcoming')" id="btnUpcoming" 
+                    class="filter-btn px-6 py-2 rounded-lg text-sm font-bold transition-all duration-300">
+                    Akan Datang
                 </button>
-                <button onclick="filterKegiatan('past')" id="btnPast" class="px-6 py-2 rounded-md text-sm font-semibold text-gray-700 hover:bg-gray-100">
-                    Past
+                <button onclick="filterKegiatan('past')" id="btnPast" 
+                    class="filter-btn px-6 py-2 rounded-lg text-sm font-bold transition-all duration-300">
+                    Selesai
                 </button>
             </div>
         </div>
 
-        <!-- Kegiatan List -->
         <% if(kegiatanList && kegiatanList.length > 0) { %>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="kegiatanGrid">
-                <% kegiatanList.forEach(kegiatan => { %>
-                    <div class="kegiatan-card bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300" data-status="<%= kegiatan.Status %>">
-                        <div class="relative h-48 bg-gray-200">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" id="kegiatanGrid">
+                <% kegiatanList.forEach(kegiatan => { 
+                    // 1. Tentukan Status
+                    let isUpcoming = new Date(kegiatan.Tanggal) >= new Date();
+                    let statusFilter = isUpcoming ? 'upcoming' : 'past';
+                    if(kegiatan.Status && kegiatan.Status.toLowerCase() === 'upcoming') {
+                         statusFilter = 'upcoming'; 
+                         isUpcoming = true;
+                    }
+
+                    // 2. LOGIKA PENCARIAN GAMBAR (SMART CHECK)
+                    // Kode ini mencari nama file di 3 kemungkinan lokasi variabel
+                    let namaFile = null;
+
+                    // Cek 1: Apakah ada di dataValues (seperti di Admin)?
+                    if (kegiatan.dataValues && kegiatan.dataValues.thumbnailFile) {
+                        namaFile = kegiatan.dataValues.thumbnailFile;
+                    } 
+                    // Cek 2: Apakah ada sebagai property langsung (thumbnailFile)?
+                    else if (kegiatan.thumbnailFile) {
+                        namaFile = kegiatan.thumbnailFile;
+                    } 
+                    // Cek 3: Apakah ada di kolom standar 'Foto'?
+                    else if (kegiatan.Foto) {
+                        namaFile = kegiatan.Foto;
+                    }
+
+                    // Tentukan URL Akhir
+                    let fotoUrl = namaFile 
+                        ? '/images/kegiatan/' + namaFile 
+                        : `https://placehold.co/600x400/004030/FFF?text=${encodeURIComponent(kegiatan.Judul)}`;
+                %>
+                    <article class="kegiatan-card group bg-surface border border-white/5 rounded-2xl overflow-hidden shadow-lg hover:shadow-accent/20 transition-all duration-300 hover:-translate-y-1 flex flex-col h-full" 
+                             data-status="<%= statusFilter %>">
+                        
+                        <div class="relative h-52 overflow-hidden bg-black/20">
                             <img 
-                                src="https://via.placeholder.com/400x250?text=<%= encodeURIComponent(kegiatan.Judul) %>" 
+                                src="<%= (kegiatan.photos && kegiatan.photos.length > 0) ? '/images/kegiatan/' + kegiatan.photos[0].Foto : 'https://via.placeholder.com/400x250?text=' + encodeURIComponent(kegiatan.Judul) %>"  
                                 alt="<%= kegiatan.Judul %>" 
-                                class="w-full h-full object-cover">
-                            <span class="absolute top-3 right-3 px-3 py-1 rounded-full text-xs font-semibold <%= kegiatan.Status === 'Upcoming' ? 'bg-green-500 text-white' : 'bg-gray-500 text-white' %>">
-                                <%= kegiatan.Status %>
+                                class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                onerror="this.onerror=null; this.src='https://placehold.co/600x400/004030/FFF?text=Image+Not+Found';"
+                            >
+                            
+                            <span class="absolute top-4 right-4 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider shadow-sm
+                                <%= isUpcoming ? 'bg-accent text-main' : 'bg-white/10 text-muted border border-white/10' %>">
+                                <%= isUpcoming ? 'Akan Datang' : 'Selesai' %>
                             </span>
                         </div>
-                        <div class="p-5">
-                            <div class="flex items-center text-sm text-gray-500 mb-2">
-                                <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/>
+
+                        <div class="p-6 flex flex-col flex-grow">
+                            <div class="flex items-center text-sm text-accent mb-3 font-medium">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                 </svg>
                                 <%= new Date(kegiatan.Tanggal).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) %>
                             </div>
-                            <h3 class="text-xl font-bold text-gray-900 mb-2 line-clamp-2"><%= kegiatan.Judul %></h3>
-                            <% if (kegiatan.Deskripsi) { %>
-                                <p class="text-gray-600 text-sm mb-4 line-clamp-3"><%= kegiatan.Deskripsi %></p>
-                            <% } %>
+
+                            <h3 class="text-xl font-bold text-pale mb-3 line-clamp-2 group-hover:text-accent transition-colors">
+                                <%= kegiatan.Judul %>
+                            </h3>
+
                             <% if (kegiatan.Lokasi) { %>
-                                <div class="flex items-center text-sm text-gray-500 mb-4">
-                                    <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
+                                <div class="flex items-center text-sm text-muted mb-4">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2 text-accent/70" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                                     </svg>
-                                    <%= kegiatan.Lokasi %>
+                                    <span class="truncate"><%= kegiatan.Lokasi %></span>
                                 </div>
                             <% } %>
-                            <a href="/kegiatan/<%= kegiatan.ID_Kegiatan %>" class="block w-full text-center bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors">
+
+                            <% if (kegiatan.Deskripsi) { %>
+                                <p class="text-muted text-sm line-clamp-3 mb-6 flex-grow border-l-2 border-white/5 pl-3">
+                                    <%= kegiatan.Deskripsi %>
+                                </p>
+                            <% } else { %>
+                                <div class="flex-grow"></div>
+                            <% } %>
+
+                            <a href="/kegiatan/<%= kegiatan.ID_Kegiatan %>" class="block w-full text-center bg-transparent border border-accent text-accent hover:bg-accent hover:text-main font-bold py-2.5 px-4 rounded-lg transition-all duration-300">
                                 Lihat Detail
                             </a>
                         </div>
-                    </div>
+                    </article>
                 <% }) %>
             </div>
         <% } else { %>
-            <div class="text-center py-16">
-                <svg class="w-24 h-24 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                </svg>
-                <h3 class="text-xl font-semibold text-gray-700 mb-2">Belum Ada Kegiatan</h3>
-                <p class="text-gray-500">Kegiatan akan segera hadir. Pantau terus halaman ini!</p>
+            <div class="text-center py-20 border-2 border-dashed border-white/10 rounded-2xl bg-surface/30">
+                <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-white/5 mb-6 text-muted">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-bold text-pale mb-2">Belum Ada Kegiatan</h3>
+                <p class="text-muted">Saat ini belum ada data kegiatan yang tersedia.</p>
             </div>
         <% } %>
     </main>
@@ -90,32 +166,37 @@
     <script>
         function filterKegiatan(status) {
             const cards = document.querySelectorAll('.kegiatan-card');
-            const buttons = {
-                'all': document.getElementById('btnAll'),
-                'upcoming': document.getElementById('btnUpcoming'),
-                'past': document.getElementById('btnPast')
-            };
-
-            // Reset button styles
-            Object.values(buttons).forEach(btn => {
-                btn.classList.remove('bg-blue-500', 'text-white');
-                btn.classList.add('text-gray-700', 'hover:bg-gray-100');
+            const btns = document.querySelectorAll('.filter-btn');
+            
+            // 1. Reset & Set Active Button
+            btns.forEach(btn => {
+                btn.classList.remove('bg-accent', 'text-main');
+                btn.classList.add('text-muted', 'hover:text-pale', 'hover:bg-white/5');
             });
 
-            // Set active button
-            buttons[status].classList.add('bg-blue-500', 'text-white');
-            buttons[status].classList.remove('text-gray-700', 'hover:bg-gray-100');
+            const activeBtnId = status === 'all' ? 'btnAll' : (status === 'upcoming' ? 'btnUpcoming' : 'btnPast');
+            const activeBtn = document.getElementById(activeBtnId);
+            
+            if(activeBtn) {
+                activeBtn.classList.remove('text-muted', 'hover:text-pale', 'hover:bg-white/5');
+                activeBtn.classList.add('bg-accent', 'text-main');
+            }
 
-            // Filter cards
+            // 2. Filter Cards
             cards.forEach(card => {
-                if (status === 'all') {
-                    card.style.display = 'block';
+                const cardStatus = card.getAttribute('data-status');
+                if (status === 'all' || cardStatus === status) {
+                    card.style.display = 'flex';
                 } else {
-                    const cardStatus = card.getAttribute('data-status').toLowerCase();
-                    card.style.display = cardStatus === status ? 'block' : 'none';
+                    card.style.display = 'none';
                 }
             });
         }
+
+        // Init
+        document.addEventListener("DOMContentLoaded", () => {
+            filterKegiatan('all');
+        });
     </script>
 
 </body>

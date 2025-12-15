@@ -3,68 +3,196 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tambah Anggota Baru</title>
-    <link rel="stylesheet" href="/css/style.css">
+    <title>Tambah Anggota Baru - Admin Bausasran</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        main: '#003024',    // Background Gelap
+                        surface: '#004030', // Warna Kartu
+                        accent: '#83C540',  // Hijau Neon
+                        pale: '#F5FEF9',    // Teks Putih
+                        muted: '#A3C2B8',   // Teks Pudar
+                        darker: '#00251a',  // Background Input
+                        danger: '#ff4d4d',  // Warna Hapus/Warning
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style type="text/tailwindcss">
+        @layer base {
+            body { @apply bg-main text-pale font-sans antialiased; }
+        }
+        
+        /* Custom Scrollbar */
+        .custom-scroll::-webkit-scrollbar { width: 6px; }
+        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #004030; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); }
+        .custom-scroll::-webkit-scrollbar-thumb:hover { background: #83C540; }
+
+        /* Input Styles */
+        .form-input {
+            @apply w-full bg-darker border border-white/10 rounded-xl px-4 py-3 text-sm text-pale focus:border-accent focus:ring-1 focus:ring-accent outline-none transition-all placeholder-white/20 appearance-none;
+        }
+        .form-label {
+            @apply block text-sm font-bold text-muted mb-2 uppercase tracking-wider;
+        }
+
+        /* Select Chevron */
+        .select-wrapper { @apply relative; }
+        .select-wrapper::after {
+            content: '';
+            @apply absolute right-4 top-1/2 -translate-y-1/2 w-2 h-2 border-r-2 border-b-2 border-muted pointer-events-none rotate-45;
+        }
+    </style>
 </head>
-<body class="flex bg-gray-100">
+
+<body class="flex h-screen overflow-hidden w-full">
 
     <%- include('../../partials/admin_sidebar.ejs') %>
 
-    <main class="flex-1 p-10">
+    <main class="flex-1 h-full overflow-y-auto overflow-x-hidden custom-scroll relative">
         <%- include('../../partials/flash.ejs') %>
 
-        <h1 class="text-3xl font-bold text-gray-800 mb-6">Tambah Anggota Baru</h1>
-        
-        <div class="bg-white p-8 rounded-lg shadow-lg max-w-2xl mx-auto">
-            <form action="/admin/anggota" method="POST" enctype="multipart/form-data">
+        <form action="/admin/anggota" method="POST" enctype="multipart/form-data" class="min-h-full p-6 md:p-8 flex flex-col">
+            
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 shrink-0">
+                <div>
+                    <h1 class="text-3xl font-bold text-pale tracking-tight">Tambah Anggota</h1>
+                    <p class="text-muted text-sm mt-1">Registrasi pengurus baru atau anggota website.</p>
+                </div>
+                <div class="md:hidden flex gap-2">
+                    <button type="submit" class="flex-1 bg-accent text-main font-bold py-2 px-4 rounded-lg text-sm">Simpan</button>
+                    <a href="/admin/anggota" class="bg-surface text-pale py-2 px-4 rounded-lg text-sm border border-white/10">Batal</a>
+                </div>
+            </div>
+
+            <div class="flex flex-col lg:flex-row gap-6 items-stretch flex-1">
                 
-                <div class="mb-4">
-                    <label for="nama" class="block text-gray-700 text-sm font-semibold mb-2">Nama Lengkap*</label>
-                    <input type="text" id="nama" name="nama" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700" required>
-                </div>
-                <div class="mb-4">
-                    <label for="jabatan" class="block text-gray-700 text-sm font-semibold mb-2">Jabatan</label>
-                    <input type="text" id="jabatan" name="jabatan" placeholder="Cth: Ketua Pokdarwis" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700">
-                </div>
-                <div class="mb-4">
-                    <label for="deskripsi" class="block text-gray-700 text-sm font-semibold mb-2">Deskripsi (Bio)</label>
-                    <textarea id="deskripsi" name="deskripsi" rows="3" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700"></textarea>
+                <div class="w-full lg:flex-1 min-w-0 flex flex-col">
+                    
+                    <div class="bg-surface rounded-2xl p-6 md:p-8 shadow-xl border border-white/5 flex-1 flex flex-col h-full">
+                        
+                        <div class="mb-6 shrink-0">
+                            <label for="nama" class="form-label text-xs mb-2">Nama Lengkap</label>
+                            <input type="text" id="nama" name="nama" 
+                                class="w-full bg-transparent border-b border-white/10 px-0 py-2 text-2xl md:text-3xl font-bold text-pale focus:border-accent outline-none transition-colors placeholder-white/20" 
+                                placeholder="Cth: Budi Santoso, S.Kom" required>
+                        </div>
+
+                        <div class="flex-1 flex flex-col min-h-[200px]">
+                            <label for="deskripsi" class="form-label text-xs mb-3 shrink-0">Bio / Deskripsi Singkat</label>
+                            <textarea id="deskripsi" name="deskripsi" 
+                                class="w-full h-full bg-darker/50 border border-white/10 rounded-xl p-5 text-base text-pale leading-relaxed focus:border-accent outline-none transition-all resize-none placeholder-white/20" 
+                                placeholder="Tuliskan latar belakang, keahlian, atau perkenalan singkat anggota ini..."></textarea>
+                        </div>
+                    </div>
+
                 </div>
 
-                <div class="mb-4">
-                    <label for="fotoAnggota" class="block text-gray-700 text-sm font-semibold mb-2">Foto Profil (Opsional)</label>
-                    <input type="file" id="fotoAnggota" name="fotoAnggota" accept="image/png, image/jpeg, image/jpg" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700">
-                    <p class="text-xs text-gray-500 mt-1">Hanya .png, .jpg, .jpeg. Maks 5MB.</p>
-                </div>
-                
-                <hr class="my-6">
-                
-                <div class="mb-4">
-                    <label for="username" class="block text-gray-700 text-sm font-semibold mb-2">Username (untuk login)*</label>
-                    <input type="text" id="username" name="username" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700" required>
-                </div>
-                <div class="mb-4">
-                    <label for="password" class="block text-gray-700 text-sm font-semibold mb-2">Password (untuk login)*</label>
-                    <input type="password" id="password" name="password" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700" required>
-                </div>
-                <div class="mb-6">
-                    <label for="role" class="block text-gray-700 text-sm font-semibold mb-2">Role (Hak Akses)*</label>
-                    <select id="role" name="role" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700" required>
-                        <option value="User">User (Anggota Biasa)</option>
-                        <option value="Admin">Admin (Bisa Kelola Sistem)</option>
-                    </select>
-                </div>
+                <div class="w-full lg:w-[350px] shrink-0 flex flex-col gap-6">
+                    
+                    <div class="bg-surface rounded-2xl p-6 shadow-xl border border-white/5">
+                        <h3 class="text-lg font-bold text-pale mb-4 flex items-center gap-2">
+                            <svg class="w-5 h-5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                            Profil & Foto
+                        </h3>
+                        
+                        <div class="space-y-4">
+                            <div>
+                                <label for="jabatan" class="form-label text-xs">Jabatan / Posisi</label>
+                                <input type="text" id="jabatan" name="jabatan" class="form-input" placeholder="Cth: Ketua Pokdarwis">
+                            </div>
 
-                <div class="flex items-center space-x-4">
-                    <button type="submit" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
-                        Simpan Data Anggota
-                    </button>
-                    <a href="/admin/anggota" class="w-full text-center bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded">
-                        Batal
-                    </a>
-                </div>
-            </form>
-        </div>
+                            <div>
+                                <label class="form-label text-xs">Foto Profil</label>
+                                <div class="w-full aspect-square bg-darker/50 border-2 border-dashed border-white/10 rounded-xl flex flex-col items-center justify-center relative overflow-hidden group hover:border-accent/50 transition-colors cursor-pointer">
+                                    <input type="file" id="fotoAnggota" name="fotoAnggota" accept="image/png, image/jpeg, image/jpg" class="absolute inset-0 opacity-0 cursor-pointer z-10" onchange="previewProfile(this)">
+                                    
+                                    <div id="placeholder-icon" class="flex flex-col items-center transition-opacity duration-300">
+                                        <div class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center mb-2">
+                                            <svg class="w-5 h-5 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                                        </div>
+                                        <span class="text-[10px] text-muted">Upload Foto</span>
+                                    </div>
+
+                                    <img id="preview-img" class="absolute inset-0 w-full h-full object-cover hidden" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-surface rounded-2xl p-6 shadow-xl border border-white/5 flex-1">
+                        <h3 class="text-lg font-bold text-pale mb-4 flex items-center gap-2">
+                            <svg class="w-5 h-5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                            Akun & Keamanan
+                        </h3>
+                        
+                        <div class="space-y-4">
+                            <div>
+                                <label for="username" class="form-label text-xs">Username</label>
+                                <input type="text" id="username" name="username" class="form-input" required autocomplete="off">
+                            </div>
+
+                            <div>
+                                <label for="password" class="form-label text-xs">Password</label>
+                                <input type="password" id="password" name="password" class="form-input" required autocomplete="new-password">
+                            </div>
+
+                            <div>
+                                <label for="role" class="form-label text-xs">Hak Akses (Role)</label>
+                                <div class="select-wrapper">
+                                    <select id="role" name="role" class="form-input cursor-pointer">
+                                        <option value="User">User (Anggota Biasa)</option>
+                                        <option value="Admin">Admin (Full Akses)</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="hidden md:flex flex-col gap-3 mt-6 pt-6 border-t border-white/10">
+                            <button type="submit" class="w-full bg-accent hover:bg-white text-main font-bold py-3 px-6 rounded-xl transition-all shadow-lg hover:shadow-accent/20 flex justify-center items-center gap-2">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path></svg>
+                                Simpan Data
+                            </button>
+                            <a href="/admin/anggota" class="w-full text-center py-2 text-sm text-muted hover:text-white transition-colors">
+                                Batalkan
+                            </a>
+                        </div>
+                    </div>
+
+                </div> </div> </form>
     </main>
+
+    <script>
+        function previewProfile(input) {
+            const preview = document.getElementById('preview-img');
+            const placeholder = document.getElementById('placeholder-icon');
+            
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    preview.classList.remove('hidden');
+                    placeholder.classList.add('opacity-0'); // Hide placeholder nicely
+                }
+                
+                reader.readAsDataURL(input.files[0]);
+            } else {
+                preview.classList.add('hidden');
+                placeholder.classList.remove('opacity-0');
+            }
+        }
+    </script>
 </body>
 </html>
