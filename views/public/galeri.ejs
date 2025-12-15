@@ -83,6 +83,7 @@
                         if (kategori.includes('kegiatan')) folder = 'kegiatan';
                         else if (kategori.includes('produk')) folder = 'produk';
                         else if (kategori.includes('galeri')) folder = 'galeri';
+                        else if (kategori.includes('prestasi')) folder = 'prestasi';
                     }
                     
                     // Ambil nama file
@@ -100,7 +101,7 @@
                              alt="<%= kName || 'Foto' %>" 
                              loading="lazy"
                              class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                             onerror="this.src='https://via.placeholder.com/400x300?text=Gambar+Rusak'">
+                             onerror="this.onerror=null;this.src='https://via.placeholder.com/400x300?text=Gambar+Rusak'">
                         
                         <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
                             
@@ -162,7 +163,7 @@
             
             <img id="lightbox-img" src="" alt="" 
                  class="max-w-full max-h-[70vh] md:max-h-[80vh] object-contain shadow-2xl rounded-lg border border-white/10"
-                 onerror="this.src='https://via.placeholder.com/800x600?text=Foto+Tidak+Ditemukan'">
+                 onerror="this.onerror=null;this.src='https://via.placeholder.com/800x600?text=Foto+Tidak+Ditemukan'">
             
             <div class="mt-4 text-center max-w-2xl px-4">
                 <h3 id="lightbox-desc" class="text-xl font-bold text-pale mb-1"></h3>

@@ -98,7 +98,7 @@
                             src="/images/produk/<%= fotoFiles[0] %>" 
                             alt="<%= produk.Nama %>" 
                             class="w-full h-[400px] object-cover transition-transform duration-500 group-hover:scale-105"
-                            onerror="this.src='https://via.placeholder.com/800x600?text=Produk'">
+                            onerror="this.onerror=null;this.src='https://via.placeholder.com/800x600?text=Produk'">
                     <% } else { %>
                         <div class="w-full h-[400px] flex flex-col items-center justify-center bg-surface border border-white/5">
                             <svg class="w-20 h-20 text-muted/30 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -123,7 +123,7 @@
                             <div class="aspect-square rounded-lg overflow-hidden border border-white/10 cursor-pointer hover:border-accent transition-all"
                                  onclick="document.getElementById('mainImage').src = '/images/produk/<%= foto %>'">
                                 <img src="/images/produk/<%= foto %>" class="w-full h-full object-cover hover:opacity-80 transition-opacity"
-                                     onerror="this.src='https://via.placeholder.com/150?text=Thumb'">
+                                     onerror="this.onerror=null;this.src='https://via.placeholder.com/150?text=Thumb'">
                             </div>
                         <% }) %>
                     </div>
