@@ -1,19 +1,22 @@
-<nav class="sticky top-0 z-50 w-full bg-[#003024]/90 backdrop-blur-md border-b border-white/10 transition-all duration-300">
-    <div class="container mx-auto px-4 md:px-6">
-        <div class="flex justify-between items-center h-20">
+<nav class="fixed top-0 z-50 w-full bg-[#F9F7F2]/90 backdrop-blur-md border-b border-[#0F1F18]/5 transition-all duration-500">
+    
+    <div class="max-w-7xl mx-auto px-4 md:px-8">
+        
+        <div class="flex justify-between items-center h-24">
 
-            <a href="/" class="flex items-center gap-2 group">
-                <div class="w-8 h-8 rounded-lg bg-[#83C540] flex items-center justify-center text-[#003024]">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
-                    </svg>
+            <a href="/" class="group flex items-center gap-3">
+                <div class="w-8 h-8 border border-[#0F1F18]/10 flex items-center justify-center group-hover:border-[#C5B388] transition-colors duration-500">
+                    <span class="font-serif italic font-bold text-[#0F1F18] group-hover:text-[#C5B388] transition-colors">B</span>
                 </div>
-                <span class="text-xl md:text-2xl font-bold tracking-tight text-[#F5FEF9] group-hover:text-[#83C540] transition-colors">
-                    Bausasran
-                </span>
+                <div class="flex flex-col">
+                    <span class="font-['Cinzel'] text-xl font-bold tracking-[0.2em] text-[#0F1F18]">
+                        BAUSASRAN
+                    </span>
+                    <span class="text-[8px] uppercase tracking-[0.3em] text-[#C5B388]">Heritage Estate</span>
+                </div>
             </a>
             
-            <div class="hidden lg:flex items-center gap-1 bg-[#004030]/50 px-4 py-2 rounded-full border border-white/5">
+            <div class="hidden lg:flex items-center gap-8">
                 <a href="/" class="nav-link">Home</a>
                 <a href="/kegiatan" class="nav-link">Kegiatan</a>
                 <a href="/produk" class="nav-link">Produk</a>
@@ -21,49 +24,50 @@
                 <a href="/anggota" class="nav-link">Anggota</a>
                 <a href="/prestasi" class="nav-link">Prestasi</a>
                 <a href="/testimoni" class="nav-link">Testimoni</a>
+                
                 <% if(currentUser && currentUser.Role === 'User') { %>
-                    <a href="/user/testimoni" class="nav-link text-[#83C540]">Testimoni Saya</a>
+                    <a href="/user/testimoni" class="nav-link text-[#C5B388]">My Review</a>
                 <% } %>
             </div>
 
-            <div class="hidden lg:flex items-center gap-4">
+            <div class="hidden lg:flex items-center gap-6">
                 <% if(!currentUser) { %>
-                    <a href="/login" class="bg-[#83C540] text-[#003024] px-5 py-2.5 rounded-lg font-bold hover:bg-[#6DA830] hover:shadow-[0_0_15px_rgba(131,197,64,0.4)] transition-all">
-                        Login
+                    <a href="/login" class="px-6 py-2 border border-[#0F1F18]/20 text-[10px] uppercase tracking-[0.2em] text-[#0F1F18] hover:bg-[#0F1F18] hover:text-[#F9F7F2] transition-all duration-500">
+                        Sign In
                     </a>
                 <% } else { %>
                     
                     <div class="flex flex-col text-right mr-2">
-                        <span class="text-xs text-[#A3C2B8]">Halo,</span>
-                        <span class="text-sm font-bold text-[#F5FEF9]"><%= currentUser.Nama.split(' ')[0] %></span>
+                        <span class="text-[8px] uppercase tracking-widest text-[#0F1F18]/50">Welcome</span>
+                        <span class="font-serif italic text-[#0F1F18]"><%= currentUser.Nama.split(' ')[0] %></span>
                     </div>
 
                     <% if(currentUser.Role === 'Admin') { %>
-                        <a href="/admin/dashboard" class="text-[#83C540] hover:text-[#F5FEF9] font-medium text-sm border border-[#83C540]/30 hover:border-[#83C540] px-4 py-2 rounded-lg transition-all">
+                        <a href="/admin/dashboard" class="text-[9px] uppercase tracking-widest text-[#0F1F18] hover:text-[#C5B388] border-b border-transparent hover:border-[#C5B388] transition-all">
                             Dashboard
                         </a>
                     <% } %>
                     
-                    <a href="/logout" class="text-red-400 hover:text-red-300 hover:bg-red-500/10 p-2 rounded-lg transition-colors" title="Logout">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                    <a href="/logout" class="text-[#0F1F18]/40 hover:text-red-800 transition-colors" title="Logout">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                         </svg>
                     </a>
                 <% } %>
             </div>
 
             <div class="lg:hidden flex items-center">
-                <button id="mobile-menu-btn" class="text-[#F5FEF9] hover:text-[#83C540] focus:outline-none">
+                <button id="mobile-menu-btn" class="text-[#0F1F18] hover:text-[#C5B388] transition-colors focus:outline-none">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 6h16M4 12h16m-7 6h7" />
                     </svg>
                 </button>
             </div>
         </div>
     </div>
 
-    <div id="mobile-menu" class="hidden lg:hidden bg-[#004030] border-t border-white/10 absolute w-full left-0 top-20 shadow-xl">
-        <div class="flex flex-col p-4 space-y-3">
+    <div id="mobile-menu" class="hidden lg:hidden bg-[#F9F7F2] border-t border-[#0F1F18]/5 absolute w-full left-0 top-24 shadow-2xl h-screen md:h-auto">
+        <div class="flex flex-col p-8 space-y-6 text-center">
             <a href="/" class="mobile-link">Home</a>
             <a href="/kegiatan" class="mobile-link">Kegiatan</a>
             <a href="/produk" class="mobile-link">Produk</a>
@@ -72,54 +76,73 @@
             <a href="/prestasi" class="mobile-link">Prestasi</a>
             <a href="/testimoni" class="mobile-link">Testimoni</a>
             
-            <div class="h-px bg-white/10 my-2"></div>
+            <div class="w-12 h-px bg-[#0F1F18]/10 mx-auto my-4"></div>
 
             <% if(!currentUser) { %>
-                <a href="/login" class="block text-center w-full bg-[#83C540] text-[#003024] font-bold py-3 rounded-lg">Login</a>
+                <a href="/login" class="inline-block mx-auto px-8 py-3 bg-[#0F1F18] text-[#F9F7F2] text-[10px] uppercase tracking-widest hover:bg-[#C5B388] transition-colors">
+                    Sign In
+                </a>
             <% } else { %>
-                <div class="flex items-center justify-between px-2">
-                    <span class="text-[#F5FEF9]">Hi, <span class="text-[#83C540] font-bold"><%= currentUser.Nama.split(' ')[0] %></span></span>
+                <div class="flex flex-col items-center gap-2">
+                    <span class="font-serif italic text-lg text-[#0F1F18]">Hi, <%= currentUser.Nama.split(' ')[0] %></span>
+                    
                     <% if(currentUser.Role === 'Admin') { %>
-                        <a href="/admin/dashboard" class="text-xs text-[#83C540] border border-[#83C540] px-2 py-1 rounded">Admin Panel</a>
+                        <a href="/admin/dashboard" class="text-[10px] uppercase tracking-widest text-[#C5B388] mb-4">Access Admin Panel</a>
                     <% } %>
+                    
+                    <% if(currentUser && currentUser.Role === 'User') { %>
+                        <a href="/user/testimoni" class="text-[10px] uppercase tracking-widest text-[#C5B388] mb-4">My Review</a>
+                    <% } %>
+
+                    <a href="/logout" class="text-[10px] uppercase tracking-widest text-red-800/60 hover:text-red-800 mt-2">Sign Out</a>
                 </div>
-                <% if(currentUser && currentUser.Role === 'User') { %>
-                    <a href="/user/testimoni" class="mobile-link text-[#83C540]">Testimoni Saya</a>
-                <% } %>
-                <a href="/logout" class="block text-center w-full bg-red-500/20 text-red-400 font-bold py-2 mt-2 rounded-lg border border-red-500/30">Logout</a>
             <% } %>
         </div>
     </div>
 </nav>
 
 <style>
-    /* Style untuk Link Desktop */
+    /* DESKTOP LINKS */
     .nav-link {
-        color: #A3C2B8; /* Text Muted */
-        font-size: 0.875rem; /* text-sm */
-        font-weight: 500;
-        padding: 0.5rem 1rem;
-        border-radius: 9999px;
-        transition: all 0.2s;
-    }
-    .nav-link:hover {
-        color: #F5FEF9; /* Text Pale */
-        background-color: rgba(131, 197, 64, 0.1); /* Accent transparan */
+        color: #0F1F18; 
+        font-family: 'Lato', sans-serif;
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.2em; 
+        position: relative;
+        padding-bottom: 4px;
+        transition: color 0.3s ease;
     }
 
-    /* Style untuk Link Mobile */
+    .nav-link::after {
+        content: '';
+        position: absolute;
+        width: 0;
+        height: 1px;
+        bottom: 0;
+        left: 0;
+        background-color: #C5B388;
+        transition: width 0.3s ease;
+    }
+
+    .nav-link:hover {
+        color: #C5B388;
+    }
+
+    .nav-link:hover::after {
+        width: 100%;
+    }
+
+    /* MOBILE LINKS */
     .mobile-link {
-        display: block;
-        color: #F5FEF9;
-        font-weight: 500;
-        padding: 0.75rem;
-        border-radius: 0.5rem;
+        font-family: 'Playfair Display', serif;
+        font-size: 1.25rem;
+        color: #0F1F18;
+        font-style: italic;
+        transition: color 0.3s ease;
     }
     .mobile-link:hover {
-        background-color: rgba(255, 255, 255, 0.05);
-        color: #83C540;
-        padding-left: 1rem; /* Efek geser kanan dikit */
-        transition: all 0.2s;
+        color: #C5B388;
     }
 </style>
 
@@ -129,5 +152,11 @@
 
     btn.addEventListener('click', () => {
         menu.classList.toggle('hidden');
+    });
+
+    window.addEventListener('resize', () => {
+        if (window.innerWidth >= 1024) {
+            menu.classList.add('hidden');
+        }
     });
 </script>

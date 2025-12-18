@@ -48,7 +48,7 @@ router.get('/produk/:id', produkController.renderDetail); //detail produk
 router.post('/produk/:id/edit-photo', uploadProdukSingle, produkController.editSpecificPhoto);
 
 
-
+router.post('/produk/bulk-action', produkController.bulkAction);
 // === KELOLA KEGIATAN ===
 // Rute GET (menampilkan halaman)
 router.get('/kegiatan', kegiatanController.renderList);

@@ -6,17 +6,32 @@ const path = require('path');
 const { Op } = require('sequelize'); // Import Operator
 
 // Fungsi helper untuk hapus file fisik (di folder 'kegiatan')
-const deleteFile = (filename) => {
-  if (filename) {
-    const filePath = path.join(__dirname, '../../public/images/kegiatan', filename);
-    if (fs.existsSync(filePath)) {
-      try {
-        fs.unlinkSync(filePath);
-        console.log(`File fisik ${filename} berhasil dihapus.`);
-      } catch (err) {
-        console.error(`Gagal menghapus file fisik ${filename}:`, err);
+// Fungsi helper untuk hapus file fisik (Smart Delete)
+const deleteFile = (filename, subfolder = 'kegiatan') => {
+  if (!filename) return;
+
+  // Daftar folder yang mungkin menyimpan file tersebut
+  const possibleFolders = [subfolder, 'produk', 'galeri', 'prestasi', 'anggota'];
+  const uniqueFolders = [...new Set(possibleFolders)];
+
+  let fileFound = false;
+
+  for (const folder of uniqueFolders) {
+      const filePath = path.join(__dirname, `../../public/images/${folder}`, filename);
+      if (fs.existsSync(filePath)) {
+          try {
+              fs.unlinkSync(filePath);
+              console.log(`File fisik ${filename} BERHASIL dihapus dari folder '${folder}'.`);
+              fileFound = true;
+              break;
+          } catch (err) {
+              console.error(`Gagal menghapus file ${filename} dari ${folder}:`, err);
+          }
       }
-    }
+  }
+
+  if (!fileFound) {
+      console.warn(`File fisik ${filename} TIDAK DITEMUKAN di folder manapun (${uniqueFolders.join(', ')}).`);
   }
 };
 
@@ -25,8 +40,18 @@ const deleteFile = (filename) => {
 // ==================================================================
 module.exports.renderList = async (req, res) => {
     try {
-        // 1. Ambil SEMUA kegiatan
+        // 1. Ambil SEMUA kegiatan dengan Deskripsi
         const kegiatanList = await db.kegiatan.findAll({
+            include: [{
+                model: db.groupsection,
+                as: 'ID_GroupSection_groupsection',
+                include: {
+                    model: db.detailsection,
+                    as: 'detailsections',
+                    where: { Urutan: 1 },
+                    required: false
+                }
+            }],
             order: [['Tanggal', 'DESC']] // Urutkan berdasarkan tanggal terbaru
         });
         
@@ -44,14 +69,25 @@ module.exports.renderList = async (req, res) => {
         }
 
         // 4. Gabungkan data secara manual
-        //    Kita tambahkan properti 'thumbnailFile' baru ke setiap kegiatan
+        //    Kita konversi ke JSON agar properti tambahan bisa dibaca dengan aman di View
         const displayList = kegiatanList.map(kegiatan => {
-            kegiatan.dataValues.thumbnailFile = thumbnailMap.get(kegiatan.ID_GroupFoto) || null;
-            return kegiatan;
+            const kJson = kegiatan.toJSON();
+
+            kJson.thumbnailFile = thumbnailMap.get(kJson.ID_GroupFoto) || null;
+            
+            // Ambil deskripsi dari nested relation
+            kJson.Deskripsi = '';
+            if (kJson.ID_GroupSection_groupsection && 
+                kJson.ID_GroupSection_groupsection.detailsections && 
+                kJson.ID_GroupSection_groupsection.detailsections.length > 0) {
+                kJson.Deskripsi = kJson.ID_GroupSection_groupsection.detailsections[0].Deskripsi;
+            }
+            
+            return kJson;
         });
 
         res.render('admin/kegiatan/index', {
-            kegiatanList: displayList // Kirim data yang sudah digabung
+            kegiatanList: displayList 
         });
 
     } catch (error) {
@@ -269,6 +305,83 @@ module.exports.updateKegiatan = async (req, res) => {
     }
 };
 
+// Helper to safely delete GroupFoto (Duplicated to ensure independence)
+const safeDeleteGroupFoto = async (groupFotoId, t) => {
+    if (!groupFotoId) return false;
+    
+    try {
+        // 1. Cek penggunaan di tabel induk lain (Produk, Kegiatan, Prestasi)
+        // Gunakan paranoid: false agar record yang soft-deleted (jika ada) tetap terhitung
+        const usedInProduk = await db.product.count({ where: { ID_GroupFoto: groupFotoId }, paranoid: false, transaction: t });
+        const usedInKegiatan = await db.kegiatan.count({ where: { ID_GroupFoto: groupFotoId }, paranoid: false, transaction: t });
+        const usedInPrestasi = await db.prestasi.count({ where: { ID_GroupFoto: groupFotoId }, paranoid: false, transaction: t });
+        
+        console.log(`Check GroupFoto ${groupFotoId}: Produk=${usedInProduk}, Kegiatan=${usedInKegiatan}, Prestasi=${usedInPrestasi}`);
+
+        if (usedInProduk === 0 && usedInKegiatan === 0 && usedInPrestasi === 0) {
+             // 2. Cek apakah ada foto di grup ini yang dipakai oleh Pengguna (Profile Picture)
+             // Ambil ID foto dalam grup ini
+             const photos = await db.foto.findAll({ where: { ID_GroupFoto: groupFotoId }, attributes: ['ID_Foto'], transaction: t });
+             const photoIds = photos.map(p => p.ID_Foto);
+             
+             if (photoIds.length > 0) {
+                 const usedInPengguna = await db.pengguna.count({ where: { ID_Foto: photoIds }, transaction: t });
+                 if (usedInPengguna > 0) {
+                     console.log(`GroupFoto ${groupFotoId} tidak dihapus karena ${usedInPengguna} foto sedang dipakai sebagai profil pengguna.`);
+                     return false;
+                 }
+             }
+
+             // 3. Eksekusi Hapus dengan Try-Catch untuk menangkap error FK tak terduga
+             try {
+                 await db.foto.destroy({ where: { ID_GroupFoto: groupFotoId }, transaction: t });
+                 await db.groupfoto.destroy({ where: { ID_GroupFoto: groupFotoId }, transaction: t });
+                 console.log(`GroupFoto ${groupFotoId} berhasil dihapus.`);
+                 return true;
+             } catch (err) {
+                 console.error(`Failed to destroy GroupFoto ${groupFotoId} (FK Constraint?):`, err.message);
+                 // Jangan throw error, return false agar transaksi utama (hapus kegiatan) tetap lanjut
+                 return false;
+             }
+        }
+        return false; // Masih dipakai
+    } catch (err) {
+        console.error("Error in safeDeleteGroupFoto check:", err);
+        return false; // Assume unsafe if check fails
+    }
+};
+
+// Helper to safely delete GroupSection
+const safeDeleteGroupSection = async (groupSectionId, t) => {
+    if (!groupSectionId) return false;
+
+    try {
+        // 1. Cek penggunaan di Kegiatan
+        const usedInKegiatan = await db.kegiatan.count({ where: { ID_GroupSection: groupSectionId }, paranoid: false, transaction: t });
+        
+        console.log(`Check GroupSection ${groupSectionId}: Kegiatan=${usedInKegiatan}`);
+
+        if (usedInKegiatan === 0) {
+             // 2. Hapus DetailSection (Anak)
+             await db.detailsection.destroy({ where: { ID_GroupSection: groupSectionId }, transaction: t });
+
+             // 3. Hapus GroupSection (Induk)
+             try {
+                 await db.groupsection.destroy({ where: { ID_GroupSection: groupSectionId }, transaction: t });
+                 console.log(`GroupSection ${groupSectionId} berhasil dihapus.`);
+                 return true;
+             } catch (err) {
+                 console.error(`Failed to destroy GroupSection ${groupSectionId} (FK Constraint?):`, err.message);
+                 return false;
+             }
+        }
+        return false; // Masih dipakai
+    } catch (err) {
+        console.error("Error in safeDeleteGroupSection check:", err);
+        return false;
+    }
+};
+
 // ==================================================================
 // 6. (DELETE) Memproses Hapus
 // ==================================================================
@@ -287,27 +400,34 @@ module.exports.deleteKegiatan = async (req, res) => {
         const groupSectionId = kegiatan.ID_GroupSection;
         const judulKegiatan = kegiatan.Judul;
 
-        // 1. Hapus semua file fisik & data 'foto' (Anak dari groupfoto)
-        const fotoList = await db.foto.findAll({ where: { ID_GroupFoto: groupFotoId } });
-        for (const foto of fotoList) {
-            deleteFile(foto.Foto); // Hapus file fisik
-            await foto.destroy({ transaction: t }); // Hapus data dari db
+        // 1. Ambil info foto
+        let photos = [];
+        if (groupFotoId) {
+            photos = await db.foto.findAll({ where: { ID_GroupFoto: groupFotoId }, transaction: t });
         }
 
-        // 2. Hapus 'detailsection' (Anak dari groupsection)
-        await db.detailsection.destroy({ where: { ID_GroupSection: groupSectionId }, transaction: t });
-
-        // 3. Hapus 'kegiatan' (Anak dari groupfoto & groupsection)
-        //    == INI DIPINDAN KE ATAS ==
+        // 2. HAPUS KEGIATAN DULUAN
         await kegiatan.destroy({ transaction: t });
 
-        // 4. Hapus 'groupfoto' (Induk - Sekarang sudah aman)
-        await db.groupfoto.destroy({ where: { ID_GroupFoto: groupFotoId }, transaction: t });
+        // 3. Cek dan Hapus GroupFoto 
+        let groupDeleted = false;
+        if (groupFotoId) {
+             groupDeleted = await safeDeleteGroupFoto(groupFotoId, t);
+        }
 
-        // 5. Hapus 'groupsection' (Induk - Sekarang sudah aman)
-        await db.groupsection.destroy({ where: { ID_GroupSection: groupSectionId }, transaction: t });
+        // 4. Hapus Detail & Group Section
+        // Gunakan safe delete agar tidak crash jika masih ada constraint
+        if (groupSectionId) {
+             await safeDeleteGroupSection(groupSectionId, t);
+        }
         
         await t.commit();
+
+        // 5. Hapus File Fisik
+        if (groupDeleted && photos.length > 0) {
+            photos.forEach(foto => deleteFile(foto.Foto));
+        }
+
         req.flash('success', `Data kegiatan '${judulKegiatan}' berhasil dihapus.`);
         res.redirect('/admin/kegiatan');
 
@@ -322,7 +442,6 @@ module.exports.deleteKegiatan = async (req, res) => {
 // ==================================================================
 // 7. (DELETE) Hapus Foto Spesifik (via AJAX)
 // ==================================================================
-// Mirip seperti di controller produk Anda, untuk hapus foto satu per satu
 module.exports.deleteFotoKegiatan = async (req, res) => {
     try {
         const { fotoId } = req.params;
@@ -407,38 +526,43 @@ module.exports.bulkAction = async (req, res) => {
     
     const t = await db.sequelize.transaction();
     try {
-        // 2. Kumpulkan semua ID terkait
         const kegiatans = await db.kegiatan.findAll({
             where: { ID_Kegiatan: { [Op.in]: idsToDelete } },
             transaction: t
         });
         
-        const groupFotoIds = kegiatans.map(k => k.ID_GroupFoto);
-        const groupSectionIds = kegiatans.map(k => k.ID_GroupSection);
+        const groupFotoIds = kegiatans.map(k => k.ID_GroupFoto).filter(id => id);
+        const groupSectionIds = kegiatans.map(k => k.ID_GroupSection).filter(id => id);
 
-        // 3. Kumpulkan semua file fisik untuk dihapus
-        const fotoList = await db.foto.findAll({
-            where: { ID_GroupFoto: { [Op.in]: groupFotoIds } }
-        });
+        // 1. DELETE ACTIVITIES FIRST
+        await db.kegiatan.destroy({ where: { ID_Kegiatan: { [Op.in]: idsToDelete } }, transaction: t });
+
+        // 2. CHECK & DELETE GROUPS
+        let deletedFileNames = [];
+
+        // Check each GroupFoto
+        for (const gId of groupFotoIds) {
+             const photos = await db.foto.findAll({ where: { ID_GroupFoto: gId }, transaction: t });
+             const deleted = await safeDeleteGroupFoto(gId, t);
+             if (deleted) {
+                 deletedFileNames.push(...photos.map(p => p.Foto));
+             }
+        }
         
-        // 4. Hapus file fisik (di luar transaksi)
-        for (const foto of fotoList) {
-            deleteFile(foto.Foto);
+        // Delete Sections
+        if (groupSectionIds.length > 0) {
+            for (const gSecId of groupSectionIds) {
+                await safeDeleteGroupSection(gSecId, t);
+            }
         }
 
-        // 5. Hapus dari database (di dalam transaksi, urutan penting!)
-        // Hapus anak-anak
-        await db.foto.destroy({ where: { ID_GroupFoto: { [Op.in]: groupFotoIds } }, transaction: t });
-        await db.detailsection.destroy({ where: { ID_GroupSection: { [Op.in]: groupSectionIds } }, transaction: t });
-        
-        // Hapus item utama
-        await db.kegiatan.destroy({ where: { ID_Kegiatan: { [Op.in]: idsToDelete } }, transaction: t });
-        
-        // Hapus induk
-        await db.groupfoto.destroy({ where: { ID_GroupFoto: { [Op.in]: groupFotoIds } }, transaction: t });
-        await db.groupsection.destroy({ where: { ID_GroupSection: { [Op.in]: groupSectionIds } }, transaction: t });
-
         await t.commit();
+
+        // 3. Cleanup Files
+        for (const filename of deletedFileNames) {
+            deleteFile(filename);
+        }
+
         req.flash('success', `${idsToDelete.length} data kegiatan berhasil dihapus.`);
         res.redirect('/admin/kegiatan');
 

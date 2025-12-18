@@ -3,8 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Prestasi - Bausasran</title>
+    <title>Jejak Prestasi - Bausasran Heritage</title>
     
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Lato:wght@300;400;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.jsdelivr.net/gh/studio-freight/lenis@1.0.29/bundled/lenis.min.js"></script>
+
     <script src="https://cdn.tailwindcss.com"></script>
 
     <script>
@@ -12,18 +18,24 @@
             theme: {
                 extend: {
                     colors: {
-                        main: '#003024',    // Background Gelap
-                        surface: '#004030', // Warna Kartu
-                        accent: '#83C540',  // Hijau Neon
-                        pale: '#F5FEF9',    // Teks Putih
-                        muted: '#A3C2B8',   // Teks Pudar
-                        gold: '#FACC15',    // Warna Emas untuk Ikon
+                        paper: '#F9F7F2',       // Cream Background
+                        deep: '#0F1F18',        // Dark Green (Primary)
+                        gold: '#C5B388',        // Luxury Accent
+                        charcoal: '#4A4A4A',    // Text
+                        sand: '#E5E0D8',        // Border/Secondary
+                        white: '#FFFFFF',
                     },
                     fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
+                        sans: ['Lato', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                        crest: ['Cinzel', 'serif'], 
+                    },
+                    letterSpacing: {
+                        'luxury': '0.2em',
+                        'widest': '0.3em',
                     },
                     boxShadow: {
-                        'neon': '0 0 15px rgba(131, 197, 64, 0.3)',
+                        'elegant': '0 10px 40px -10px rgba(15, 31, 24, 0.10)',
                     }
                 }
             }
@@ -33,132 +45,188 @@
     <style type="text/tailwindcss">
         @layer base {
             body {
-                @apply bg-main text-pale font-sans antialiased;
+                @apply bg-paper text-deep font-sans antialiased selection:bg-deep selection:text-paper;
+                overscroll-behavior: none; 
             }
+        }
+        
+        /* TEXTURE OVERLAY */
+        .noise-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.04'/%3E%3C/svg%3E");
+            pointer-events: none; z-index: 9999; mix-blend-mode: multiply;
+        }
+
+        /* TIMELINE LINE LOGIC */
+        .timeline-container::before {
+            content: '';
+            position: absolute;
+            top: 0; bottom: 0;
+            width: 1px;
+            background: rgba(15, 31, 24, 0.15);
+        }
+
+        /* Desktop: Center Line */
+        @media (min-width: 768px) {
+            .timeline-container::before { left: 50%; transform: translateX(-50%); }
+        }
+
+        /* Mobile: Left Line */
+        @media (max-width: 767px) {
+            .timeline-container::before { left: 24px; }
         }
     </style>
 </head>
 
-<body class="flex flex-col min-h-screen">
+<body class="flex flex-col min-h-screen relative">
+
+    <div class="noise-overlay"></div>
 
     <%- include('../partials/navbar.ejs') %>
 
-    <main class="container mx-auto px-4 py-12 flex-grow overflow-hidden">
+    <main class="flex-grow pt-40 pb-24 px-6 relative z-10">
         <%- include('../partials/flash.ejs') %>
 
-        <div class="text-center mb-16 relative z-10">
-            <h1 class="text-4xl md:text-5xl font-bold text-pale mb-4">
-                Prestasi <span class="text-accent">Kami</span>
-            </h1>
-            <p class="text-lg text-muted max-w-2xl mx-auto">
-                Rekam jejak perjuangan dan apresiasi yang telah diraih oleh Kampung Wisata Bausasran.
+        <div class="max-w-6xl mx-auto text-center mb-24 animate-[fadeIn_1.5s]">
+            <span class="font-sans text-[10px] uppercase tracking-widest text-gold mb-4 block">Hall of Achievements</span>
+            <h1 class="font-crest text-4xl md:text-6xl text-deep mb-6 leading-none">Jejak Prestasi</h1>
+            <p class="font-serif italic text-lg md:text-xl text-charcoal/70 max-w-2xl mx-auto leading-relaxed">
+                "Sebuah catatan perjalanan atas dedikasi, kerja keras, dan pengakuan yang telah diraih oleh Kampung Wisata Bausasran."
             </p>
-            
-            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-accent/20 rounded-full blur-[80px] -z-10"></div>
+            <div class="w-[1px] h-16 bg-deep/10 mx-auto mt-10"></div>
         </div>
 
         <% if(prestasiList && prestasiList.length > 0) { %>
-            <div class="relative max-w-5xl mx-auto">
+            <div class="relative max-w-6xl mx-auto timeline-container pb-12">
                 
-                <div class="absolute left-8 md:left-1/2 top-0 bottom-0 w-0.5 bg-gradient-to-b from-transparent via-white/20 to-transparent transform md:-translate-x-1/2 z-0"></div>
-
-                <% prestasiList.forEach((prestasi, index) => { %>
-                    <div class="relative z-10 mb-12 flex flex-col md:flex-row items-center w-full group">
+                <% prestasiList.forEach((prestasi, index) => { 
+                    // Safe Data Handling
+                    const vals = prestasi.dataValues || prestasi;
+                    const id = vals.ID_Prestasi;
+                    const judul = vals.Judul;
+                    const kategori = vals.Kategori || 'Penghargaan';
+                    const tanggal = vals.Tanggal;
+                    const deskripsi = vals.Deskripsi;
+                    const isLeft = index % 2 === 0; // True if Even index (Left on Desktop)
+                %>
+                    
+                    <div class="relative z-10 mb-16 md:mb-24 flex flex-col md:flex-row items-center w-full group">
                         
-                        <div class="w-full md:w-1/2 pl-20 md:pl-0 md:pr-12 md:text-right order-1 md:order-1 <%= index % 2 !== 0 ? 'hidden md:block' : '' %>">
-                            <% if(index % 2 === 0) { %>
-                                <a href="/prestasi/<%= prestasi.ID_Prestasi %>" class="block bg-surface border border-white/5 p-6 rounded-2xl shadow-lg hover:shadow-neon hover:border-accent/50 transition-all duration-300 transform hover:-translate-y-1 relative overflow-hidden">
-                                    <div class="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-white/5 to-transparent rounded-bl-full -mr-4 -mt-4"></div>
-                                    
-                                    <div class="flex flex-col md:items-end mb-2">
-                                        <span class="text-accent text-sm font-bold tracking-wider mb-1">
-                                            <%= new Date(prestasi.Tanggal).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' }) %>
-                                        </span>
-                                        <% if (prestasi.Kategori) { %>
-                                            <span class="inline-block px-3 py-1 bg-accent/10 border border-accent/20 text-accent text-xs font-bold rounded-full mb-3">
-                                                <%= prestasi.Kategori %>
-                                            </span>
-                                        <% } %>
-                                    </div>
-                                    <h3 class="text-xl font-bold text-pale mb-2 group-hover:text-accent transition-colors"><%= prestasi.Judul %></h3>
-                                    <div class="text-muted text-sm flex md:justify-end items-center mt-2 font-medium">
-                                        Lihat Detail 
-                                        <svg class="w-4 h-4 ml-1 transform rotate-180 md:rotate-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
-                                    </div>
-                                </a>
-                            <% } %>
-                        </div>
-
-                        <div class="absolute left-8 md:left-1/2 transform -translate-x-1/2 flex items-center justify-center order-1 z-20">
-                            <div class="w-12 h-12 rounded-full bg-main border-2 border-accent shadow-[0_0_15px_rgba(131,197,64,0.4)] flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                                <svg class="w-6 h-6 text-gold drop-shadow-md" fill="currentColor" viewBox="0 0 20 20">
-                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                                </svg>
-                            </div>
-                        </div>
-
-                        <div class="w-full md:w-1/2 pl-20 md:pl-12 order-1 md:order-1 <%= index % 2 === 0 ? 'hidden md:block' : '' %>">
-                            <% if(index % 2 !== 0) { %>
-                                <a href="/prestasi/<%= prestasi.ID_Prestasi %>" class="block bg-surface border border-white/5 p-6 rounded-2xl shadow-lg hover:shadow-neon hover:border-accent/50 transition-all duration-300 transform hover:-translate-y-1 relative overflow-hidden">
-                                    <div class="absolute top-0 left-0 w-16 h-16 bg-gradient-to-br from-white/5 to-transparent rounded-br-full -ml-4 -mt-4"></div>
-                                    
-                                    <div class="flex flex-col items-start mb-2">
-                                        <span class="text-accent text-sm font-bold tracking-wider mb-1">
-                                            <%= new Date(prestasi.Tanggal).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' }) %>
-                                        </span>
-                                        <% if (prestasi.Kategori) { %>
-                                            <span class="inline-block px-3 py-1 bg-accent/10 border border-accent/20 text-accent text-xs font-bold rounded-full mb-3">
-                                                <%= prestasi.Kategori %>
-                                            </span>
-                                        <% } %>
-                                    </div>
-                                    <h3 class="text-xl font-bold text-pale mb-2 group-hover:text-accent transition-colors"><%= prestasi.Judul %></h3>
-                                    <div class="text-muted text-sm flex items-center mt-2 font-medium">
-                                        Lihat Detail 
-                                        <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
-                                    </div>
-                                </a>
-                            <% } %>
+                        <div class="w-full md:w-1/2 pl-16 md:pl-0 md:pr-16 md:text-right order-1">
                             
-                            <div class="md:hidden">
-                                <% if(index % 2 === 0) { %>
-                                    <a href="/prestasi/<%= prestasi.ID_Prestasi %>" class="block bg-surface border border-white/5 p-6 rounded-2xl shadow-lg hover:shadow-neon hover:border-accent/50 transition-all duration-300 active:scale-95">
-                                        <div class="mb-2">
-                                            <span class="text-accent text-sm font-bold block mb-1">
-                                                <%= new Date(prestasi.Tanggal).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' }) %>
+                            <% if(isLeft) { %>
+                                <a href="/prestasi/<%= id %>" class="block group/card relative transition-transform duration-500 hover:-translate-y-1">
+                                    <div class="flex flex-col md:items-end mb-3">
+                                        <span class="font-sans text-[10px] uppercase tracking-widest text-gold mb-2 flex items-center gap-2 md:flex-row-reverse">
+                                            <%= new Date(tanggal).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' }) %>
+                                            <span class="w-8 h-[1px] bg-gold/50"></span>
+                                        </span>
+                                        <span class="inline-block px-3 py-1 bg-deep/5 text-deep/60 text-[8px] font-bold uppercase tracking-widest border border-deep/5 mb-3">
+                                            <%= kategori %>
+                                        </span>
+                                    </div>
+                                    
+                                    <h3 class="font-serif text-2xl md:text-4xl text-deep mb-4 leading-tight group-hover/card:text-gold transition-colors duration-300">
+                                        <%= judul %>
+                                    </h3>
+                                    
+                                    <p class="text-charcoal/60 text-sm font-sans mb-5 leading-relaxed line-clamp-2 md:ml-auto max-w-md">
+                                        <%= deskripsi || 'Klik untuk melihat detail dokumentasi dan deskripsi lengkap penghargaan ini.' %>
+                                    </p>
+                                    
+                                    <div class="inline-flex items-center text-[9px] uppercase tracking-widest text-deep border-b border-deep/20 pb-1 group-hover/card:border-gold group-hover/card:text-gold transition-all gap-2">
+                                        Selengkapnya
+                                        <span class="md:hidden">&rarr;</span>
+                                    </div>
+                                </a>
+                            <% } else { %>
+                                <div class="hidden md:block"></div> 
+                            <% } %>
+
+                            <% if(!isLeft) { %>
+                                <div class="md:hidden">
+                                    <a href="/prestasi/<%= id %>" class="block group/card relative mt-2 transition-transform duration-500 hover:-translate-y-1">
+                                        <div class="flex flex-col items-start mb-3">
+                                            <span class="font-sans text-[10px] uppercase tracking-widest text-gold mb-2 flex items-center gap-2">
+                                                <%= new Date(tanggal).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' }) %>
+                                                <span class="w-8 h-[1px] bg-gold/50"></span>
                                             </span>
-                                            <% if (prestasi.Kategori) { %>
-                                                <span class="inline-block px-3 py-1 bg-accent/10 border border-accent/20 text-accent text-xs font-bold rounded-full">
-                                                    <%= prestasi.Kategori %>
-                                                </span>
-                                            <% } %>
+                                            <span class="inline-block px-3 py-1 bg-deep/5 text-deep/60 text-[8px] font-bold uppercase tracking-widest border border-deep/5 mb-3">
+                                                <%= kategori %>
+                                            </span>
                                         </div>
-                                        <h3 class="text-lg font-bold text-pale mb-2"><%= prestasi.Judul %></h3>
-                                        <div class="text-muted text-sm flex items-center mt-2">
-                                            Lihat Detail <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                                        <h3 class="font-serif text-2xl text-deep mb-4 leading-tight group-hover/card:text-gold transition-colors duration-300">
+                                            <%= judul %>
+                                        </h3>
+                                        <div class="inline-flex items-center text-[9px] uppercase tracking-widest text-deep border-b border-deep/20 pb-1 group-hover/card:border-gold group-hover/card:text-gold transition-all gap-2">
+                                            Selengkapnya <span>&rarr;</span>
                                         </div>
                                     </a>
-                                <% } %>
+                                </div>
+                            <% } %>
+                        </div>
+
+                        <div class="absolute left-[24px] md:left-1/2 transform -translate-x-1/2 flex items-center justify-center order-1 z-20 top-0">
+                            <div class="w-4 h-4 rounded-full bg-paper border-2 border-deep transition-all duration-500 group-hover:border-gold group-hover:scale-150 relative">
+                                <div class="absolute inset-0 m-auto w-1.5 h-1.5 rounded-full bg-deep group-hover:bg-gold transition-colors"></div>
                             </div>
+                        </div>
+
+                        <div class="w-full md:w-1/2 pl-16 order-1 hidden md:block">
+                            
+                            <% if(!isLeft) { %>
+                                <a href="/prestasi/<%= id %>" class="block group/card relative transition-transform duration-500 hover:-translate-y-1">
+                                    <div class="flex flex-col items-start mb-3">
+                                        <span class="font-sans text-[10px] uppercase tracking-widest text-gold mb-2 flex items-center gap-2">
+                                            <span class="w-8 h-[1px] bg-gold/50"></span>
+                                            <%= new Date(tanggal).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' }) %>
+                                        </span>
+                                        <span class="inline-block px-3 py-1 bg-deep/5 text-deep/60 text-[8px] font-bold uppercase tracking-widest border border-deep/5 mb-3">
+                                            <%= kategori %>
+                                        </span>
+                                    </div>
+                                    
+                                    <h3 class="font-serif text-4xl text-deep mb-4 leading-tight group-hover/card:text-gold transition-colors duration-300">
+                                        <%= judul %>
+                                    </h3>
+                                    
+                                    <p class="text-charcoal/60 text-sm font-sans mb-5 leading-relaxed line-clamp-2 max-w-md">
+                                        <%= deskripsi || 'Klik untuk melihat detail dokumentasi dan deskripsi lengkap penghargaan ini.' %>
+                                    </p>
+                                    
+                                    <div class="inline-flex items-center text-[9px] uppercase tracking-widest text-deep border-b border-deep/20 pb-1 group-hover/card:border-gold group-hover/card:text-gold transition-all">
+                                        Selengkapnya
+                                    </div>
+                                </a>
+                            <% } else { %>
+                                <div></div>
+                            <% } %>
                         </div>
 
                     </div>
                 <% }) %>
+                
+                <div class="absolute -bottom-4 left-[24px] md:left-1/2 transform -translate-x-1/2 text-gold/40 bg-paper py-2">
+                    <span class="font-crest text-xl">✦</span>
+                </div>
+
             </div>
         <% } else { %>
-            <div class="text-center py-20 border-2 border-dashed border-white/10 rounded-2xl bg-surface/30 max-w-2xl mx-auto">
-                <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-white/5 mb-6 text-muted">
-                    <svg class="w-10 h-10 text-gold opacity-50" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                    </svg>
-                </div>
-                <h3 class="text-xl font-bold text-pale mb-2">Belum Ada Prestasi</h3>
-                <p class="text-muted">Data prestasi akan segera diperbarui.</p>
+            <div class="max-w-2xl mx-auto text-center py-32 border border-dashed border-deep/10 bg-sand/10 rounded-sm">
+                <span class="font-crest text-4xl text-deep/20 mb-4 block">∅</span>
+                <h3 class="font-crest text-xl text-deep mb-2">Arsip Belum Tersedia</h3>
+                <p class="font-serif italic text-charcoal/60 text-sm">Halaman prestasi akan segera diperbarui dengan pencapaian terbaru.</p>
             </div>
         <% } %>
     </main>
 
     <%- include('../partials/footer.ejs') %>
 
+    <script>
+        // Initialize Smooth Scroll
+        const lenis = new Lenis({ duration: 1.2, easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), direction: 'vertical', smooth: true });
+        function raf(time) { lenis.raf(time); requestAnimationFrame(raf); }
+        requestAnimationFrame(raf);
+    </script>
 </body>
 </html>

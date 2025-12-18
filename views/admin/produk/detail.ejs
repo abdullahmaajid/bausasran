@@ -3,9 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Detail Produk: <%= product.Nama %></title>
+    <title>Arsip Produk: <%= product.Nama %> - Executive Console</title>
     
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Lato:wght@300;400;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -13,91 +17,140 @@
             theme: {
                 extend: {
                     colors: {
-                        main: '#003024',    // Background Gelap Utama
-                        surface: '#004030', // Warna Kartu/Container
-                        accent: '#83C540',  // Hijau Neon (Highlight)
-                        pale: '#F5FEF9',    // Teks Putih
-                        muted: '#A3C2B8',   // Teks Abu/Pudar
-                        darker: '#00251a',  // Background Input/Table Header
-                        danger: '#ff4d4d',  // Merah
-                        warning: '#FFC107', // Kuning
+                        paper: '#F9F7F2',       /* Cream Kertas */
+                        deep: '#0F1F18',        /* Hijau Gelap */
+                        gold: '#C5B388',        /* Emas */
+                        charcoal: '#4A4A4A',    
+                        linen: '#EBE9E4',       
+                        white: '#FFFFFF',
+                        danger: '#8B3A3A',      /* Merah Bata Elegan */
                     },
-                    fontFamily: { sans: ['Inter', 'sans-serif'] }
+                    fontFamily: {
+                        sans: ['Lato', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                        crest: ['Cinzel', 'serif'], 
+                    },
+                    boxShadow: {
+                        'elegant': '0 20px 50px -12px rgba(15, 31, 24, 0.08)',
+                        'gold-glow': '0 0 15px rgba(197, 179, 136, 0.2)',
+                    }
                 }
             }
         }
     </script>
+
     <style type="text/tailwindcss">
-        @layer base { body { @apply bg-main text-pale font-sans antialiased; } }
+        @layer base {
+            body { @apply bg-paper text-deep font-sans antialiased selection:bg-deep selection:text-paper; }
+        }
+
+        /* TEXTURE: Film Grain */
+        .noise-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E");
+            pointer-events: none; z-index: 50; mix-blend-mode: multiply;
+        }
+
+        /* COMPONENTS */
+        .heritage-card {
+            @apply bg-white p-6 md:p-8 border border-deep/5 shadow-elegant relative overflow-hidden transition-all duration-500;
+        }
         
-        /* Custom Scrollbar yang halus */
+        .heritage-label {
+            @apply block text-[10px] uppercase tracking-[0.15em] font-bold text-gold mb-2 font-sans;
+        }
+
+        .heritage-header {
+            @apply font-crest text-lg text-deep mb-6 flex items-center gap-3 border-b border-deep/5 pb-4;
+        }
+
+        .btn-action {
+            @apply px-6 py-3 text-[10px] uppercase tracking-[0.2em] font-bold transition-all flex items-center justify-center gap-2 shadow-sm;
+        }
+
+        /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #004030; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: #83C540; }
-
-        .leaflet-container { background: #00251a; }
+        ::-webkit-scrollbar-thumb { background: #C5B388; border-radius: 3px; }
+        
+        /* Map Override */
+        .leaflet-container { background: #EBE9E4; font-family: 'Lato', sans-serif; }
     </style>
 </head>
 
-<body class="flex h-screen overflow-hidden w-full">
+<body class="flex h-screen overflow-hidden relative w-full">
+
+    <div class="noise-overlay"></div>
 
     <%- include('../../partials/admin_sidebar.ejs') %>
 
-    <main class="flex-1 h-full overflow-y-auto overflow-x-hidden p-6 md:p-8 relative">
+    <main class="flex-1 h-full overflow-y-auto overflow-x-hidden p-6 md:p-12 relative z-10">
         <%- include('../../partials/flash.ejs') %>
 
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 border-b border-white/5 pb-6">
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12 border-b border-deep/10 pb-8">
             <div class="flex-1">
-                <div class="flex items-center gap-3 mb-1">
-                    <span class="px-3 py-1 rounded-full text-xs font-bold bg-accent/20 text-accent border border-accent/20 uppercase tracking-wider">
-                        <%= product.Kategori || 'Produk' %>
+                <div class="flex items-center gap-4 mb-2">
+                    <span class="font-sans text-[10px] uppercase tracking-widest text-gold border border-gold/30 px-2 py-0.5">
+                        <%= product.Kategori || 'Komoditas' %>
                     </span>
-                    <h1 class="text-3xl font-bold text-pale tracking-tight">
-                        <%= product.Nama %>
-                    </h1>
+                    <span class="w-px h-3 bg-deep/20"></span>
+                    <span class="font-sans text-[10px] uppercase tracking-widest text-deep/50">
+                        Inventaris Produk
+                    </span>
                 </div>
-                <p class="text-muted text-sm">Kelola detail produk, harga, dan parameter syarat tumbuh.</p>
+                <h1 class="font-crest text-3xl md:text-4xl text-deep leading-none tracking-tight">
+                    <%= product.Nama %>
+                </h1>
             </div>
             
             <div class="flex items-center gap-3 shrink-0">
-                <a href="/admin/produk" class="bg-surface hover:bg-white/10 text-pale font-bold py-2.5 px-6 rounded-xl border border-white/10 transition-all text-sm shadow-lg">
+                <a href="/admin/produk" class="btn-action border border-deep/10 text-deep/60 bg-white hover:bg-linen hover:text-deep">
                     Kembali
                 </a>
-                <a href="/admin/produk/<%= product.ID_Product %>/edit" class="bg-warning hover:bg-warning/90 text-main font-bold py-2.5 px-6 rounded-xl shadow-lg transition-all flex items-center gap-2 text-sm">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
-                    Edit Data
+
+                <form action="/admin/produk/<%= product.ID_Product %>/delete" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus arsip produk ini?');">
+                    <button type="submit" class="btn-action border border-danger/20 text-danger/70 bg-paper hover:bg-danger hover:text-white hover:border-danger">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                        <span>Hapus</span>
+                    </button>
+                </form>
+                
+                <a href="/admin/produk/<%= product.ID_Product %>/edit" class="btn-action bg-deep text-gold border border-deep hover:bg-gold hover:text-deep hover:border-gold hover:shadow-gold-glow">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                    <span>Edit Data</span>
                 </a>
             </div>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-8">
             
-            <div class="lg:col-span-4 flex flex-col gap-6">
+            <div class="lg:col-span-4 flex flex-col gap-8">
                 
-                <div class="bg-surface rounded-2xl p-2 shadow-xl border border-white/5">
-                    <% if (photos && photos.length > 0) { %>
-                        <div class="relative aspect-[4/3] rounded-xl overflow-hidden group">
-                            <img src="/images/produk/<%= photos[0].Foto %>" alt="Main Photo" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                <div class="heritage-card p-4 group">
+                    <div class="relative aspect-[4/3] w-full bg-linen/30 border border-deep/10 overflow-hidden shadow-inner">
+                        <% if (photos && photos.length > 0) { %>
+                            <img src="/images/produk/<%= photos[0].Foto %>" alt="Product Image" class="w-full h-full object-cover filter sepia-[0.15] contrast-[0.95] group-hover:sepia-0 group-hover:contrast-100 transition-all duration-700 ease-out">
                             <% if(photos.length > 1) { %>
-                                <div class="absolute bottom-3 right-3 bg-black/60 backdrop-blur-sm text-pale text-xs font-bold px-3 py-1 rounded-full border border-white/10">
-                                    +<%= photos.length - 1 %> Foto Lainnya
+                                <div class="absolute bottom-0 right-0 bg-deep text-gold font-crest text-[10px] px-4 py-2 border-tl border-deep/10 tracking-widest">
+                                    +<%= photos.length - 1 %> FOTO LAIN
                                 </div>
                             <% } %>
-                        </div>
-                    <% } else { %>
-                        <div class="aspect-[4/3] bg-darker rounded-xl flex flex-col items-center justify-center border border-dashed border-white/10 text-muted">
-                            <span class="text-xs font-bold uppercase">No Image</span>
-                        </div>
-                    <% } %>
+                        <% } else { %>
+                            <div class="w-full h-full flex flex-col items-center justify-center text-deep/30 bg-linen/20">
+                                <span class="font-crest text-[10px] uppercase tracking-widest opacity-60">Tidak Ada Citra</span>
+                            </div>
+                        <% } %>
+                        <div class="absolute inset-0 border-[1px] border-white/20 pointer-events-none"></div>
+                    </div>
                 </div>
 
-                <div class="bg-gradient-to-br from-surface to-darker rounded-2xl p-6 shadow-xl border border-white/5 relative overflow-hidden">
-                    <div class="absolute top-0 right-0 p-4 opacity-10">
-                        <svg class="w-24 h-24 text-accent" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1.41 16.09V20h-2.67v-1.93c-1.71-.36-3.15-1.46-3.27-3.4h1.96c.1 1.05.82 1.87 2.65 1.87 1.96 0 2.4-.98 2.4-1.59 0-.83-.44-1.61-2.67-2.14-2.48-.6-4.18-1.62-4.18-3.67 0-1.72 1.39-2.84 3.11-3.21V4h2.67v1.95c1.86.45 2.79 1.86 2.85 3.39h-2.05c-.15-.86-.82-1.69-2.66-1.69-1.74 0-2.35 1.03-2.35 1.62 0 .83.39 1.54 2.51 1.97 2.48.55 4.26 1.67 4.26 3.75 0 1.84-1.36 2.96-3.06 3.31z"></path></svg>
+                <div class="relative w-full p-6 md:p-8 bg-deep text-paper border border-deep/5 shadow-elegant overflow-hidden group">
+                    
+                    <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity duration-700">
+                        <svg class="w-24 h-24 text-gold" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1.41 16.09V20h-2.67v-1.93c-1.71-.36-3.15-1.46-3.27-3.4h1.96c.1 1.05.82 1.87 2.65 1.87 1.96 0 2.4-.98 2.4-1.59 0-.83-.44-1.61-2.67-2.14-2.48-.6-4.18-1.62-4.18-3.67 0-1.72 1.39-2.84 3.11-3.21V4h2.67v1.95c1.86.45 2.79 1.86 2.85 3.39h-2.05c-.15-.86-.82-1.69-2.66-1.69-1.74 0-2.35 1.03-2.35 1.62 0 .83.39 1.54 2.51 1.97 2.48.55 4.26 1.67 4.26 3.75 0 1.84-1.36 2.96-3.06 3.31z"></path></svg>
                     </div>
 
-                    <h3 class="text-muted text-xs font-bold uppercase tracking-widest mb-1">Harga Satuan</h3>
+                    <h3 class="font-sans text-[10px] text-gold uppercase tracking-[0.2em] mb-4 relative z-10">Nilai Jual Satuan</h3>
                     
                     <% 
                         const formattedPrice = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(product.Harga || 0);
@@ -106,72 +159,79 @@
                         const formattedFinalPrice = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(finalPrice);
                     %>
 
-                    <div class="flex flex-col relative z-10">
+                    <div class="relative z-10 flex flex-col gap-1">
                         <% if (discountPercent > 0) { %>
-                            <div class="flex items-center gap-3 mb-2">
-                                <span class="bg-danger text-white text-xs font-bold px-2 py-0.5 rounded shadow-sm">-<%= discountPercent %>% OFF</span>
-                                <span class="text-sm text-muted line-through decoration-white/30"><%= formattedPrice %></span>
+                            <div class="flex items-center gap-3 mb-1">
+                                <span class="bg-danger/90 text-white text-[10px] font-bold px-2 py-1 tracking-wider uppercase shadow-sm border border-white/10">
+                                    -<%= discountPercent %>% POTONGAN
+                                </span>
+                                <span class="text-sm font-serif italic line-through text-white/50 decoration-gold/50">
+                                    <%= formattedPrice %>
+                                </span>
                             </div>
                         <% } %>
-                        <span class="text-4xl font-black text-accent tracking-tighter"><%= formattedFinalPrice %></span>
+                        <span class="font-crest text-4xl md:text-5xl text-white tracking-tight drop-shadow-md">
+                            <%= formattedFinalPrice %>
+                        </span>
                     </div>
                 </div>
 
-                <div class="bg-surface rounded-2xl p-6 shadow-xl border border-white/5 flex-1">
-                    <h3 class="text-pale font-bold mb-3 flex items-center gap-2 text-sm uppercase tracking-wider">
-                        <svg class="w-4 h-4 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"></path></svg>
-                        Tentang Produk
+                <div class="heritage-card flex-1">
+                    <h3 class="heritage-header">
+                        <span class="w-6 h-px bg-gold"></span>
+                        Ikhtisar Produk
                     </h3>
-                    <div class="prose prose-invert prose-sm max-w-none text-muted leading-relaxed text-sm">
-                        <%= product.Deskripsi || 'Belum ada deskripsi yang ditambahkan untuk produk ini.' %>
+                    <div class="prose prose-sm max-w-none text-deep/80 font-serif leading-loose italic">
+                        <%= product.Deskripsi || 'Belum ada catatan deskripsi yang ditambahkan dalam arsip ini.' %>
                     </div>
                 </div>
             </div>
 
-            <div class="lg:col-span-8 flex flex-col h-full">
-                <div class="bg-surface rounded-2xl shadow-xl border border-white/5 flex flex-col h-full overflow-hidden">
+            <div class="lg:col-span-8 flex flex-col h-full gap-8">
+                
+                <div class="heritage-card !p-0 flex flex-col">
                     
-                    <div class="px-6 py-5 border-b border-white/5 bg-darker/30 flex items-center justify-between">
+                    <div class="px-8 py-6 border-b border-deep/10 bg-linen/20 flex items-center justify-between">
                         <div>
-                            <h2 class="text-lg font-bold text-pale flex items-center gap-2">
-                                <svg class="w-5 h-5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
-                                Parameter Optimal (Syarat Tumbuh)
+                            <h2 class="font-crest text-lg text-deep flex items-center gap-3">
+                                <svg class="w-5 h-5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                                Parameter Agronomi
                             </h2>
-                            <p class="text-xs text-muted mt-1">Daftar parameter lingkungan yang dibutuhkan agar tanaman tumbuh maksimal.</p>
+                            <p class="text-xs font-serif italic text-deep/60 mt-1">Spesifikasi syarat tumbuh untuk hasil optimal.</p>
                         </div>
-                        <span class="bg-white/5 text-pale text-xs font-bold px-3 py-1 rounded border border-white/10">
-                            <%= parameters ? parameters.length : 0 %> Item
+                        <span class="bg-white text-deep text-[10px] font-bold px-3 py-1 border border-deep/10 uppercase tracking-widest shadow-sm">
+                            <%= parameters ? parameters.length : 0 %> Indikator
                         </span>
                     </div>
 
-                    <div class="flex-1 overflow-auto bg-darker/20">
+                    <div class="overflow-auto max-h-[400px]">
                         <% if (parameters && parameters.length > 0) { %>
                             <table class="w-full text-sm text-left">
-                                <thead class="bg-darker text-muted text-xs uppercase font-bold sticky top-0 z-10 shadow-sm">
+                                <thead class="bg-white text-gold text-[10px] uppercase tracking-widest font-bold sticky top-0 z-10 shadow-sm">
                                     <tr>
-                                        <th class="px-6 py-4 tracking-wider">Nama Parameter</th>
-                                        <th class="px-6 py-4 text-center w-32">Minimal</th>
-                                        <th class="px-6 py-4 text-center w-32">Maksimal</th>
-                                        <th class="px-6 py-4 text-right w-24">Satuan</th>
+                                        <th class="px-8 py-4 bg-white border-b border-deep/10">Indikator</th>
+                                        <th class="px-6 py-4 text-center w-32 bg-white border-b border-deep/10">Min</th>
+                                        <th class="px-6 py-4 text-center w-32 bg-white border-b border-deep/10">Max</th>
+                                        <th class="px-8 py-4 text-right w-24 bg-white border-b border-deep/10">Satuan</th>
                                     </tr>
                                 </thead>
-                                <tbody class="divide-y divide-white/5">
+                                <tbody class="divide-y divide-deep/5">
                                     <% parameters.forEach((param, i) => { %>
-                                        <tr class="hover:bg-white/5 transition-colors group <%= i % 2 === 0 ? 'bg-transparent' : 'bg-white/[0.02]' %>">
-                                            <td class="px-6 py-4 font-medium text-pale group-hover:text-accent transition-colors">
+                                        <tr class="hover:bg-linen/30 transition-colors group">
+                                            <td class="px-8 py-4 font-serif text-deep group-hover:text-deep/100">
                                                 <%= param.Nama %>
                                             </td>
                                             <td class="px-6 py-4 text-center">
-                                                <span class="inline-block bg-darker border border-white/10 text-pale px-3 py-1 rounded-md text-xs font-mono font-bold">
+                                                <span class="inline-block text-deep font-mono font-bold text-xs bg-linen/50 px-2 py-1 rounded border border-deep/5">
                                                     <%= param.Minimal %>
                                                 </span>
                                             </td>
                                             <td class="px-6 py-4 text-center">
-                                                <span class="inline-block bg-darker border border-white/10 text-pale px-3 py-1 rounded-md text-xs font-mono font-bold">
+                                                <span class="inline-block text-deep font-mono font-bold text-xs bg-linen/50 px-2 py-1 rounded border border-deep/5">
                                                     <%= param.Maksimal %>
                                                 </span>
                                             </td>
-                                            <td class="px-6 py-4 text-right text-muted text-xs">
+                                            <td class="px-8 py-4 text-right text-deep/50 text-xs italic">
                                                 <%= param.Satuan || '-' %>
                                             </td>
                                         </tr>
@@ -179,67 +239,73 @@
                                 </tbody>
                             </table>
                         <% } else { %>
-                            <div class="flex flex-col items-center justify-center h-64 text-muted opacity-60">
-                                <svg class="w-12 h-12 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                                <p class="text-sm italic">Belum ada parameter yang diatur.</p>
+                            <div class="flex flex-col items-center justify-center h-48 text-deep/30">
+                                <span class="font-crest text-xs uppercase tracking-widest">Data Parameter Kosong</span>
                             </div>
                         <% } %>
                     </div>
                 </div>
-            </div>
-        </div>
 
-        <div class="bg-surface rounded-2xl p-6 md:p-8 shadow-xl border border-white/5">
-            <h2 class="text-xl font-bold text-pale mb-6 flex items-center gap-2">
-                <svg class="w-6 h-6 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                Simulasi Kecocokan Lahan
-            </h2>
+                <div class="heritage-card !p-0">
+                    <div class="px-8 py-6 border-b border-deep/10 flex items-center gap-3">
+                        <svg class="w-5 h-5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <h2 class="font-crest text-lg text-deep">Simulasi Geospasial</h2>
+                    </div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 h-[400px]">
-                <div class="relative h-full rounded-xl overflow-hidden border-2 border-white/10 shadow-inner group">
-                    <div id="map" class="h-full w-full z-0 bg-darker"></div>
-                    <div class="absolute bottom-4 left-4 z-[400] bg-darker/90 backdrop-blur-sm px-3 py-1.5 rounded-lg border border-white/10 shadow-lg pointer-events-none">
-                        <p class="text-xs font-bold text-accent flex items-center gap-1">
-                            <svg class="w-3 h-3 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"></path></svg>
-                            Klik peta untuk simulasi
-                        </p>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 h-[450px]">
+                        <div class="relative h-full w-full border-r border-deep/10 group">
+                            <div id="map" class="h-full w-full z-0 bg-linen"></div>
+                            <div class="absolute bottom-4 left-4 z-[400] bg-white/90 backdrop-blur-sm px-4 py-2 border border-deep/10 shadow-elegant pointer-events-none">
+                                <p class="text-[10px] font-bold text-deep uppercase tracking-widest flex items-center gap-2">
+                                    <span class="w-2 h-2 rounded-full bg-gold animate-pulse"></span>
+                                    Klik Peta Untuk Analisis
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="h-full flex flex-col bg-paper relative overflow-hidden">
+                            
+                            <div id="simulation-placeholder" class="absolute inset-0 z-10 flex flex-col items-center justify-center p-8 text-center bg-paper">
+                                <div class="w-16 h-16 border border-deep/10 rounded-full flex items-center justify-center mb-4 opacity-50">
+                                    <svg class="w-6 h-6 text-deep" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0121 18.382V7.618a1 1 0 01-.553-.894L15 4m0 13V4m0 0L9 7"></path></svg>
+                                </div>
+                                <h3 class="font-crest text-deep text-lg mb-2">Menunggu Input Lokasi</h3>
+                                <p class="font-serif italic text-deep/50 text-sm">Pilih koordinat pada peta untuk memulai kalkulasi kecocokan lahan.</p>
+                            </div>
+
+                            <div id="simulation-loading" class="hidden absolute inset-0 z-20 flex flex-col items-center justify-center bg-paper/90 backdrop-blur-sm">
+                                <div class="w-12 h-12 border-4 border-deep/10 border-t-gold rounded-full animate-spin mb-4"></div>
+                                <p class="font-crest text-[10px] text-deep uppercase tracking-[0.2em] animate-pulse">Mengambil Data Satelit...</p>
+                            </div>
+
+                            <div id="simulation-status" class="hidden h-full flex flex-col relative z-0">
+                                <div class="bg-white p-6 border-b border-deep/5 shrink-0 shadow-sm">
+                                    <div class="flex justify-between items-start mb-4">
+                                        <div>
+                                            <span class="text-[10px] text-gold uppercase tracking-[0.15em] font-bold block mb-1">Indeks Kecocokan</span>
+                                            <div class="flex items-baseline gap-3">
+                                                <span id="sim-score-badge" class="font-crest text-4xl text-deep">--%</span>
+                                                <span id="sim-status-text" class="px-2 py-1 border text-[9px] font-bold uppercase tracking-wider">--</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="bg-linen/30 px-3 py-2 border border-deep/5 flex justify-between items-center">
+                                        <span class="text-[9px] text-deep/50 uppercase tracking-widest font-bold">Kondisi Real-time</span>
+                                        <div class="text-[10px] text-deep font-mono font-bold flex gap-4">
+                                            <span>T: <span id="sim-temp" class="text-deep">-</span></span>
+                                            <span>H: <span id="sim-rain" class="text-deep">-</span></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex-grow overflow-y-auto p-4 space-y-2 custom-scrollbar bg-paper" id="sim-param-list">
+                                    </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <div class="h-full flex flex-col bg-darker rounded-xl border border-white/10 overflow-hidden relative">
-                    <div id="simulation-placeholder" class="absolute inset-0 z-10 flex flex-col items-center justify-center p-6 text-center">
-                        <div class="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mb-4 animate-pulse">
-                            <svg class="w-8 h-8 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0121 18.382V7.618a1 1 0 01-.553-.894L15 4m0 13V4m0 0L9 7"></path></svg>
-                        </div>
-                        <h3 class="text-pale font-bold mb-1">Siap Simulasi</h3>
-                        <p class="text-sm text-muted">Pilih lokasi pada peta untuk analisis kecocokan lahan.</p>
-                    </div>
-
-                    <div id="simulation-loading" class="hidden absolute inset-0 z-20 flex flex-col items-center justify-center bg-darker p-6">
-                        <svg class="animate-spin h-10 w-10 text-accent mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                        <p class="text-sm text-accent font-bold animate-pulse">Mengambil data satelit...</p>
-                    </div>
-
-                    <div id="simulation-status" class="hidden h-full flex flex-col relative z-0">
-                        <div class="bg-surface p-4 border-b border-white/5 flex items-center justify-between shrink-0">
-                            <div>
-                                <span class="text-[10px] text-muted uppercase tracking-widest font-bold block mb-1">Skor Kecocokan</span>
-                                <div class="flex items-baseline gap-3">
-                                    <span id="sim-score-badge" class="text-4xl font-black text-pale">--%</span>
-                                    <span id="sim-status-text" class="px-2 py-0.5 rounded text-[10px] font-bold uppercase border">--</span>
-                                </div>
-                            </div>
-                            <div class="text-right bg-black/20 px-3 py-2 rounded-lg border border-white/5">
-                                <span class="text-[10px] text-muted uppercase tracking-widest font-bold block mb-1">Kondisi Live</span>
-                                <div class="text-xs text-pale font-mono grid grid-cols-2 gap-x-3 text-right">
-                                    <span>Temp: <span id="sim-temp" class="text-accent font-bold">-</span></span>
-                                    <span>Hujan: <span id="sim-rain" class="text-accent font-bold">-</span></span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="flex-grow overflow-y-auto p-2 space-y-2 custom-scrollbar" id="sim-param-list"></div>
-                    </div>
-                </div>
             </div>
         </div>
     </main>
@@ -248,7 +314,6 @@
     <script src="/js/koncoTaniAdmin.js"></script>
     
     <script>
-        // --- LOGIC JS SAMA PERSIS DENGAN SEBELUMNYA ---
         const productData = JSON.parse(decodeURIComponent('<%- encodeURIComponent(JSON.stringify(product)) %>'));
         const parametersData = JSON.parse(decodeURIComponent('<%- encodeURIComponent(JSON.stringify(parameters)) %>'));
         productData.groupparameter = { parameters: parametersData };
@@ -290,21 +355,22 @@
                         
                         badge.textContent = `${result.scorePercent.toFixed(0)}%`;
                         
+                        // LOGIC CLASS WARNA DIPERBARUI SESUAI TEMA HERITAGE
                         if (result.paramCount === 0) {
-                            badge.className = "text-4xl font-black text-muted";
-                            statusText.className = "px-2 py-0.5 rounded text-[10px] font-bold uppercase border bg-white/5 text-muted border-white/10";
-                            statusText.textContent = "Data Tidak Lengkap";
+                            badge.className = "font-crest text-4xl text-deep/40";
+                            statusText.className = "px-2 py-1 border border-deep/10 text-deep/40 bg-linen/20 text-[9px] font-bold uppercase tracking-wider";
+                            statusText.textContent = "Data Kurang";
                         } else if (result.scorePercent >= 80) {
-                            badge.className = "text-4xl font-black text-accent";
-                            statusText.className = "px-2 py-0.5 rounded text-[10px] font-bold uppercase border bg-accent/20 text-accent border-accent/30";
+                            badge.className = "font-crest text-4xl text-deep";
+                            statusText.className = "px-2 py-1 border border-deep text-white bg-deep text-[9px] font-bold uppercase tracking-wider";
                             statusText.textContent = "Sangat Cocok";
                         } else if (result.scorePercent >= 50) {
-                            badge.className = "text-4xl font-black text-warning";
-                            statusText.className = "px-2 py-0.5 rounded text-[10px] font-bold uppercase border bg-warning/20 text-warning border-warning/30";
+                            badge.className = "font-crest text-4xl text-gold";
+                            statusText.className = "px-2 py-1 border border-gold text-deep bg-gold text-[9px] font-bold uppercase tracking-wider";
                             statusText.textContent = "Cukup Cocok";
                         } else {
-                            badge.className = "text-4xl font-black text-danger";
-                            statusText.className = "px-2 py-0.5 rounded text-[10px] font-bold uppercase border bg-danger/20 text-danger border-danger/30";
+                            badge.className = "font-crest text-4xl text-danger";
+                            statusText.className = "px-2 py-1 border border-danger/30 text-danger bg-danger/10 text-[9px] font-bold uppercase tracking-wider";
                             statusText.textContent = "Kurang Cocok";
                         }
 
@@ -312,28 +378,29 @@
                         if (result.paramDetails && result.paramDetails.length > 0) {
                             listContainer.innerHTML = result.paramDetails.map(p => {
                                 const isCocok = p.isCocok;
-                                const statusColor = isCocok ? 'text-accent' : 'text-danger';
-                                const bgClass = isCocok ? 'bg-accent/10 border-accent/20' : 'bg-danger/10 border-danger/20';
+                                // UPDATE CLASS WARNA LIST ITEM KE TEMA BARU
+                                const statusColor = isCocok ? 'text-deep' : 'text-danger';
+                                const bgClass = isCocok ? 'bg-white border-deep/10 shadow-sm' : 'bg-danger/5 border-danger/20';
                                 const icon = isCocok ? 
-                                    '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>' : 
-                                    '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>';
+                                    '<svg class="w-4 h-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>' : 
+                                    '<svg class="w-4 h-4 text-danger" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>';
                                 
                                 return `
-                                <div class="p-3 rounded-lg border ${bgClass} flex justify-between items-center transition-all hover:bg-white/5">
+                                <div class="p-3 mb-2 rounded-none border ${bgClass} flex justify-between items-center transition-all">
                                     <div>
-                                        <p class="text-sm font-bold text-pale">${p.Nama}</p>
-                                        <p class="text-[10px] text-muted mt-0.5">Range: ${p.Minimal} - ${p.Maksimal} ${p.Unit}</p>
+                                        <p class="text-xs font-bold text-deep font-sans uppercase tracking-wide">${p.Nama}</p>
+                                        <p class="text-[10px] text-deep/50 font-serif italic mt-0.5">Range: ${p.Minimal} - ${p.Maksimal} ${p.Unit}</p>
                                     </div>
                                     <div class="text-right">
-                                        <div class="flex items-center justify-end gap-1 ${statusColor}">
+                                        <div class="flex items-center justify-end gap-2 ${statusColor}">
+                                            <span class="text-sm font-mono font-bold border-b border-deep/10 pb-1">${p.actualValue}</span>
                                             ${icon}
-                                            <span class="text-sm font-mono font-bold">${p.actualValue}</span>
                                         </div>
                                     </div>
                                 </div>`;
                             }).join('');
                         } else {
-                            listContainer.innerHTML = `<div class="p-4 text-center text-xs text-muted">Tidak ada parameter.</div>`;
+                            listContainer.innerHTML = `<div class="p-4 text-center text-xs text-deep/40 font-serif italic">Tidak ada parameter yang dikonfigurasi.</div>`;
                         }
                     },
                     getFilterValues: () => ({ search: '', category: 'Semua', sort: 'nama', grade: 0 }) 

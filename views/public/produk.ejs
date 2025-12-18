@@ -3,25 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Produk & Simulasi Tani - Bausasran</title>
+    <title>Simulasi & Katalog Tani - Bausasran Heritage</title>
     
-    <script src="https://cdn.tailwindcss.com"></script>
-
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Lato:wght@300;400;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+    
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
     
+    <script src="https://cdn.jsdelivr.net/gh/studio-freight/lenis@1.0.29/bundled/lenis.min.js"></script>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        main: '#003024',    // Background Gelap
-                        surface: '#004030', // Warna Card
-                        accent: '#83C540',  // Hijau Neon
-                        pale: '#F5FEF9',    // Teks Putih Gading
-                        muted: '#A3C2B8',   // Teks Pudar
+                        paper: '#F9F7F2',       // Cream Background
+                        deep: '#0F1F18',        // Dark Green Text/Bg
+                        gold: '#C5B388',        // Luxury Accent
+                        charcoal: '#4A4A4A',    // Body Text
+                        linen: '#EBE9E4',       // Secondary bg
+                        white: '#FFFFFF',
                     },
                     fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
+                        sans: ['Lato', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                        crest: ['Cinzel', 'serif'], 
+                    },
+                    letterSpacing: {
+                        'luxury': '0.2em',
+                        'widest': '0.3em',
+                    },
+                    transitionDuration: {
+                        '1500': '1500ms',       // Efek Slow Burn
+                    },
+                    boxShadow: {
+                        'elegant': '0 10px 40px -10px rgba(15, 31, 24, 0.10)',
                     }
                 }
             }
@@ -31,146 +50,169 @@
     <style type="text/tailwindcss">
         @layer base {
             body {
-                @apply bg-main text-pale font-sans antialiased;
+                @apply bg-paper text-deep font-sans antialiased selection:bg-deep selection:text-paper;
+                overscroll-behavior: none; 
             }
         }
-        /* Custom Scrollbar untuk list parameter */
-        .parameter-list-scroll::-webkit-scrollbar {
-            width: 4px;
+
+        /* TEXTURE OVERLAY */
+        .noise-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.04'/%3E%3C/svg%3E");
+            pointer-events: none; z-index: 9999; mix-blend-mode: multiply;
         }
-        .parameter-list-scroll::-webkit-scrollbar-track {
-            background: #003024; 
+
+        /* CUSTOM RANGE SLIDER */
+        input[type="range"] {
+            -webkit-appearance: none;
+            @apply bg-deep/10 h-[1px] w-full cursor-pointer;
         }
-        .parameter-list-scroll::-webkit-scrollbar-thumb {
-            background: #004030; 
-            border-radius: 2px;
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            @apply w-3 h-3 bg-deep border border-gold rounded-full shadow-sm transition-transform hover:scale-150;
         }
-        .parameter-list-scroll::-webkit-scrollbar-thumb:hover {
-            background: #83C540; 
+
+        /* LEAFLET CUSTOMIZATION */
+        .leaflet-container {
+            font-family: 'Lato', sans-serif !important;
+            z-index: 0;
         }
     </style>
 </head>
 
-<body class="flex flex-col min-h-screen">
+<body class="flex flex-col min-h-screen relative">
+
+    <div class="noise-overlay"></div>
 
     <%- include('../partials/navbar.ejs') %>
 
-    <div class="relative bg-gradient-to-b from-surface to-main border-b border-white/5 py-10 px-4 md:px-8">
-        <div class="container mx-auto">
-            
-            <div class="text-center mb-8">
-                <h1 class="text-3xl md:text-4xl font-bold text-pale mb-2">
-                    Simulasi <span class="text-accent">Kecocokan Lahan</span>
-                </h1>
-                <p class="text-muted max-w-2xl mx-auto">
-                    Klik lokasi Anda di peta. Sistem kami akan menganalisis cuaca dan tanah secara <em>real-time</em> untuk merekomendasikan tanaman terbaik.
-                </p>
-            </div>
-
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div class="lg:col-span-2 bg-surface border border-white/10 p-2 rounded-2xl shadow-lg">
-                    <div class="relative rounded-xl overflow-hidden h-96 w-full group">
-                        <div id="map" class="h-full w-full z-0 font-sans text-gray-800"></div>
-                        
-                        <div id="map-loading" class="absolute inset-0 bg-main/80 backdrop-blur-sm z-10 hidden flex flex-col items-center justify-center transition-all">
-                            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-accent"></div>
-                            <span class="mt-3 text-accent font-bold tracking-wide">Menganalisis Lahan...</span>
-                        </div>
-                        
-                        <div class="absolute bottom-4 left-4 bg-main/90 border border-white/10 px-4 py-2 rounded-lg pointer-events-none opacity-80 group-hover:opacity-0 transition-opacity duration-500">
-                            <p class="text-xs text-accent">Klik di mana saja pada peta</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="lg:col-span-1 flex flex-col gap-4">
-                    
-                    <div id="live-weather-placeholder" class="h-full flex flex-col items-center justify-center text-center p-8 border-2 border-dashed border-white/10 rounded-2xl bg-white/5">
-                        <div class="w-16 h-16 rounded-full bg-accent/10 flex items-center justify-center mb-4 text-accent">
-                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-                        </div>
-                        <p class="text-pale font-semibold">Tentukan Lokasi</p>
-                        <p class="text-sm text-muted mt-1">Pilih titik di peta untuk melihat data cuaca & rekomendasi.</p>
-                    </div>
-
-                    <div id="live-weather-cards" class="hidden h-full flex flex-col justify-between gap-4">
-                         <div class="grid grid-cols-2 gap-3">
-                            <div class="bg-surface border border-white/10 p-4 rounded-xl text-center shadow-lg">
-                                <span class="block text-xs text-muted uppercase font-bold tracking-wider mb-1">Suhu</span>
-                                <span id="live-temp" class="text-2xl font-bold text-pale">-</span>
-                            </div>
-                            <div class="bg-surface border border-white/10 p-4 rounded-xl text-center shadow-lg">
-                                <span class="block text-xs text-muted uppercase font-bold tracking-wider mb-1">Hujan</span>
-                                <span id="live-precip" class="text-2xl font-bold text-pale">-</span>
-                            </div>
-                            <div class="bg-surface border border-white/10 p-4 rounded-xl text-center shadow-lg col-span-2">
-                                <span class="block text-xs text-muted uppercase font-bold tracking-wider mb-1">Kelembaban Udara</span>
-                                <span id="live-humidity" class="text-2xl font-bold text-pale">-</span>
-                            </div>
-                         </div>
-
-                         <div class="bg-gradient-to-r from-accent/20 to-surface border border-accent/30 p-5 rounded-xl flex items-center justify-between shadow-[0_0_15px_rgba(131,197,64,0.1)]">
-                             <div>
-                                <span class="block text-xs text-accent uppercase font-bold">Produk Cocok</span>
-                                <span class="text-xs text-muted">Berdasarkan parameter</span>
-                             </div>
-                             <span id="live-cocok" class="text-3xl font-extrabold text-accent">-</span>
-                         </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <main class="container mx-auto px-4 py-12 flex-grow">
+    <main class="flex-grow pt-40 pb-24 relative z-10">
+        
         <%- include('../partials/flash.ejs') %>
 
-        <div class="bg-surface border border-white/10 p-5 rounded-2xl shadow-lg mb-10 sticky top-24 z-30 backdrop-blur-md bg-opacity-90">
-            <div class="flex flex-col md:flex-row gap-4 items-center justify-between">
-                
-                <div class="w-full md:w-1/3 relative">
-                     <input type="text" id="filter-search" placeholder="Cari tanaman atau pupuk..." 
-                        class="w-full pl-10 pr-4 py-2.5 rounded-xl bg-main border border-white/10 text-pale focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all placeholder-muted/50">
-                     <svg class="w-5 h-5 text-muted absolute left-3 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                </div>
+        <div class="max-w-7xl mx-auto text-center mb-16 px-6 animate-[fadeIn_1.5s]">
+            <span class="font-sans text-[10px] uppercase tracking-widest text-gold mb-4 block">Precision Agriculture</span>
+            <h1 class="font-crest text-4xl md:text-6xl text-deep mb-6 leading-none">Simulasi Lahan</h1>
+            <p class="font-serif italic text-lg md:text-xl text-charcoal/70 max-w-2xl mx-auto leading-relaxed">
+                "Analisis kesesuaian lahan secara real-time untuk menentukan varietas unggul bagi ekosistem Anda."
+            </p>
+            <div class="w-[1px] h-16 bg-deep/10 mx-auto mt-10"></div>
+        </div>
 
-                <div class="flex flex-col sm:flex-row gap-4 w-full md:w-2/3 justify-end items-center">
+        <section class="max-w-7xl mx-auto px-4 md:px-6 mb-24">
+            <div class="flex flex-col lg:flex-row shadow-elegant border border-deep/5 bg-white">
+                
+                <div class="w-full lg:w-3/4 h-[500px] lg:h-[600px] relative group overflow-hidden">
+                    <div id="map" class="h-full w-full grayscale-[50%] group-hover:grayscale-0 transition-all duration-1500"></div>
                     
-                    <select id="filter-category" class="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-main border border-white/10 text-pale focus:border-accent focus:outline-none cursor-pointer">
-                        <option value="Semua">Semua Kategori</option>
-                        <% const categories = [...new Set(produkList.map(p => p.Kategori).filter(Boolean))]; %>
-                        <% categories.forEach(cat => { %>
-                            <option value="<%= cat %>"><%= cat %></option>
-                        <% }) %>
-                    </select>
-                    
-                    <div class="flex items-center gap-3 bg-main px-4 py-2 rounded-xl border border-white/10 w-full sm:w-auto">
-                        <label for="filter-grade" class="text-xs font-bold text-muted uppercase whitespace-nowrap">Min. Cocok</label>
-                        <input type="range" id="filter-grade" min="0" max="100" value="50" step="10" 
-                            class="w-24 h-2 bg-surface rounded-lg appearance-none cursor-pointer accent-accent">
-                        <span id="filter-grade-value" class="text-sm font-bold text-accent w-8 text-right">50%</span>
+                    <div id="map-loading" class="absolute inset-0 bg-paper/90 backdrop-blur-sm z-[400] hidden flex flex-col items-center justify-center">
+                        <div class="w-12 h-12 border border-deep border-t-transparent rounded-full animate-spin mb-4"></div>
+                        <span class="font-crest text-sm text-deep tracking-widest">Menganalisis Parameter...</span>
                     </div>
 
-                    <select id="filter-sort" class="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-main border border-white/10 text-pale focus:border-accent focus:outline-none cursor-pointer">
-                        <option value="nama">Nama (A-Z)</option>
-                        <option value="cocok">Kecocokan Tertinggi</option>
-                    </select>
+                    <div class="absolute bottom-6 left-6 z-[400] bg-paper/90 backdrop-blur px-4 py-2 border border-deep/10 shadow-sm opacity-80 group-hover:opacity-0 transition-opacity pointer-events-none">
+                        <span class="text-[9px] uppercase tracking-widest text-deep font-bold">Klik Lokasi Peta</span>
+                    </div>
+                </div>
+
+                <div class="w-full lg:w-1/4 bg-deep text-paper flex flex-col justify-between p-8 relative overflow-hidden">
+                    <div class="absolute -top-10 -right-10 w-48 h-48 border border-gold/10 rounded-full"></div>
+                    <div class="absolute top-20 -left-10 w-24 h-24 border border-gold/5 rounded-full"></div>
+
+                    <div id="live-weather-placeholder" class="h-full flex flex-col items-center justify-center text-center opacity-60">
+                        <div class="mb-6 animate-pulse">
+                            <svg class="w-10 h-10 text-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                        </div>
+                        <p class="font-crest text-lg tracking-widest mb-2">Menunggu Input</p>
+                        <p class="font-serif italic text-sm text-paper/50 max-w-[200px]">
+                            Pilih titik pada peta untuk mengambil data iklim mikro.
+                        </p>
+                    </div>
+
+                    <div id="live-weather-cards" class="hidden h-full flex flex-col relative z-10">
+                        <div class="mb-8 border-b border-gold/20 pb-6">
+                            <span class="block text-[9px] uppercase tracking-widest text-gold mb-2">Temperatur Udara</span>
+                            <div class="flex items-start">
+                                <span id="live-temp" class="font-crest text-6xl text-paper leading-none">0</span>
+                                <span class="text-xl font-serif italic text-gold ml-2 mt-2">°C</span>
+                            </div>
+                        </div>
+
+                        <div class="space-y-6 flex-grow">
+                            <div>
+                                <span class="block text-[9px] uppercase tracking-widest text-paper/40 mb-1">Curah Hujan</span>
+                                <span id="live-precip" class="font-serif text-2xl text-paper">0 mm</span>
+                            </div>
+                            <div>
+                                <span class="block text-[9px] uppercase tracking-widest text-paper/40 mb-1">Kelembaban</span>
+                                <span id="live-humidity" class="font-serif text-2xl text-paper">0%</span>
+                            </div>
+                        </div>
+
+                        <div class="mt-auto pt-6 border-t border-white/10">
+                            <span class="block text-[9px] uppercase tracking-widest text-gold mb-2">Rekomendasi</span>
+                            <div class="flex items-center gap-3">
+                                <span id="live-cocok" class="font-crest text-4xl text-paper">0</span>
+                                <span class="text-xs text-paper/60 font-serif italic">Produk Cocok</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
-        
-        <div class="flex justify-between items-end mb-6 border-b border-white/5 pb-4">
-             <h2 class="text-2xl font-bold text-pale">Katalog <span class="text-accent">Produk</span></h2>
-             <span id="results-summary" class="text-sm text-muted">Memuat data...</span>
-        </div>
+        </section>
 
-        <div id="results-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 min-h-[300px]">
-             <div class="col-span-full flex flex-col items-center justify-center py-20 text-muted">
-                 <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-accent mb-4"></div>
-                 <p>Menyiapkan data produk...</p>
-             </div>
-        </div>
-        
+        <section class="max-w-7xl mx-auto px-4 md:px-6" id="katalog">
+            
+            <div class="sticky top-20 z-40 bg-paper/95 backdrop-blur-md border-y border-deep/5 py-6 mb-16 shadow-sm transition-all duration-300" id="filter-bar">
+                <div class="flex flex-col md:flex-row justify-between items-center gap-8">
+                    
+                    <div class="w-full md:w-1/3 relative group">
+                        <input type="text" id="filter-search" placeholder="Pencarian spesimen..." 
+                            class="w-full bg-transparent border-b border-deep/20 py-2 pl-0 pr-8 text-deep placeholder:text-deep/30 focus:outline-none focus:border-gold transition-colors font-serif italic text-lg">
+                        <div class="absolute right-0 top-3 text-deep/30 group-hover:text-gold transition-colors">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row items-center gap-8 w-full md:w-auto">
+                        
+                        <div class="flex items-center gap-4 w-full sm:w-auto">
+                            <label for="filter-grade" class="text-[9px] uppercase tracking-widest text-deep whitespace-nowrap font-bold">Min. Match</label>
+                            <input type="range" id="filter-grade" min="0" max="100" value="50" step="10" class="w-24">
+                            <span id="filter-grade-value" class="font-serif text-deep text-lg w-12 text-right">50%</span>
+                        </div>
+
+                        <div class="flex gap-4 w-full sm:w-auto">
+                            <div class="relative">
+                                <select id="filter-category" class="appearance-none bg-transparent text-[10px] uppercase tracking-widest text-deep border border-deep/20 px-6 py-2 pr-8 hover:border-gold hover:text-gold focus:outline-none cursor-pointer transition-colors">
+                                    <option value="Semua">Semua Kategori</option>
+                                    <% const categories = [...new Set(produkList.map(p => p.Kategori).filter(Boolean))]; %>
+                                    <% categories.forEach(cat => { %>
+                                        <option value="<%= cat %>"><%= cat %></option>
+                                    <% }) %>
+                                </select>
+                                <div class="absolute right-2 top-2.5 pointer-events-none text-deep/50">
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-between items-end mb-12 border-b border-deep/5 pb-4">
+                <h2 class="font-crest text-3xl text-deep">Katalog Produk</h2>
+                <span id="results-summary" class="font-serif italic text-sm text-charcoal/50">Memuat koleksi...</span>
+            </div>
+
+            <div id="results-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-16 min-h-[400px]">
+                <div class="col-span-full flex flex-col items-center justify-center py-20 opacity-40">
+                    <div class="w-8 h-8 border border-deep border-t-transparent rounded-full animate-spin mb-4"></div>
+                    <p class="font-serif italic text-sm">Menata katalog...</p>
+                </div>
+            </div>
+
+        </section>
     </main>
 
     <%- include('../partials/footer.ejs') %>
@@ -184,217 +226,191 @@
     <script src="/js/koncoTaniAdmin.js"></script>
 
     <script>
-        /**
-         * SCRIPT INTEGRASI UI
-         * Menghubungkan logika 'koncoTaniAdmin.js' dengan Tampilan Dark Theme ini
-         */
-        
+        // 1. Initialize Smooth Scroll
+        const lenis = new Lenis({ duration: 1.2, easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), direction: 'vertical', smooth: true });
+        function raf(time) { lenis.raf(time); requestAnimationFrame(raf); }
+        requestAnimationFrame(raf);
+
+        // 2. UI Functions Implementation
         const uiFunctions = {
-            // 1. Tampilkan Loading saat ambil data cuaca
+            
             showLoadingState: () => {
                 document.getElementById('map-loading').classList.remove('hidden');
-                document.getElementById('results-summary').textContent = 'Menganalisis data lahan...';
+                document.getElementById('results-summary').textContent = 'Menganalisis parameter lahan...';
                 document.getElementById('live-weather-cards').classList.add('hidden');
                 document.getElementById('live-weather-placeholder').classList.remove('hidden');
             },
 
-            // 2. Sembunyikan Loading
             hideLoadingState: () => {
                 document.getElementById('map-loading').classList.add('hidden');
             },
 
-            // 3. Update Kartu Cuaca (Sidebar)
             updateLiveCards: (current, units) => {
-                document.getElementById('live-weather-placeholder').classList.add('hidden');
-                document.getElementById('live-weather-cards').classList.remove('hidden');
+                const placeholder = document.getElementById('live-weather-placeholder');
+                const content = document.getElementById('live-weather-cards');
                 
-                // Format Data
-                document.getElementById('live-temp').textContent = Math.round(current.temperature_2m) + (units.temperature_2m || '°C');
+                placeholder.classList.add('hidden');
+                content.classList.remove('hidden');
+                
+                // Animation: Slide Up Fade
+                content.style.opacity = '0';
+                content.style.transform = 'translateY(10px)';
+                requestAnimationFrame(() => {
+                    content.style.transition = 'all 0.6s ease-out';
+                    content.style.opacity = '1';
+                    content.style.transform = 'translateY(0)';
+                });
+
+                document.getElementById('live-temp').textContent = Math.round(current.temperature_2m);
                 document.getElementById('live-humidity').textContent = (current.relative_humidity_2m || '-') + '%';
                 document.getElementById('live-precip').textContent = (current.precipitation || '0') + ' mm';
             },
 
-            // 4. Render Ulang Grid Produk (Fungsi Utama)
             displayResults: (calculatedProducts, passingGrade, totalProducts) => {
                 const visibleProducts = calculatedProducts.filter(p => p.isVisible);
                 const cocokCount = visibleProducts.filter(p => p.paramCount > 0 && p.scorePercent >= passingGrade).length;
                 
-                // Update Counter Sidebar
+                // Update Sidebar Count
                 const liveCocokEl = document.getElementById('live-cocok');
                 if(liveCocokEl) liveCocokEl.textContent = cocokCount;
 
-                document.getElementById('results-summary').textContent = `Menampilkan ${visibleProducts.length} produk`;
+                document.getElementById('results-summary').textContent = `Menampilkan ${visibleProducts.length} dari ${totalProducts} spesimen`;
                 
                 const container = document.getElementById('results-list');
-                container.innerHTML = ''; // Reset isi grid
+                container.innerHTML = ''; 
                 
                 // Empty State
                 if (visibleProducts.length === 0) {
                      container.innerHTML = `
-                        <div class="col-span-full text-center py-16 border border-dashed border-white/10 rounded-2xl bg-surface/30">
-                            <svg class="w-12 h-12 mx-auto text-muted mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                            <p class="text-pale font-semibold text-lg">Tidak ada produk ditemukan</p>
-                            <p class="text-muted text-sm">Coba sesuaikan filter atau pilih lokasi lain.</p>
+                        <div class="col-span-full text-center py-24 border border-dashed border-deep/10 bg-linen/30 rounded-sm">
+                            <span class="font-crest text-4xl text-deep/20 mb-4 block">∅</span>
+                            <p class="font-crest text-xl text-deep mb-2">Tidak Ditemukan</p>
+                            <p class="font-serif italic text-charcoal/50 text-sm">Sesuaikan filter atau pilih lokasi berbeda.</p>
                         </div>`;
                      return;
                 }
 
-                // Render Item
+                // Render Grid
                 visibleProducts.forEach(product => {
-                    container.innerHTML += createDarkCardHTML(product, passingGrade);
+                    container.innerHTML += createHeritageCard(product, passingGrade);
                 });
             },
 
             displayInitialState: (msg) => {
-                 // Render awal tanpa data peta
                  if(typeof runComparison === 'function') runComparison(null); 
             },
             
-            displayError: (msg) => {
-                alert("Terjadi kesalahan: " + msg);
-            },
+            displayError: (msg) => { alert("System Error: " + msg); },
             
-            updateFilterGradeValue: (val) => { /* Diurus event listener di HTML */ },
+            updateFilterGradeValue: (val) => {}, // Handled by inline listener
             
             getFilterValues: () => {
                 return {
                     search: document.getElementById('filter-search').value.toLowerCase(),
                     category: document.getElementById('filter-category').value,
-                    sort: document.getElementById('filter-sort').value,
+                    sort: 'nama', // Default sort, can add dropdown later if needed
                     grade: parseInt(document.getElementById('filter-grade').value, 10)
                 };
             }
         };
 
-        /**
-         * GENERATOR KARTU PRODUK (Versi Dark Theme)
-         * Fungsi ini membangun string HTML untuk setiap produk
-         */
-        function createDarkCardHTML(product, passingGrade) {
-            let statusBadge = '';
-            let scoreText = '';
+        // 3. Card Generator (Heritage Style)
+        function createHeritageCard(product, passingGrade) {
+            let badge = '';
             
-            // Logika Badge Kecocokan
+            // Logic Badge Kecocokan
             if (product.paramCount > 0) {
                 const isCocok = product.scorePercent >= passingGrade;
-                const matches = `${product.score}/${product.paramCount}`;
-                
-                // Style Badge
-                const badgeClass = isCocok 
-                    ? 'bg-accent/20 text-accent border border-accent/30' 
-                    : 'bg-red-500/20 text-red-400 border border-red-500/30';
-                
-                const badgeLabel = isCocok ? 'Cocok' : 'Kurang';
-                
-                statusBadge = `
-                    <div class="absolute top-3 right-3 px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider ${badgeClass} backdrop-blur-md">
-                        ${badgeLabel} (${Math.round(product.scorePercent)}%)
-                    </div>`;
-                
-                scoreText = `<span class="text-muted text-xs">Skor:</span> <span class="${isCocok ? 'text-accent' : 'text-red-400'} font-bold">${matches}</span>`;
-            } else {
-                 scoreText = `<span class="text-muted text-xs">Syarat:</span> <span class="text-pale font-bold">${product.groupparameter?.parameters?.length || 0} Param</span>`;
+                if (isCocok) {
+                    badge = `<div class="absolute top-4 right-4 bg-deep text-gold text-[9px] font-bold uppercase tracking-widest px-3 py-1 shadow-sm z-20 border border-gold">
+                                ${Math.round(product.scorePercent)}% Match
+                             </div>`;
+                } else {
+                    badge = `<div class="absolute top-4 right-4 bg-paper/90 text-charcoal/40 text-[9px] uppercase tracking-widest px-3 py-1 z-20 border border-deep/10">
+                                ${Math.round(product.scorePercent)}% Match
+                             </div>`;
+                }
             }
 
-            // Gambar
+            // Image Logic
             const imgUrl = (product.photos && product.photos.length > 0) 
                  ? `/images/produk/${product.photos[0].Foto}` 
-                 : `https://via.placeholder.com/400x300?text=${encodeURIComponent(product.Nama)}`;
-
-            // Harga
+                 : `https://via.placeholder.com/400x500?text=${encodeURIComponent(product.Nama)}`;
+            
             const price = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(product.Harga);
 
-            // Logic Render List Parameter (Detail)
-            let paramsHtml = '';
-            const rawParams = product.ID_GroupParameter_groupparameter?.parameters || [];
+            // Params List
+            let paramsList = '';
             const details = product.paramDetails || [];
-            
-            if (details.length > 0) {
-                 paramsHtml = '<ul class="space-y-1 mt-2">';
-                 details.forEach(p => {
-                     const icon = p.isCocok ? '✓' : '✕';
-                     const colorClass = p.isCocok ? 'text-accent' : 'text-red-400';
-                     const unit = p.Unit || '';
-                     
-                     paramsHtml += `
-                     <li class="flex justify-between items-center text-xs border-b border-white/5 pb-1 last:border-0">
-                        <span class="text-muted truncate w-1/2" title="${p.Nama}">${p.Nama}</span>
-                        <div class="flex items-center space-x-2">
-                             <span class="text-[10px] text-gray-500">${p.Minimal}-${p.Maksimal}</span>
-                             <span class="${colorClass} font-bold min-w-[30px] text-right">${p.actualValue}</span>
-                        </div>
-                     </li>`;
-                 });
-                 paramsHtml += '</ul>';
-            } else if (rawParams.length > 0) {
-                 paramsHtml = '<ul class="space-y-1 mt-2">';
-                 rawParams.forEach(p => {
-                     paramsHtml += `
-                     <li class="flex justify-between items-center text-xs border-b border-white/5 pb-1">
-                        <span class="text-muted">${p.Nama}</span>
-                        <span class="text-gray-600">-</span>
-                     </li>`;
-                 });
-                 paramsHtml += '</ul>';
+            if(details.length > 0) {
+                paramsList = details.map(p => {
+                    const statusColor = p.isCocok ? 'text-deep font-bold' : 'text-deep/40';
+                    return `<div class="flex justify-between text-[9px] py-1 border-b border-deep/5 last:border-0">
+                                <span class="text-charcoal/60 uppercase tracking-widest">${p.Nama}</span>
+                                <span class="${statusColor}">${p.actualValue}</span>
+                            </div>`;
+                }).join('');
+            } else {
+                paramsList = `<p class="text-[9px] text-charcoal/30 italic text-center py-2">Parameter standar</p>`;
             }
 
-            // RETURN HTML STRING
             return `
-                <div class="bg-surface border border-white/5 rounded-2xl shadow-lg hover:shadow-accent/10 hover:border-accent/30 transition-all duration-300 flex flex-col h-full overflow-hidden group relative" data-product-id="${product.ID_Product}">
+                <article class="group flex flex-col bg-white border border-deep/5 shadow-sm hover:shadow-elegant transition-all duration-700 hover:-translate-y-1" data-product-id="${product.ID_Product}">
                     
-                    <div class="relative h-48 bg-black/20 overflow-hidden">
-                        <img src="${imgUrl}" alt="${product.Nama}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
-                        ${statusBadge}
-                        ${product.Kategori ? `<span class="absolute top-3 left-3 px-2 py-1 rounded text-[10px] font-bold bg-main/80 text-white backdrop-blur-sm border border-white/10">${product.Kategori}</span>` : ''}
-                    </div>
+                    ${badge}
                     
-                    <div class="p-5 flex flex-col flex-grow">
-                        <div class="mb-3">
-                            <h3 class="text-lg font-bold text-pale leading-snug group-hover:text-accent transition-colors">${product.Nama}</h3>
-                            <div class="mt-1 flex justify-between items-center">
-                                <span class="text-lg font-bold text-accent">${price}</span>
-                                <div class="text-sm bg-black/20 px-2 py-0.5 rounded border border-white/5">${scoreText}</div>
-                            </div>
-                        </div>
-             
-                        <p class="text-sm text-muted line-clamp-2 mb-4"> 
-                           ${product.Deskripsi ? product.Deskripsi : 'Tidak ada deskripsi.'}
-                        </p>
+                    <div class="aspect-[4/5] overflow-hidden relative bg-linen">
+                        <img src="${imgUrl}" alt="${product.Nama}" 
+                             class="w-full h-full object-cover grayscale transition-transform duration-1500 ease-out group-hover:grayscale-0 group-hover:scale-105">
                         
-                        <details class="mt-auto group/details">
-                            <summary class="cursor-pointer text-xs font-bold text-accent uppercase tracking-wider hover:text-white flex items-center gap-2 select-none">
-                                <span>Cek Parameter</span>
-                                <svg class="w-3 h-3 transition-transform group-open/details:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                            </summary>
-                            <div class="parameter-list-scroll max-h-32 overflow-y-auto bg-black/20 rounded-lg p-3 mt-2 border border-white/5"> 
-                                ${paramsHtml}
-                            </div>
-                        </details>
-                        
-                        <div class="mt-5 grid grid-cols-4 gap-2">
-                             <a href="/produk/${product.ID_Product}" class="col-span-3 text-center bg-transparent border border-accent text-accent hover:bg-accent hover:text-main font-bold py-2 rounded-lg text-sm transition-all">
+                        <a href="/produk/${product.ID_Product}" class="absolute inset-0 bg-deep/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center">
+                            <span class="bg-paper text-deep border border-deep px-6 py-2 text-[9px] uppercase tracking-widest hover:bg-deep hover:text-gold hover:border-gold transition-colors shadow-lg">
                                 Lihat Detail
-                             </a>
-                             <a href="https://wa.me/62812345678?text=Halo, saya tertarik dengan ${encodeURIComponent(product.Nama)}" target="_blank" class="col-span-1 flex items-center justify-center bg-green-600 hover:bg-green-500 text-white rounded-lg transition-colors" title="Beli via WhatsApp">
-                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-                             </a>
+                            </span>
+                        </a>
+                    </div>
+                    
+                    <div class="p-6 flex flex-col flex-grow text-center">
+                        <span class="text-[8px] uppercase tracking-widest text-gold mb-3 block">
+                            ${product.Kategori || 'Koleksi'}
+                        </span>
+                        
+                        <h3 class="font-serif text-xl text-deep mb-2 line-clamp-1 group-hover:text-gold transition-colors duration-300">
+                            <a href="/produk/${product.ID_Product}">${product.Nama}</a>
+                        </h3>
+                        
+                        <div class="w-8 h-[1px] bg-deep/10 mx-auto mb-3"></div>
+                        
+                        <p class="font-sans text-xs font-bold text-deep tracking-widest mb-4">
+                            ${price}
+                        </p>
+
+                        <div class="mt-auto pt-4 border-t border-deep/5 text-left w-full">
+                            <details class="group/acc">
+                                <summary class="cursor-pointer list-none flex justify-between items-center outline-none">
+                                    <span class="text-[9px] uppercase tracking-widest text-charcoal/40 group-hover/acc:text-deep transition-colors">Spesifikasi</span>
+                                    <span class="text-[10px] text-deep/30 group-open/acc:rotate-180 transition-transform">+</span>
+                                </summary>
+                                <div class="mt-2 bg-paper/50 p-2 border border-deep/5">
+                                    ${paramsList}
+                                </div>
+                            </details>
                         </div>
                     </div>
-                </div>`;
+                </article>`;
         }
 
-        // Listener untuk Range Slider biar angkanya berubah realtime
+        // 4. Event Listeners
         document.getElementById('filter-grade').addEventListener('input', function(e) {
             document.getElementById('filter-grade-value').textContent = e.target.value + '%';
         });
 
+        // 5. Init
         document.addEventListener('DOMContentLoaded', () => {
-             // Init External Script (koncoTaniAdmin.js) jika sudah load
              if (window.initKoncoTani) {
                  window.initKoncoTani(uiFunctions);
              } else {
-                 console.warn('KoncoTani script not loaded yet, waiting...');
-                 // Fallback simple: panggil displayResults sekali untuk show produk tanpa filter cuaca
+                 // Fallback display if script fails
                  uiFunctions.displayResults(allProductsData.map(p => ({...p, isVisible: true})), 50, allProductsData.length);
              }
         });

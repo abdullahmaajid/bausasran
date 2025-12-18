@@ -3,8 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tim Kami - Bausasran</title>
+    <title>Struktur Organisasi - Bausasran Heritage</title>
     
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Lato:wght@300;400;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.jsdelivr.net/gh/studio-freight/lenis@1.0.29/bundled/lenis.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
 
     <script>
@@ -12,174 +17,112 @@
             theme: {
                 extend: {
                     colors: {
-                        main: '#003024',    // Background Gelap
-                        surface: '#004030', // Warna Kartu
-                        accent: '#83C540',  // Hijau Neon
-                        pale: '#F5FEF9',    // Teks Putih
-                        muted: '#A3C2B8',   // Teks Pudar
-                        admin: '#C084FC',   // Ungu untuk Badge Admin
+                        paper: '#F9F7F2', deep: '#0F1F18', gold: '#C5B388', 
+                        charcoal: '#4A4A4A', sand: '#E5E0D8', white: '#FFFFFF',
                     },
                     fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
+                        sans: ['Lato', 'sans-serif'], serif: ['Playfair Display', 'serif'], crest: ['Cinzel', 'serif'], 
+                    },
+                    boxShadow: {
+                        'pop': '0 20px 40px -5px rgba(0, 0, 0, 0.4)', // Shadow lebih soft
+                    },
+                    transitionTimingFunction: {
+                        'elastic': 'cubic-bezier(0.22, 1, 0.36, 1)', // Kunci smooth animation
                     }
                 }
             }
         }
     </script>
-
     <style type="text/tailwindcss">
-        @layer base {
-            body {
-                @apply bg-main text-pale font-sans antialiased;
-            }
-        }
+        @layer base { body { @apply bg-paper text-deep font-sans antialiased; overscroll-behavior: none; } }
+        .noise-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999; opacity: 0.04; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E"); }
     </style>
 </head>
 
-<body class="flex flex-col min-h-screen">
-
+<body class="flex flex-col min-h-screen relative">
+    <div class="noise-overlay"></div>
     <%- include('../partials/navbar.ejs') %>
 
-    <main class="container mx-auto px-4 py-12 flex-grow">
+    <main class="flex-grow pt-32 pb-20 px-4 relative z-10">
         <%- include('../partials/flash.ejs') %>
 
-        <div class="text-center mb-12">
-            <h1 class="text-4xl md:text-5xl font-bold text-pale mb-4">
-                Tim <span class="text-accent">Kami</span>
-            </h1>
-            <p class="text-lg text-muted max-w-2xl mx-auto">
-                Kenali para penggerak yang berdedikasi membangun kemajuan Kampung Wisata Bausasran.
+        <div class="max-w-4xl mx-auto text-center mb-10 animate-[fadeIn_1s]">
+            <span class="font-sans text-[10px] uppercase tracking-widest text-gold mb-2 block">The People Behind</span>
+            <h1 class="font-crest text-4xl md:text-5xl text-deep mb-4">Struktur Organisasi</h1>
+            <p class="font-serif italic text-sm md:text-base text-charcoal/70 max-w-2xl mx-auto">
+                "Mengenal para penggerak yang mendedikasikan waktu dan tenaga untuk menjaga warisan serta memajukan Kampung Wisata."
             </p>
         </div>
 
-        <div class="flex flex-wrap justify-center mb-10 gap-3">
-            <button onclick="filterAnggota('all')" id="btn-all" 
-                class="filter-btn active px-6 py-2.5 rounded-full text-sm font-bold border border-accent bg-accent text-main transition-all duration-300 shadow-[0_0_15px_rgba(131,197,64,0.3)]">
-                Semua
-            </button>
-            <button onclick="filterAnggota('Admin')" id="btn-Admin" 
-                class="filter-btn px-6 py-2.5 rounded-full text-sm font-bold border border-white/10 text-muted hover:border-admin hover:text-white bg-surface transition-all duration-300">
-                Admin
-            </button>
-            <button onclick="filterAnggota('User')" id="btn-User" 
-                class="filter-btn px-6 py-2.5 rounded-full text-sm font-bold border border-white/10 text-muted hover:border-accent hover:text-white bg-surface transition-all duration-300">
-                Anggota
-            </button>
+        <div class="flex justify-center mb-8 sticky top-20 z-40 pointer-events-none">
+            <div class="inline-flex bg-white/90 backdrop-blur border border-deep/10 shadow-sm p-1 rounded-sm gap-1 pointer-events-auto">
+                <button onclick="filterAnggota('all')" id="btn-all" class="filter-btn px-4 py-1.5 text-[9px] uppercase tracking-widest font-bold bg-deep text-paper border border-deep transition-all">Semua</button>
+                <button onclick="filterAnggota('Admin')" id="btn-Admin" class="filter-btn px-4 py-1.5 text-[9px] uppercase tracking-widest font-bold text-deep/50 hover:text-deep transition-all">Pengurus Inti</button>
+                <button onclick="filterAnggota('User')" id="btn-User" class="filter-btn px-4 py-1.5 text-[9px] uppercase tracking-widest font-bold text-deep/50 hover:text-deep transition-all">Anggota</button>
+            </div>
         </div>
 
         <% if(anggotaList && anggotaList.length > 0) { %>
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                <% anggotaList.forEach(anggota => { %>
-                    <div class="anggota-card group bg-surface border border-white/5 rounded-2xl overflow-hidden shadow-lg hover:shadow-accent/10 hover:border-accent/30 transition-all duration-300 transform hover:-translate-y-1" data-role="<%= anggota.Role %>">
-                        
-                        <div class="relative h-72 w-full overflow-hidden bg-main">
-                            <% if (anggota.dataValues.fotoFile) { %>
-                                <img src="/images/anggota/<%= anggota.dataValues.fotoFile %>" 
-                                     alt="<%= anggota.Nama %>" 
-                                     class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 filter grayscale group-hover:grayscale-0">
-                            <% } else { %>
-                                <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-surface to-main">
-                                    <svg class="w-24 h-24 text-muted/20" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
-                                    </svg>
-                                </div>
-                            <% } %>
+            <div class="max-w-7xl mx-auto">
+                <div class="grid grid-cols-4 md:grid-cols-8 lg:grid-cols-12 gap-0.5" id="mosaic-grid">
+                    <% anggotaList.forEach(anggota => { 
+                        const vals = anggota.dataValues || anggota;
+                        const foto = vals.Foto || vals.fotoFile;
+                        const nama = vals.Nama;
+                        const jabatan = vals.Jabatan || 'Warga';
+                        const role = vals.Role;
+                        const id = vals.ID_Pengguna;
+                    %>
+                        <div class="mosaic-item relative aspect-square group z-0 hover:z-50" data-role="<%= role === 'Admin' ? 'Admin' : 'User' %>">
                             
-                            <div class="absolute top-4 right-4">
-                                <% if (anggota.Role === 'Admin') { %>
-                                    <span class="px-3 py-1 bg-admin/20 text-admin border border-admin/50 backdrop-blur-md text-xs font-bold rounded-lg shadow-sm">
-                                        ADMIN
-                                    </span>
+                            <div class="absolute inset-0 w-full h-full bg-deep/5 overflow-hidden cursor-pointer 
+                                        transition-all duration-500 ease-elastic origin-center
+                                        group-hover:scale-[1.75] group-hover:shadow-pop group-hover:rounded-sm border border-transparent group-hover:border-gold/50">
+                                
+                                <% if (foto) { %>
+                                    <img src="/images/anggota/<%= foto %>" loading="lazy" class="w-full h-full object-cover filter grayscale sepia-[0.3] group-hover:grayscale-0 group-hover:sepia-0 transition-all duration-500">
                                 <% } else { %>
-                                    <span class="px-3 py-1 bg-accent/20 text-accent border border-accent/50 backdrop-blur-md text-xs font-bold rounded-lg shadow-sm">
-                                        ANGGOTA
-                                    </span>
-                                <% } %>
-                            </div>
-                            
-                            <div class="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-surface to-transparent"></div>
-                        </div>
-
-                        <div class="relative p-6 pt-2">
-                            <h3 class="text-xl font-bold text-pale mb-1 group-hover:text-accent transition-colors"><%= anggota.Nama %></h3>
-                            
-                            <% if (anggota.Jabatan) { %>
-                                <p class="text-accent text-sm font-semibold tracking-wide uppercase mb-4"><%= anggota.Jabatan %></p>
-                            <% } else { %>
-                                <p class="text-muted text-sm font-medium mb-4 italic">Anggota Bausasran</p>
-                            <% } %>
-
-                            <div class="space-y-2 mb-6">
-                                <% if (anggota.No_Telepon) { %>
-                                    <div class="flex items-center text-muted text-sm">
-                                        <svg class="w-4 h-4 mr-2 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
-                                        <%= anggota.No_Telepon %>
+                                    <div class="w-full h-full flex items-center justify-center bg-sand/20 text-deep/30 group-hover:bg-deep group-hover:text-gold transition-colors duration-500">
+                                        <span class="font-crest text-[10px]"><%= nama.charAt(0) %></span>
                                     </div>
                                 <% } %>
-                                <% if (anggota.Alamat) { %>
-                                    <div class="flex items-start text-muted text-sm">
-                                        <svg class="w-4 h-4 mr-2 mt-0.5 text-accent flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                                        <span class="line-clamp-2"><%= anggota.Alamat %></span>
-                                    </div>
-                                <% } %>
-                            </div>
 
-                            <a href="/anggota/<%= anggota.ID_Pengguna %>" 
-                               class="block w-full text-center py-2.5 rounded-lg border border-white/10 bg-white/5 text-pale hover:bg-accent hover:text-main hover:border-accent font-semibold text-sm transition-all duration-300">
-                                Lihat Profil
-                            </a>
+                                <div class="absolute inset-0 bg-gradient-to-t from-deep/90 via-deep/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-75 flex flex-col justify-end p-3">
+                                    <span class="text-[6px] uppercase tracking-widest text-gold mb-1 truncate"><%= role === 'Admin' ? '★ ' + jabatan : jabatan %></span>
+                                    <h3 class="font-serif text-[10px] text-paper leading-tight truncate"><%= nama %></h3>
+                                </div>
+                                
+                                <a href="/anggota/<%= id %>" class="absolute inset-0"></a>
+                            </div>
                         </div>
-                    </div>
-                <% }) %>
+                    <% }) %>
+                </div>
+                <div class="text-center mt-6 opacity-30 text-[9px] uppercase tracking-widest">Total: <%= anggotaList.length %> Warga</div>
             </div>
         <% } else { %>
-            <div class="text-center py-20 border-2 border-dashed border-white/10 rounded-2xl bg-surface/30">
-                <svg class="w-20 h-20 mx-auto text-muted mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
-                </svg>
-                <h3 class="text-xl font-bold text-pale mb-2">Belum Ada Anggota</h3>
-                <p class="text-muted">Data anggota akan segera diperbarui.</p>
-            </div>
+            <div class="max-w-lg mx-auto text-center py-20 border border-dashed border-deep/10"><p class="text-deep/40 text-sm italic">Data belum tersedia.</p></div>
         <% } %>
     </main>
-
     <%- include('../partials/footer.ejs') %>
-
+    
     <script>
-        function filterAnggota(role) {
-            const cards = document.querySelectorAll('.anggota-card');
-            const buttons = document.querySelectorAll('.filter-btn');
-            
-            // 1. Reset Styles for All Buttons
-            buttons.forEach(btn => {
-                // Remove Active Classes
-                btn.classList.remove('bg-accent', 'text-main', 'border-accent', 'shadow-[0_0_15px_rgba(131,197,64,0.3)]');
-                // Add Inactive Classes
-                btn.classList.add('bg-surface', 'text-muted', 'border-white/10');
-            });
+        const lenis = new Lenis({smooth: true});
+        function raf(time) { lenis.raf(time); requestAnimationFrame(raf); }
+        requestAnimationFrame(raf);
 
-            // 2. Set Active Style for Clicked Button
-            const activeBtn = document.getElementById(`btn-${role}`);
-            if(activeBtn) {
-                activeBtn.classList.remove('bg-surface', 'text-muted', 'border-white/10');
-                activeBtn.classList.add('bg-accent', 'text-main', 'border-accent', 'shadow-[0_0_15px_rgba(131,197,64,0.3)]');
-            }
+        function filterAnggota(role) {
+            const items = document.querySelectorAll('.mosaic-item');
+            document.querySelectorAll('.filter-btn').forEach(b => b.className = 'filter-btn px-4 py-1.5 text-[9px] uppercase tracking-widest font-bold text-deep/50 hover:text-deep transition-all');
+            document.getElementById(`btn-${role}`).className = 'filter-btn px-4 py-1.5 text-[9px] uppercase tracking-widest font-bold bg-deep text-paper border border-deep transition-all';
             
-            // 3. Filter Cards with Animation
-            cards.forEach(card => {
-                if (role === 'all' || card.dataset.role === role) {
-                    card.style.display = 'block';
-                    // Simple fade in animation
-                    card.animate([
-                        { opacity: 0, transform: 'translateY(10px)' },
-                        { opacity: 1, transform: 'translateY(0)' }
-                    ], { duration: 300, fill: 'forwards' });
+            items.forEach(item => {
+                if(role === 'all' || item.dataset.role === role) {
+                    item.style.display = 'block';
                 } else {
-                    card.style.display = 'none';
+                    item.style.display = 'none';
                 }
             });
         }
     </script>
-
 </body>
 </html>

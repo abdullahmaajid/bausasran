@@ -3,7 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kelola Prestasi - Admin Bausasran</title>
+    <title>Kelola Prestasi - Executive Console</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Lato:wght@300;400;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
     
     <script src="https://cdn.tailwindcss.com"></script>
 
@@ -12,14 +16,22 @@
             theme: {
                 extend: {
                     colors: {
-                        main: '#003024',    // Background Gelap
-                        surface: '#004030', // Warna Kartu
-                        accent: '#83C540',  // Hijau Neon
-                        pale: '#F5FEF9',    // Teks Putih
-                        muted: '#A3C2B8',   // Teks Pudar
+                        paper: '#F9F7F2',       /* Cream Background */
+                        deep: '#0F1F18',        /* Dark Emerald Green */
+                        gold: '#C5B388',        /* Antique Gold */
+                        charcoal: '#4A4A4A',    /* Soft Black */
+                        linen: '#EBE9E4',       /* Light Gray/Beige */
+                        white: '#FFFFFF',
+                        danger: '#8B3A3A',      /* Elegant Red */
                     },
                     fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
+                        sans: ['Lato', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                        crest: ['Cinzel', 'serif'], 
+                    },
+                    boxShadow: {
+                        'elegant': '0 20px 50px -12px rgba(15, 31, 24, 0.08)',
+                        'gold-glow': '0 0 15px rgba(197, 179, 136, 0.2)',
                     }
                 }
             }
@@ -28,81 +40,101 @@
 
     <style type="text/tailwindcss">
         @layer base {
-            body { @apply bg-main text-pale font-sans antialiased; }
+            body { @apply bg-paper text-deep font-sans antialiased; }
         }
-        
-        /* Custom Checkbox */
+
+        /* TEXTURE: Film Grain Overlay */
+        .noise-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E");
+            pointer-events: none; z-index: 50; mix-blend-mode: multiply;
+        }
+
+        /* Custom Checkbox Heritage Style */
         .custom-checkbox {
-            @apply appearance-none h-5 w-5 border border-white/20 rounded bg-main checked:bg-accent checked:border-accent cursor-pointer transition-all relative;
+            @apply appearance-none h-4 w-4 border border-deep/20 rounded-none bg-white checked:bg-deep checked:border-deep cursor-pointer transition-all relative;
         }
         .custom-checkbox:checked::after {
             content: '✓';
-            @apply absolute inset-0 flex items-center justify-center text-main font-bold text-xs;
+            @apply absolute inset-0 flex items-center justify-center text-gold font-bold text-[10px];
         }
 
-        /* Date Input Dark Mode Fix */
+        /* Input Luxury */
+        .input-luxury {
+            @apply bg-white border border-deep/10 px-4 py-2 text-sm text-deep placeholder-charcoal/30 focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold/50 transition-all duration-300 font-sans shadow-sm rounded-none;
+        }
+
+        /* Scrollbar */
+        .custom-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #C5B388; border-radius: 3px; }
+        .custom-scroll::-webkit-scrollbar-thumb:hover { background: #0F1F18; }
+        
+        /* Date Input Styling */
         input[type="date"] {
-            color-scheme: dark;
-        }
-        input[type="date"]::-webkit-calendar-picker-indicator {
-            filter: invert(1);
-            opacity: 0.6;
-            cursor: pointer;
-        }
-        input[type="date"]::-webkit-calendar-picker-indicator:hover {
-            opacity: 1;
+            @apply uppercase text-xs tracking-wider;
         }
     </style>
 </head>
 
-<body class="flex h-screen overflow-hidden">
+<body class="flex h-screen overflow-hidden relative">
+
+    <div class="noise-overlay"></div>
 
     <%- include('../../partials/admin_sidebar.ejs') %>
 
-    <main class="flex-1 overflow-y-auto relative p-6 md:p-10 custom-scroll">
+    <main class="flex-1 overflow-y-auto relative z-10 custom-scroll p-6 md:p-12">
         <%- include('../../partials/flash.ejs') %>
 
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+        <div class="flex flex-col md:flex-row justify-between items-end md:items-end mb-10 border-b border-deep/10 pb-6 gap-6">
             <div>
-                <h1 class="text-3xl font-bold text-pale">Kelola Prestasi</h1>
-                <p class="text-muted text-sm mt-1">Daftar pencapaian, penghargaan, dan sertifikasi.</p>
+                <span class="font-sans text-[10px] uppercase tracking-widest text-gold mb-2 block">Rekam Jejak</span>
+                <h1 class="font-crest text-3xl md:text-4xl text-deep leading-tight">Daftar Prestasi</h1>
+                <p class="font-serif italic text-charcoal/60 text-sm mt-2">Arsip penghargaan, sertifikasi, dan pencapaian wilayah.</p>
             </div>
-            <a href="/admin/prestasi/new" class="inline-flex items-center justify-center px-5 py-2.5 bg-accent hover:bg-white text-main font-bold rounded-xl transition-all shadow-lg hover:shadow-green-500/20 group">
-                <span class="mr-2 text-lg">+</span> Tambah Prestasi
+            
+            <a href="/admin/prestasi/new" class="group flex items-center gap-3 px-6 py-3 bg-deep text-gold text-[10px] font-bold uppercase tracking-[0.2em] border border-deep hover:bg-gold hover:text-deep hover:border-gold transition-all duration-500 shadow-lg hover:shadow-gold-glow">
+                <span class="text-lg leading-none mb-0.5">+</span>
+                <span>Catat Prestasi</span>
             </a>
         </div>
 
-        <div class="bg-surface p-5 rounded-2xl border border-white/10 mb-6 space-y-4">
+        <div class="bg-white p-6 border border-deep/5 shadow-elegant mb-8 relative overflow-hidden group">
+            <div class="absolute top-0 right-0 w-16 h-16 bg-gold/5 rounded-bl-full -mr-8 -mt-8"></div>
             
-            <div class="w-full">
-                <div class="relative">
-                    <input type="text" id="searchInput" placeholder="Cari judul prestasi..." 
-                        class="w-full bg-main border border-white/10 rounded-xl px-4 py-3 text-sm text-pale focus:border-accent focus:ring-1 focus:ring-accent outline-none transition-all placeholder-white/20">
-                    <svg class="w-5 h-5 text-white/30 absolute right-4 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                </div>
-            </div>
-
-            <div class="flex flex-col xl:flex-row gap-4 justify-between items-start xl:items-center">
+            <div class="flex flex-col xl:flex-row gap-6 justify-between items-end xl:items-center">
                 
-                <div class="flex flex-col sm:flex-row items-center gap-2 w-full xl:w-auto bg-main/50 p-1.5 rounded-xl border border-white/5">
-                    <div class="relative w-full sm:w-auto">
-                        <span class="absolute left-3 top-2.5 text-[10px] text-muted uppercase font-bold tracking-wider pointer-events-none">Dari</span>
-                        <input type="date" id="startDate" class="bg-surface border border-white/10 rounded-lg pl-12 pr-2 py-1.5 text-sm text-pale focus:border-accent outline-none w-full sm:w-40 h-10">
-                    </div>
-                    <span class="text-muted hidden sm:inline">-</span>
-                    <div class="relative w-full sm:w-auto">
-                        <span class="absolute left-3 top-2.5 text-[10px] text-muted uppercase font-bold tracking-wider pointer-events-none">Sampai</span>
-                        <input type="date" id="endDate" class="bg-surface border border-white/10 rounded-lg pl-14 pr-2 py-1.5 text-sm text-pale focus:border-accent outline-none w-full sm:w-40 h-10">
-                    </div>
+                <div class="w-full xl:w-1/3 relative group/search">
+                    <input type="text" id="searchInput" placeholder="Cari judul prestasi..." 
+                        class="w-full bg-transparent border-b border-deep/20 py-3 pl-8 pr-4 text-deep font-serif italic placeholder-deep/30 focus:border-gold focus:outline-none transition-all">
+                    <svg class="w-4 h-4 text-deep/30 absolute left-0 top-3.5 group-focus-within/search:text-gold transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                 </div>
 
-                <div class="w-full xl:w-auto">
-                    <select id="categoryFilter" class="w-full xl:w-48 bg-main border border-white/10 rounded-xl px-4 py-2.5 text-sm text-pale focus:border-accent outline-none cursor-pointer">
-                        <option value="">Semua Kategori</option>
-                        <option value="Penghargaan">Penghargaan</option>
-                        <option value="Sertifikasi">Sertifikasi</option>
-                        <option value="Kompetisi">Kompetisi</option>
+                <div class="flex flex-col md:flex-row gap-4 w-full xl:w-auto items-center">
+                    
+                    <div class="flex items-center bg-paper border border-deep/10 p-1 gap-2 w-full md:w-auto">
+                        <div class="relative flex-1">
+                            <span class="absolute top-1 left-2 text-[8px] uppercase tracking-widest text-charcoal/50 font-bold">Dari</span>
+                            <input type="date" id="startDate" class="w-full bg-white border border-deep/5 px-2 pt-4 pb-1 text-deep focus:outline-none focus:border-gold/50 transition-colors h-10 cursor-pointer">
+                        </div>
+                        <span class="text-deep/20">-</span>
+                        <div class="relative flex-1">
+                            <span class="absolute top-1 left-2 text-[8px] uppercase tracking-widest text-charcoal/50 font-bold">Sampai</span>
+                            <input type="date" id="endDate" class="w-full bg-white border border-deep/5 px-2 pt-4 pb-1 text-deep focus:outline-none focus:border-gold/50 transition-colors h-10 cursor-pointer">
+                        </div>
+                    </div>
+
+                    <div class="w-full xl:w-auto">
+                        <select id="categoryFilter" class="input-luxury cursor-pointer w-full xl:w-48">
+                            <option value="">Semua Tingkat</option>
+                            <option value="Internasional">Internasional</option>
+                            <option value="Nasional">Nasional</option>
+                            <option value="Provinsi DIY">Provinsi DIY</option>
+                            <option value="Kota Yogyakarta">Kota Yogyakarta</option>
+                            <option value="Kecamatan">Kecamatan</option>
+                            <option value="Kelurahan">Kelurahan</option>
                         </select>
+                    </div>
                 </div>
             </div>
         </div>
@@ -110,84 +142,84 @@
         <form action="/admin/prestasi/bulk-action" method="POST" id="bulk-form">
             <input type="hidden" name="action" value="delete">
             
-            <div class="bg-surface rounded-2xl shadow-xl border border-white/5 overflow-hidden">
+            <div class="bg-white border border-deep/5 shadow-sm overflow-hidden relative min-h-[400px]">
                 
-                <div id="bulk-action-bar" class="hidden bg-red-500/10 border-b border-red-500/20 p-3 flex justify-between items-center px-6 animate-pulse">
-                    <span class="text-red-400 text-sm font-medium"><span id="selected-count">0</span> item terpilih</span>
-                    <button type="submit" class="text-xs bg-red-500 hover:bg-red-600 text-white font-bold py-1.5 px-4 rounded-lg transition-colors shadow-lg shadow-red-500/20">
-                        Hapus Terpilih
+                <div id="bulk-action-bar" class="hidden bg-danger text-white border-b border-danger p-3 flex justify-between items-center px-6 animate-pulse absolute top-0 left-0 w-full z-20 shadow-lg">
+                    <span class="font-crest text-xs tracking-widest"><span id="selected-count" class="font-bold">0</span> ITEM DIPILIH</span>
+                    <button type="submit" class="text-[10px] bg-white text-danger font-bold uppercase tracking-widest py-1.5 px-4 hover:bg-paper transition-colors shadow-sm">
+                        Hapus Permanen
                     </button>
                 </div>
 
-                <div class="overflow-x-auto">
+                <div class="overflow-x-auto custom-scroll">
                     <table class="min-w-full text-left border-collapse">
                         <thead>
-                            <tr class="bg-main/50 border-b border-white/10 text-xs uppercase tracking-wider text-muted font-semibold">
-                                <th class="py-4 px-6 text-center w-12">
+                            <tr class="bg-paper border-b border-deep/10 text-[9px] uppercase tracking-[0.15em] text-deep/60 font-bold font-sans">
+                                <th class="py-5 px-6 text-center w-14">
                                     <input type="checkbox" id="select-all" class="custom-checkbox">
                                 </th>
-                                <th class="py-4 px-6">Prestasi</th>
-                                <th class="py-4 px-6">Tanggal & Kategori</th>
-                                <th class="py-4 px-6 text-center">Aksi</th>
+                                <th class="py-5 px-6">Detail Pencapaian</th>
+                                <th class="py-5 px-6">Tanggal & Tingkat</th>
+                                <th class="py-5 px-6 text-center">Tindakan</th>
                             </tr>
                         </thead>
-                        <tbody id="prestasiTableBody" class="divide-y divide-white/5">
+                        <tbody id="prestasiTableBody" class="divide-y divide-deep/5 bg-white">
                             <% if(prestasiList && prestasiList.length > 0) { %>
                                 <% for(let prestasi of prestasiList) { %>
-                                    <tr class="hover:bg-white/5 transition-colors group prestasi-row"
+                                    <tr class="hover:bg-paper transition-colors duration-300 group prestasi-row"
                                         data-title="<%= prestasi.Judul.toLowerCase() %>"
                                         data-category="<%= prestasi.Kategori %>"
                                         data-date="<%= new Date(prestasi.Tanggal).toISOString().split('T')[0] %>">
                                         
-                                        <td class="py-4 px-6 text-center">
+                                        <td class="py-6 px-6 text-center align-top pt-8">
                                             <input type="checkbox" name="selectedIds" value="<%= prestasi.ID_Prestasi %>" class="row-checkbox custom-checkbox">
                                         </td>
 
-                                        <td class="py-4 px-6">
-                                            <div class="flex items-center gap-4">
-                                                <div class="h-16 w-24 flex-shrink-0 rounded-lg overflow-hidden border border-white/10 bg-main relative group-hover:border-accent/50 transition-colors">
+                                        <td class="py-6 px-6 align-top">
+                                            <div class="flex flex-col sm:flex-row gap-5">
+                                                <div class="h-20 w-32 flex-shrink-0 bg-linen border border-deep/10 relative overflow-hidden group-hover:border-gold/30 transition-colors">
                                                     <% if (prestasi.dataValues.thumbnailFile) { %>
-                                                        <img src="/images/prestasi/<%= prestasi.dataValues.thumbnailFile %>" alt="<%= prestasi.Judul %>" class="h-full w-full object-cover">
+                                                        <img src="/images/prestasi/<%= prestasi.dataValues.thumbnailFile %>" alt="<%= prestasi.Judul %>" 
+                                                            class="h-full w-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700">
                                                     <% } else { %>
-                                                        <div class="h-full w-full flex items-center justify-center text-xs text-muted flex-col">
-                                                            <span>🏆</span>
-                                                            <span class="text-[10px] mt-1">No Img</span>
+                                                        <div class="h-full w-full flex items-center justify-center text-deep/20 flex-col bg-paper">
+                                                            <span class="text-xl opacity-50">🏆</span>
                                                         </div>
                                                     <% } %>
                                                 </div>
-                                                <div>
-                                                    <div class="font-bold text-pale group-hover:text-accent transition-colors text-base line-clamp-1"><%= prestasi.Judul %></div>
-                                                    <div class="text-xs text-muted mt-1 line-clamp-1 opacity-70">ID: <%= prestasi.ID_Prestasi %></div>
+                                                <div class="pt-1">
+                                                    <h3 class="font-serif font-bold text-deep text-lg leading-tight group-hover:text-gold transition-colors line-clamp-1 mb-2"><%= prestasi.Judul %></h3>
+                                                    <p class="text-[10px] text-charcoal/40 font-mono tracking-wider uppercase">ID: <%= prestasi.ID_Prestasi %></p>
                                                 </div>
                                             </div>
                                         </td>
 
-                                        <td class="py-4 px-6">
-                                            <div class="flex flex-col gap-1.5">
-                                                <div class="flex items-center text-sm text-pale font-mono">
-                                                    <svg class="w-4 h-4 mr-2 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                        <td class="py-6 px-6 align-top pt-8">
+                                            <div class="flex flex-col gap-2">
+                                                <div class="flex items-center text-xs text-deep font-mono tracking-wide">
+                                                    <svg class="w-3.5 h-3.5 mr-2 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                                                     <%= new Date(prestasi.Tanggal).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) %>
                                                 </div>
-                                                <span class="inline-flex w-fit items-center px-2 py-0.5 rounded text-[10px] uppercase font-bold tracking-wider bg-white/5 text-muted border border-white/10">
-                                                    <%= prestasi.Kategori || 'Umum' %>
+                                                <span class="inline-flex w-fit items-center px-2 py-1 text-[9px] uppercase font-bold tracking-widest text-charcoal/50 border border-deep/10 bg-paper">
+                                                    <%= prestasi.Kategori || 'UMUM' %>
                                                 </span>
                                             </div>
                                         </td>
 
-                                        <td class="py-4 px-6 text-center">
-                                            <div class="flex items-center justify-center space-x-2">
-                                                <a href="/admin/prestasi/<%= prestasi.ID_Prestasi %>" class="p-2 bg-blue-500/10 text-blue-400 rounded-lg hover:bg-blue-500 hover:text-white transition-all border border-blue-500/20 group/btn" title="Detail">
-                                                    <svg class="w-4 h-4 transform group-hover/btn:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                        <td class="py-6 px-6 text-center align-top pt-7">
+                                            <div class="flex items-center justify-center gap-2">
+                                                <a href="/admin/prestasi/<%= prestasi.ID_Prestasi %>" class="p-2 text-deep/40 hover:text-deep hover:bg-gold/10 transition-all border border-transparent hover:border-gold/20" title="Detail">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
                                                 </a>
 
-                                                <a href="/admin/prestasi/<%= prestasi.ID_Prestasi %>/edit" class="p-2 bg-yellow-500/10 text-yellow-400 rounded-lg hover:bg-yellow-500 hover:text-white transition-all border border-yellow-500/20 group/btn" title="Edit">
-                                                    <svg class="w-4 h-4 transform group-hover/btn:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                                                <a href="/admin/prestasi/<%= prestasi.ID_Prestasi %>/edit" class="p-2 text-deep/40 hover:text-gold hover:bg-deep transition-all border border-transparent" title="Edit">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
                                                 </a>
 
                                                 <button type="button" 
                                                     onclick="deleteItem('<%= prestasi.ID_Prestasi %>', '<%= prestasi.Judul.replace(/'/g, "\\'") %>')"
-                                                    class="p-2 bg-red-500/10 text-red-400 rounded-lg hover:bg-red-500 hover:text-white transition-all border border-red-500/20 group/btn" title="Hapus">
-                                                    <svg class="w-4 h-4 transform group-hover/btn:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                                    class="p-2 text-deep/40 hover:text-white hover:bg-danger transition-all border border-transparent" title="Hapus">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                                                 </button>
                                             </div>
                                         </td>
@@ -195,18 +227,18 @@
                                 <% } %>
                             <% } else { %>
                                 <tr id="noDataRow">
-                                    <td colspan="4" class="py-12 px-6 text-center text-muted">
+                                    <td colspan="4" class="py-24 text-center text-deep/30">
                                         <div class="flex flex-col items-center justify-center">
-                                            <svg class="w-12 h-12 mb-3 text-white/20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path></svg>
-                                            <p>Belum ada data prestasi.</p>
+                                            <svg class="w-12 h-12 mb-4 stroke-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path></svg>
+                                            <p class="font-serif italic">Belum ada arsip prestasi.</p>
                                         </div>
                                     </td>
                                 </tr>
                             <% } %>
                             
                             <tr id="noSearchResultsRow" class="hidden">
-                                <td colspan="4" class="py-12 px-6 text-center text-muted">
-                                    <p>Tidak ditemukan prestasi yang cocok dengan filter Anda.</p>
+                                <td colspan="4" class="py-16 text-center text-deep/40 font-serif italic bg-paper/30">
+                                    <p>Tidak ditemukan prestasi yang cocok dengan filter.</p>
                                 </td>
                             </tr>
                         </tbody>
@@ -230,20 +262,19 @@
             function filterTable() {
                 const searchTerm = searchInput.value.toLowerCase();
                 const selectedCategory = categoryFilter.value;
-                const startDate = startDateInput.value; // YYYY-MM-DD
-                const endDate = endDateInput.value;     // YYYY-MM-DD
+                const startDate = startDateInput.value; 
+                const endDate = endDateInput.value;
 
                 let visibleCount = 0;
 
                 rows.forEach(row => {
                     const title = row.getAttribute('data-title');
                     const category = row.getAttribute('data-category');
-                    const rowDate = row.getAttribute('data-date'); // YYYY-MM-DD
+                    const rowDate = row.getAttribute('data-date'); 
 
                     const matchesSearch = title.includes(searchTerm);
                     const matchesCategory = selectedCategory === '' || category === selectedCategory;
                     
-                    // Date Logic
                     const matchesStartDate = !startDate || rowDate >= startDate;
                     const matchesEndDate = !endDate || rowDate <= endDate;
 
@@ -255,7 +286,6 @@
                     }
                 });
 
-                // Show "No Results" if data exists but filters hide everything
                 if (rows.length > 0) {
                     if (visibleCount === 0) {
                         noSearchResultsRow.classList.remove('hidden');
@@ -278,7 +308,6 @@
             const selectedCountSpan = document.getElementById('selected-count');
 
             function updateBulkActionState() {
-                // Only count checked boxes that are currently visible (filtered)
                 const visibleChecked = Array.from(document.querySelectorAll('.row-checkbox:checked')).filter(cb => {
                     return cb.closest('tr').style.display !== 'none';
                 });
@@ -297,7 +326,6 @@
             if(selectAll) {
                 selectAll.addEventListener('change', function(e) {
                     checkboxes.forEach(cb => {
-                        // Only select visible rows
                         if(cb.closest('tr').style.display !== 'none') {
                             cb.checked = e.target.checked;
                         }
@@ -324,7 +352,7 @@
 
         // --- 3. SINGLE DELETE LOGIC ---
         function deleteItem(id, name) {
-            if (confirm(`Apakah Anda yakin ingin menghapus prestasi "${name}"?`)) {
+            if (confirm(`Hapus permanen prestasi "${name}"?`)) {
                 const form = document.createElement('form');
                 form.method = 'POST';
                 form.action = `/admin/prestasi/${id}/delete`;

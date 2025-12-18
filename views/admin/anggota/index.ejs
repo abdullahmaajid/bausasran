@@ -3,7 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kelola Anggota - Admin Bausasran</title>
+    <title>Registry Anggota - Executive Console</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Lato:wght@300;400;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
     
     <script src="https://cdn.tailwindcss.com"></script>
 
@@ -12,14 +16,23 @@
             theme: {
                 extend: {
                     colors: {
-                        main: '#003024',    // Background Gelap
-                        surface: '#004030', // Warna Kartu
-                        accent: '#83C540',  // Hijau Neon
-                        pale: '#F5FEF9',    // Teks Putih
-                        muted: '#A3C2B8',   // Teks Pudar
+                        paper: '#F9F7F2',       /* Cream Background */
+                        deep: '#0F1F18',        /* Dark Emerald Green */
+                        gold: '#C5B388',        /* Antique Gold */
+                        charcoal: '#4A4A4A',    /* Soft Black */
+                        linen: '#EBE9E4',       /* Light Gray/Beige */
+                        white: '#FFFFFF',
+                        danger: '#8B3A3A',      /* Elegant Red */
                     },
                     fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
+                        sans: ['Lato', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                        crest: ['Cinzel', 'serif'], 
+                    },
+                    boxShadow: {
+                        'elegant': '0 20px 50px -12px rgba(15, 31, 24, 0.08)',
+                        'gold-glow': '0 0 15px rgba(197, 179, 136, 0.2)',
+                        'float': '0 10px 30px -5px rgba(15, 31, 24, 0.15)',
                     }
                 }
             }
@@ -28,210 +41,311 @@
 
     <style type="text/tailwindcss">
         @layer base {
-            body {
-                @apply bg-main text-pale font-sans antialiased;
-            }
+            body { @apply bg-paper text-deep font-sans antialiased; }
         }
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 8px; height: 8px; }
-        ::-webkit-scrollbar-track { background: #003024; }
-        ::-webkit-scrollbar-thumb { background: #004030; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #83C540; }
+
+        /* TEXTURE: Film Grain Overlay */
+        .noise-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E");
+            pointer-events: none; z-index: 50; mix-blend-mode: multiply;
+        }
+
+        /* Input Luxury */
+        .input-luxury {
+            @apply w-full bg-white border border-deep/10 px-4 py-3 text-sm text-deep placeholder-charcoal/30 focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold/50 transition-all duration-300 font-sans shadow-sm rounded-none;
+        }
+
+        /* Scrollbar */
+        .custom-scroll::-webkit-scrollbar { width: 6px; }
+        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #C5B388; border-radius: 3px; }
+        .custom-scroll::-webkit-scrollbar-thumb:hover { background: #0F1F18; }
+
+        /* Modal Animation */
+        .modal { opacity: 0; visibility: hidden; transition: all 0.3s ease-in-out; }
+        .modal.active { opacity: 1; visibility: visible; }
+        .modal.active .modal-content { transform: scale(1) translateY(0); opacity: 1; }
+        .modal-content { transform: scale(0.95) translateY(20px); opacity: 0; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+
+        /* Toast Notification */
+        .flash-message {
+            @apply fixed top-6 right-6 z-[100] bg-white border-l-4 shadow-float px-6 py-4 transform transition-all duration-500 translate-x-full opacity-0 flex items-center gap-4 min-w-[320px] max-w-sm;
+        }
+        .flash-message.show { @apply translate-x-0 opacity-100; }
     </style>
 </head>
 
-<body class="flex h-screen overflow-hidden">
+<body class="flex h-screen overflow-hidden relative">
+
+    <div class="noise-overlay"></div>
 
     <%- include('../../partials/admin_sidebar.ejs') %>
 
-    <main class="flex-1 overflow-y-auto relative">
-        <div class="absolute top-0 left-0 w-full h-48 bg-gradient-to-b from-surface to-main -z-10"></div>
+    <main class="flex-1 overflow-y-auto relative z-10 custom-scroll p-6 md:p-12">
+        <%- include('../../partials/flash.ejs') %>
 
-        <div class="p-6 md:p-10 max-w-7xl mx-auto">
-            <%- include('../../partials/flash.ejs') %>
-            
-            <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
-                <div>
-                    <h1 class="text-3xl font-bold text-pale">Kelola Anggota</h1>
-                    <p class="text-muted text-sm mt-1">Manajemen data pengguna, admin, dan hak akses sistem.</p>
-                </div>
-                <a href="/admin/anggota/new" class="inline-flex items-center justify-center px-5 py-2.5 bg-accent hover:bg-white text-main font-bold rounded-xl transition-all shadow-lg hover:shadow-green-500/20 group">
-                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
-                    Tambah Anggota
-                </a>
+        <div class="flex flex-col md:flex-row justify-between items-end md:items-end mb-10 border-b border-deep/10 pb-6 gap-6">
+            <div>
+                <span class="font-sans text-[10px] uppercase tracking-widest text-gold mb-2 block">Database Kependudukan</span>
+                <h1 class="font-crest text-3xl md:text-4xl text-deep leading-tight">Registry Anggota</h1>
+                <p class="font-serif italic text-charcoal/60 text-sm mt-2">Daftar lengkap anggota terdaftar dan hak akses sistem.</p>
             </div>
+            
+            <a href="/admin/anggota/new" class="group flex items-center gap-3 px-6 py-3 bg-deep text-gold text-[10px] font-bold uppercase tracking-[0.2em] border border-deep hover:bg-gold hover:text-deep hover:border-gold transition-all duration-500 shadow-lg hover:shadow-gold-glow">
+                <span class="text-lg leading-none mb-0.5">+</span>
+                <span>Tambah Anggota</span>
+            </a>
+        </div>
 
-            <div class="bg-surface p-4 rounded-2xl border border-white/10 mb-6 flex flex-col md:flex-row gap-4">
-                <div class="flex-1 relative">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <svg class="h-5 w-5 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                    </div>
-                    <input type="text" id="searchInput" placeholder="Cari nama, username, atau jabatan..." 
-                        class="block w-full pl-10 pr-3 py-2.5 bg-main border border-white/10 rounded-xl text-pale placeholder-gray-500 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all sm:text-sm">
+        <div class="bg-white p-6 border border-deep/5 shadow-elegant mb-8 relative overflow-hidden group">
+            <div class="absolute top-0 right-0 w-16 h-16 bg-gold/5 rounded-bl-full -mr-8 -mt-8"></div>
+            
+            <div class="flex flex-col md:flex-row gap-6 justify-between items-end md:items-center">
+                <div class="w-full md:w-1/2 relative group/search">
+                    <input type="text" id="searchInput" placeholder="Cari nama, jabatan, atau ID..." 
+                        class="w-full bg-transparent border-b border-deep/20 py-3 pl-8 pr-4 text-deep font-serif italic placeholder-deep/30 focus:border-gold focus:outline-none transition-all">
+                    <svg class="w-4 h-4 text-deep/30 absolute left-0 top-3.5 group-focus-within/search:text-gold transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                 </div>
-                
-                <div class="w-full md:w-48 relative">
-                    <select id="roleFilter" class="block w-full pl-3 pr-10 py-2.5 bg-main border border-white/10 rounded-xl text-pale focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent sm:text-sm appearance-none cursor-pointer">
-                        <option value="">Semua Role</option>
-                        <option value="Admin">Admin</option>
-                        <option value="User">User</option>
+
+                <div class="w-full md:w-auto relative">
+                    <select id="roleFilter" class="input-luxury cursor-pointer min-w-[200px] appearance-none">
+                        <option value="">Semua Status</option>
+                        <option value="Admin">Administrator</option>
+                        <option value="User">Warga</option>
                     </select>
-                    <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none text-muted">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    <div class="absolute inset-y-0 right-4 flex items-center pointer-events-none text-deep/40">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                     </div>
                 </div>
             </div>
+        </div>
+
+        <div class="bg-white border border-deep/5 shadow-sm overflow-hidden relative min-h-[400px]">
             
-            <div class="bg-surface rounded-2xl shadow-xl border border-white/5 overflow-hidden">
-                <div class="overflow-x-auto">
-                    <table class="min-w-full text-left border-collapse">
-                        <thead>
-                            <tr class="bg-main/50 border-b border-white/10 text-xs uppercase tracking-wider text-muted font-semibold">
-                                <th class="py-4 px-6">Pengguna</th>
-                                <th class="py-4 px-6">Jabatan & Info</th>
-                                <th class="py-4 px-6 text-center">Role</th>
-                                <th class="py-4 px-6 text-center">Status</th> <th class="py-4 px-6 text-center">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody id="anggotaTableBody" class="divide-y divide-white/5">
-                            <% if(anggotaList && anggotaList.length > 0) { %>
-                                <% for(let anggota of anggotaList) { %>
-                                    <tr class="hover:bg-white/5 transition-colors group anggota-row" 
-                                        data-name="<%= anggota.Nama.toLowerCase() %>" 
-                                        data-username="<%= anggota.username.toLowerCase() %>" 
-                                        data-role="<%= anggota.Role %>"
-                                        data-jabatan="<%= (anggota.Jabatan || '').toLowerCase() %>">
-                                        
-                                        <td class="py-4 px-6">
-                                            <div class="flex items-center">
-                                                <div class="h-10 w-10 md:h-12 md:w-12 flex-shrink-0">
-                                                    <% if (anggota.dataValues.fotoFile) { %>
-                                                        <img class="h-full w-full rounded-full object-cover border-2 border-surface group-hover:border-accent transition-colors" src="/images/anggota/<%= anggota.dataValues.fotoFile %>" alt="<%= anggota.Nama %>">
-                                                    <% } else { %>
-                                                        <div class="h-full w-full rounded-full bg-main border border-white/10 flex items-center justify-center text-muted text-xs font-bold group-hover:border-accent group-hover:text-accent transition-colors">
-                                                            <%= anggota.Nama.charAt(0) %>
-                                                        </div>
-                                                    <% } %>
-                                                </div>
-                                                <div class="ml-4">
-                                                    <div class="font-bold text-pale group-hover:text-accent transition-colors"><%= anggota.Nama %></div>
-                                                    <div class="text-sm text-muted">@<%= anggota.username %></div>
-                                                </div>
+            <div class="hidden md:block overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-paper border-b border-deep/10 text-[9px] uppercase tracking-[0.15em] text-deep/60 font-bold font-sans">
+                            <th class="py-5 px-6">Profil Anggota</th>
+                            <th class="py-5 px-6">Jabatan & ID</th>
+                            <th class="py-5 px-6 text-center">Status Akses</th>
+                            <th class="py-5 px-6 text-center">Terdaftar</th>
+                            <th class="py-5 px-6 text-right">Tindakan</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody" class="divide-y divide-deep/5">
+                        <% if(anggotaList && anggotaList.length > 0) { %>
+                            <% anggotaList.forEach((anggota) => { %>
+                                <tr class="group hover:bg-paper transition-all duration-300 filterable-item"
+                                    data-name="<%= anggota.Nama.toLowerCase() %>" 
+                                    data-role="<%= anggota.Role %>"
+                                    data-jabatan="<%= (anggota.Jabatan || '').toLowerCase() %>">
+                                    
+                                    <td class="py-5 px-6">
+                                        <div class="flex items-center gap-4">
+                                            <div class="h-10 w-10 relative overflow-hidden rounded-full border border-deep/10 group-hover:border-gold transition-colors duration-500">
+                                                <img class="h-full w-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" 
+                                                     src="<%= anggota.dataValues.fotoFile ? '/images/anggota/' + anggota.dataValues.fotoFile : 'https://ui-avatars.com/api/?name=' + encodeURIComponent(anggota.Nama) + '&background=0F1F18&color=C5B388' %>" 
+                                                     alt="<%= anggota.Nama %>">
                                             </div>
-                                        </td>
-
-                                        <td class="py-4 px-6">
-                                            <div class="text-sm text-pale font-medium"><%= anggota.Jabatan || '-' %></div>
-                                            <div class="text-xs text-muted mt-1 truncate max-w-xs" title="<%= anggota.Deskripsi || '' %>">
-                                                <% if (anggota.Deskripsi && anggota.Deskripsi.length > 40) { %>
-                                                    <%= anggota.Deskripsi.substring(0, 40) + '...' %>
-                                                <% } else { %>
-                                                    <%= anggota.Deskripsi || 'Tidak ada deskripsi' %>
-                                                <% } %>
+                                            <div>
+                                                <div class="font-serif font-bold text-deep text-base group-hover:text-gold transition-colors"><%= anggota.Nama %></div>
+                                                <div class="text-[10px] tracking-wider text-charcoal/50">@<%= anggota.username %></div>
                                             </div>
-                                        </td>
+                                        </div>
+                                    </td>
 
-                                        <td class="py-4 px-6 text-center">
-                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border
-                                                <%= anggota.Role === 'Admin' 
-                                                    ? 'bg-red-500/10 text-red-400 border-red-500/20' 
-                                                    : 'bg-accent/10 text-accent border-accent/20' %>">
-                                                <%= anggota.Role %>
-                                            </span>
-                                        </td>
+                                    <td class="py-5 px-6">
+                                        <div class="font-sans text-xs font-bold text-deep/80"><%= anggota.Jabatan || 'Warga' %></div>
+                                        <div class="text-[9px] font-mono text-charcoal/40 mt-1"><%= anggota.ID_Pengguna %></div>
+                                    </td>
 
-                                        <td class="py-4 px-6 text-center text-xs text-muted font-mono">
-                                            ID: <%= anggota.ID_Pengguna %>
-                                        </td>
+                                    <td class="py-5 px-6 text-center">
+                                        <span class="inline-flex items-center px-3 py-1 text-[9px] font-bold uppercase tracking-widest border
+                                            <%= anggota.Role === 'Admin' 
+                                                ? 'bg-deep text-gold border-deep' 
+                                                : 'bg-linen/30 text-charcoal/60 border-deep/10' %>">
+                                            <%= anggota.Role %>
+                                        </span>
+                                    </td>
 
-                                        <td class="py-4 px-6">
-                                            <div class="flex items-center justify-center space-x-2">
-                                                <a href="/admin/anggota/<%= anggota.ID_Pengguna %>" class="p-2 bg-blue-500/10 text-blue-400 rounded-lg hover:bg-blue-500 hover:text-white transition-all border border-blue-500/20" title="Lihat Detail">
-                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
-                                                </a>
+                                    <td class="py-5 px-6 text-center">
+                                        <span class="font-sans text-xs text-charcoal/50 font-serif italic">
+                                            <%= new Date(anggota.createdAt).toLocaleDateString('id-ID', {year: 'numeric', month: 'short', day: 'numeric'}) %>
+                                        </span>
+                                    </td>
 
-                                                <a href="/admin/anggota/<%= anggota.ID_Pengguna %>/edit" class="p-2 bg-yellow-500/10 text-yellow-400 rounded-lg hover:bg-yellow-500 hover:text-white transition-all border border-yellow-500/20" title="Edit Data">
-                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
-                                                </a>
-
-                                                <form action="/admin/anggota/<%= anggota.ID_Pengguna %>/delete" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus <%= anggota.Nama %>? Tindakan ini tidak dapat dibatalkan.');">
-                                                    <button type="submit" class="p-2 bg-red-500/10 text-red-400 rounded-lg hover:bg-red-500 hover:text-white transition-all border border-red-500/20" title="Hapus Anggota">
-                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                                                    </button>
-                                                </form>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                <% } %>
-                            <% } else { %>
-                                <tr id="noDataRow">
-                                    <td colspan="5" class="py-12 px-6 text-center text-muted">
-                                        <div class="flex flex-col items-center justify-center">
-                                            <svg class="w-12 h-12 mb-3 text-white/20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-                                            Belum ada data anggota.
+                                    <td class="py-5 px-6 text-right">
+                                        <div class="flex items-center justify-end gap-2 opacity-40 group-hover:opacity-100 transition-opacity duration-300">
+                                            <a href="/admin/anggota/<%= anggota.ID_Pengguna %>" class="p-2 hover:text-deep hover:bg-gold/10 transition-colors" title="Detail">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                            </a>
+                                            <a href="/admin/anggota/<%= anggota.ID_Pengguna %>/edit" class="p-2 hover:text-gold hover:bg-deep transition-colors" title="Edit">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                                            </a>
+                                            <button onclick="openDeleteModal('<%= anggota.ID_Pengguna %>', '<%= anggota.Nama.replace(/'/g, "\\'") %>')" class="p-2 hover:text-white hover:bg-danger transition-colors" title="Hapus">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                            </button>
                                         </div>
                                     </td>
                                 </tr>
-                            <% } %>
-                        </tbody>
-                    </table>
+                            <% }) %>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="md:hidden p-4 space-y-4" id="cardGrid">
+                <% if(anggotaList && anggotaList.length > 0) { %>
+                    <% anggotaList.forEach((anggota) => { %>
+                        <div class="bg-white p-5 border border-deep/5 shadow-sm transition-all duration-300 filterable-item"
+                             data-name="<%= anggota.Nama.toLowerCase() %>" 
+                             data-role="<%= anggota.Role %>"
+                             data-jabatan="<%= (anggota.Jabatan || '').toLowerCase() %>">
+                            
+                            <div class="flex items-start justify-between mb-4">
+                                <div class="flex items-center gap-3">
+                                    <div class="h-10 w-10 rounded-full overflow-hidden border border-deep/10">
+                                        <img class="h-full w-full object-cover" 
+                                             src="<%= anggota.dataValues.fotoFile ? '/images/anggota/' + anggota.dataValues.fotoFile : 'https://ui-avatars.com/api/?name=' + encodeURIComponent(anggota.Nama) + '&background=0F1F18&color=C5B388' %>" 
+                                             alt="<%= anggota.Nama %>">
+                                    </div>
+                                    <div>
+                                        <h3 class="font-serif font-bold text-deep text-base"><%= anggota.Nama %></h3>
+                                        <p class="text-[10px] uppercase tracking-wider text-charcoal/50"><%= anggota.Jabatan || 'Warga' %></p>
+                                    </div>
+                                </div>
+                                <span class="text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 border <%= anggota.Role === 'Admin' ? 'border-deep text-deep' : 'border-charcoal/20 text-charcoal/50' %>">
+                                    <%= anggota.Role %>
+                                </span>
+                            </div>
+                            
+                            <div class="flex justify-between items-center pt-4 border-t border-deep/5">
+                                <span class="text-[9px] text-charcoal/40 font-mono">ID: <%= anggota.ID_Pengguna %></span>
+                                <div class="flex gap-1">
+                                    <a href="/admin/anggota/<%= anggota.ID_Pengguna %>" class="p-2 text-deep/60 hover:text-gold"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg></a>
+                                    <a href="/admin/anggota/<%= anggota.ID_Pengguna %>/edit" class="p-2 text-deep/60 hover:text-deep"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg></a>
+                                    <button onclick="openDeleteModal('<%= anggota.ID_Pengguna %>', '<%= anggota.Nama.replace(/'/g, "\\'") %>')" class="p-2 text-deep/60 hover:text-danger"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
+                                </div>
+                            </div>
+                        <% }) %>
+                    <% } %>
                 </div>
-            </div>
 
-            <div id="noResult" class="hidden mt-4 text-center p-8 bg-surface rounded-2xl border border-white/10 text-muted">
-                <p>Tidak ditemukan anggota dengan kriteria tersebut.</p>
-            </div>
-
+                <div id="noResult" class="hidden py-24 text-center">
+                    <div class="mb-4 text-deep/20 flex justify-center">
+                        <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    </div>
+                    <p class="font-serif italic text-charcoal/50 mb-6">Data anggota tidak ditemukan.</p>
+                </div>
         </div>
     </main>
 
+    <div id="deleteModal" class="modal fixed inset-0 z-[100] flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-deep/80 backdrop-blur-sm transition-opacity" onclick="closeDeleteModal()"></div>
+        <div class="modal-content bg-paper w-full max-w-md p-8 relative shadow-2xl border border-gold/20 text-center">
+            <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-6 border border-deep/5 shadow-inner">
+                <svg class="w-8 h-8 text-danger" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+            </div>
+            <h3 class="font-crest text-xl text-deep mb-2">Konfirmasi Penghapusan</h3>
+            <p class="font-sans text-sm text-charcoal/60 mb-8 leading-relaxed">
+                Anda akan menghapus data <span id="deleteTargetName" class="font-bold text-deep font-serif italic"></span>.<br>Tindakan ini tidak dapat dibatalkan.
+            </p>
+            
+            <form id="deleteForm" method="POST" action="">
+                <div class="flex gap-4 justify-center">
+                    <button type="button" onclick="closeDeleteModal()" class="px-6 py-2.5 border border-deep/10 text-[10px] uppercase tracking-widest hover:bg-white transition-colors">
+                        Batal
+                    </button>
+                    <button type="submit" class="px-6 py-2.5 bg-danger text-white text-[10px] uppercase tracking-widest hover:bg-danger/90 transition-colors shadow-lg">
+                        Hapus
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // --- 1. SEARCH & FILTER LOGIC ---
             const searchInput = document.getElementById('searchInput');
             const roleFilter = document.getElementById('roleFilter');
-            const tableBody = document.getElementById('anggotaTableBody');
-            const rows = document.querySelectorAll('.anggota-row');
+            const items = document.querySelectorAll('.filterable-item');
             const noResultDiv = document.getElementById('noResult');
-            const noDataRow = document.getElementById('noDataRow');
+            const tableElement = document.querySelector('table');
 
-            function filterTable() {
+            function filterItems() {
                 const searchTerm = searchInput.value.toLowerCase();
                 const selectedRole = roleFilter.value;
                 let visibleCount = 0;
 
-                rows.forEach(row => {
-                    const name = row.getAttribute('data-name');
-                    const username = row.getAttribute('data-username');
-                    const jabatan = row.getAttribute('data-jabatan');
-                    const role = row.getAttribute('data-role');
+                items.forEach(item => {
+                    const name = item.getAttribute('data-name');
+                    const jabatan = item.getAttribute('data-jabatan');
+                    const role = item.getAttribute('data-role');
 
-                    const matchesSearch = name.includes(searchTerm) || 
-                                          username.includes(searchTerm) || 
-                                          jabatan.includes(searchTerm);
-                    
+                    const matchesSearch = name.includes(searchTerm) || jabatan.includes(searchTerm);
                     const matchesRole = selectedRole === '' || role === selectedRole;
 
                     if (matchesSearch && matchesRole) {
-                        row.classList.remove('hidden');
+                        item.classList.remove('hidden');
                         visibleCount++;
                     } else {
-                        row.classList.add('hidden');
+                        item.classList.add('hidden');
                     }
                 });
 
-                // Show "No Result" message if filter yields nothing (but data exists initially)
-                if (visibleCount === 0 && rows.length > 0) {
+                if (visibleCount === 0 && items.length > 0) {
                     noResultDiv.classList.remove('hidden');
-                    tableBody.classList.add('hidden'); // Optional: hide table header if no results
+                    if(tableElement) tableElement.classList.add('opacity-10');
                 } else {
                     noResultDiv.classList.add('hidden');
-                    tableBody.classList.remove('hidden');
+                    if(tableElement) tableElement.classList.remove('opacity-10');
                 }
             }
 
-            // Event Listeners
-            searchInput.addEventListener('input', filterTable);
-            roleFilter.addEventListener('change', filterTable);
+            if(searchInput) searchInput.addEventListener('input', filterItems);
+            if(roleFilter) roleFilter.addEventListener('change', filterItems);
+
+            // --- 2. TOAST NOTIFICATION LOGIC ---
+            const alerts = document.querySelectorAll('.alert');
+            if (alerts.length > 0) {
+                alerts.forEach(el => {
+                    // Add heritage styling classes
+                    el.classList.add('flash-message');
+                    if(el.classList.contains('alert-success')) el.classList.add('border-deep', 'text-deep');
+                    else el.classList.add('border-danger', 'text-danger');
+
+                    // Animation In
+                    setTimeout(() => el.classList.add('show'), 100);
+                    // Animation Out
+                    setTimeout(() => {
+                        el.classList.remove('show');
+                        setTimeout(() => el.remove(), 500);
+                    }, 4000);
+                });
+            }
+        });
+
+        // --- 3. MODAL LOGIC ---
+        const modal = document.getElementById('deleteModal');
+        const deleteForm = document.getElementById('deleteForm');
+        const deleteTargetName = document.getElementById('deleteTargetName');
+
+        function openDeleteModal(id, name) {
+            deleteForm.action = `/admin/anggota/${id}/delete`;
+            deleteTargetName.textContent = name;
+            modal.classList.add('active');
+        }
+
+        function closeDeleteModal() {
+            modal.classList.remove('active');
+        }
+
+        // Close on Escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === "Escape") closeDeleteModal();
         });
     </script>
 </body>

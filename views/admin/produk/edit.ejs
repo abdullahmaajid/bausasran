@@ -3,7 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Produk: <%= product.Nama %> - Admin Bausasran</title>
+    <title>Restorasi Katalog: <%= product.Nama %> - Executive Console</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Lato:wght@300;400;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
     
     <script src="https://cdn.tailwindcss.com"></script>
 
@@ -12,18 +17,24 @@
             theme: {
                 extend: {
                     colors: {
-                        main: '#003024',    // Background Gelap
-                        surface: '#004030', // Warna Kartu
-                        accent: '#83C540',  // Hijau Neon
-                        pale: '#F5FEF9',    // Teks Putih
-                        muted: '#A3C2B8',   // Teks Pudar
-                        darker: '#00251a',  // Background Input
-                        danger: '#ff4d4d',  // Merah Error
-                        warning: '#FFC107', // Kuning Warning
-                        info: '#3B82F6',    // Biru Info
+                        paper: '#F9F7F2',       /* Latar Belakang Kertas Tua */
+                        deep: '#0F1F18',        /* Tinta Hijau Gelap */
+                        gold: '#C5B388',        /* Emas Antik */
+                        charcoal: '#4A4A4A',    /* Abu Arang */
+                        linen: '#EBE9E4',       /* Abu Linen */
+                        white: '#FFFFFF',
+                        danger: '#8B3A3A',      /* Merah Bata Elegan */
+                        info: '#5B7C99',        /* Biru Pudar/Tinta Biru */
                     },
                     fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
+                        sans: ['Lato', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                        crest: ['Cinzel', 'serif'], 
+                        mono: ['Courier Prime', 'monospace'],
+                    },
+                    boxShadow: {
+                        'elegant': '0 20px 50px -12px rgba(15, 31, 24, 0.08)',
+                        'gold-glow': '0 0 15px rgba(197, 179, 136, 0.2)',
                     }
                 }
             }
@@ -32,135 +43,156 @@
 
     <style type="text/tailwindcss">
         @layer base {
-            body { @apply bg-main text-pale font-sans antialiased; }
+            body { @apply bg-paper text-deep font-sans antialiased; }
+        }
+
+        /* TEXTURE: Film Grain Overlay */
+        .noise-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E");
+            pointer-events: none; z-index: 50; mix-blend-mode: multiply;
+        }
+
+        /* COMPONENTS */
+        .input-label { 
+            @apply block text-[10px] uppercase tracking-[0.15em] font-bold text-deep/60 mb-2 font-sans; 
         }
         
-        /* Custom Scrollbar */
+        .input-luxury {
+            @apply w-full bg-white border border-deep/10 px-4 py-3 text-sm text-deep placeholder-deep/20 focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold/50 transition-all duration-300 font-sans shadow-sm rounded-sm appearance-none;
+        }
+
+        .input-headline {
+            @apply w-full bg-transparent border-b-2 border-deep/10 px-2 py-2 -mx-2 text-3xl md:text-4xl font-serif font-bold text-deep placeholder-deep/15 focus:outline-none focus:border-gold focus:bg-white/40 transition-all duration-300;
+        }
+
+        /* Custom Dropdown Arrow */
+        .select-wrapper { position: relative; }
+        .select-wrapper::after {
+            content: ''; position: absolute; right: 16px; top: 50%; transform: translateY(-50%) rotate(45deg);
+            width: 6px; height: 6px; border-right: 2px solid #C5B388; border-bottom: 2px solid #C5B388; pointer-events: none;
+        }
+
+        /* Checkbox & Radio Custom */
+        .custom-check { @apply appearance-none w-4 h-4 border border-deep/30 rounded-sm checked:bg-danger checked:border-danger cursor-pointer transition-colors relative; }
+        .custom-check:checked::after { content: '×'; @apply absolute inset-0 flex items-center justify-center text-white text-xs font-bold leading-none; }
+        
+        .custom-radio { @apply appearance-none w-4 h-4 border border-deep/30 rounded-full checked:bg-info checked:border-info cursor-pointer transition-colors relative; }
+        .custom-radio:checked::after { content: ''; @apply absolute inset-1 bg-white rounded-full; }
+
+        /* Scrollbar */
         .custom-scroll::-webkit-scrollbar { width: 6px; }
         .custom-scroll::-webkit-scrollbar-track { background: transparent; }
-        .custom-scroll::-webkit-scrollbar-thumb { background: #004030; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); }
-        .custom-scroll::-webkit-scrollbar-thumb:hover { background: #83C540; }
-
-        /* Input Styles */
-        .form-input {
-            @apply w-full bg-darker border border-white/10 rounded-xl px-4 py-3 text-sm text-pale focus:border-accent focus:ring-1 focus:ring-accent outline-none transition-all placeholder-white/20 appearance-none;
-        }
-        .form-label {
-            @apply block text-xs font-bold text-muted mb-2 uppercase tracking-wider;
-        }
-
-        /* Select Chevron */
-        .select-wrapper { @apply relative; }
-        .select-wrapper::after {
-            content: '';
-            @apply absolute right-4 top-1/2 -translate-y-1/2 w-2 h-2 border-r-2 border-b-2 border-muted pointer-events-none rotate-45;
-        }
-
-        /* Animation */
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-        .animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #C5B388; border-radius: 3px; }
     </style>
 </head>
 
-<body class="flex h-screen overflow-hidden w-full">
+<body class="flex h-screen overflow-hidden relative">
+
+    <div class="noise-overlay"></div>
 
     <%- include('../../partials/admin_sidebar.ejs') %>
 
-    <main class="flex-1 h-full overflow-y-auto overflow-x-hidden custom-scroll relative">
+    <main class="flex-1 h-full overflow-y-auto overflow-x-hidden custom-scroll relative z-10 p-6 md:p-12">
         <%- include('../../partials/flash.ejs') %>
 
         <input type="file" id="edit-photo-input" accept="image/png, image/jpeg, image/jpg" class="hidden">
 
-        <form id="edit-product-form" action="/admin/produk/<%= product.ID_Product %>/edit" method="POST" enctype="multipart/form-data" class="min-h-full p-6 md:p-8 flex flex-col">
+        <form id="edit-product-form" action="/admin/produk/<%= product.ID_Product %>/edit" method="POST" enctype="multipart/form-data" class="max-w-6xl mx-auto flex flex-col min-h-full">
             
-            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 shrink-0">
+            <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10 border-b border-deep/10 pb-6">
                 <div>
-                    <h1 class="text-3xl font-bold text-pale tracking-tight flex items-center gap-2">
-                        <span class="text-accent">Edit:</span> <%= product.Nama %>
+                    <span class="font-sans text-[10px] uppercase tracking-widest text-gold mb-2 block">Katalog #<%= product.ID_Product %></span>
+                    <h1 class="font-crest text-3xl md:text-4xl text-deep leading-tight flex items-center gap-3">
+                        <span class="text-gold opacity-50 text-2xl">Ref.</span> <%= product.Nama %>
                     </h1>
-                    <p class="text-muted text-sm mt-1">Halaman manajemen detail produk.</p>
+                    <p class="font-serif italic text-charcoal/60 text-sm mt-2">Manajemen detail, penilaian harga, dan arsip visual.</p>
                 </div>
-                <div class="flex gap-2">
-                    <button type="submit" class="bg-accent text-main font-bold py-2 px-6 rounded-lg text-sm shadow-lg hover:shadow-accent/20 transition-all">Simpan Perubahan</button>
-                    <a href="/admin/produk" class="bg-surface text-pale py-2 px-6 rounded-lg text-sm border border-white/10 hover:bg-white/5 transition-all">Batal</a>
+                <div class="flex gap-4">
+                    <a href="/admin/produk" class="px-6 py-3 border border-deep/10 text-deep/60 text-[10px] uppercase tracking-widest font-bold hover:bg-white hover:text-deep transition-all flex items-center justify-center">
+                        Tutup Berkas
+                    </a>
+                    <button type="submit" class="px-8 py-3 bg-deep text-gold text-[10px] uppercase tracking-[0.2em] font-bold border border-deep hover:bg-gold hover:text-deep hover:border-gold transition-all shadow-lg flex items-center gap-2 group">
+                        <span>Simpan Perubahan</span>
+                    </button>
                 </div>
             </div>
 
-            <div class="flex flex-col lg:flex-row gap-6 items-start flex-1">
+            <div class="flex flex-col lg:flex-row gap-8 lg:gap-12 items-start">
                 
-                <div class="w-full lg:flex-1 min-w-0 flex flex-col gap-6">
+                <div class="w-full lg:flex-1 min-w-0 flex flex-col gap-8">
                     
-                    <div class="bg-surface rounded-2xl p-6 md:p-8 shadow-xl border border-white/5">
-                        <h3 class="text-lg font-bold text-pale mb-6 flex items-center gap-2 border-b border-white/5 pb-4">
-                            <svg class="w-5 h-5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                            Informasi Produk
-                        </h3>
+                    <div class="bg-white p-8 border border-deep/5 shadow-elegant relative">
+                        <div class="absolute top-0 left-0 w-1 h-full bg-gold/50"></div>
+                        
+                        <div class="mb-8">
+                            <label for="Nama" class="input-label text-gold">Nomenklatur Produk</label>
+                            <input type="text" id="Nama" name="Nama" value="<%= product.Nama %>" class="input-headline" required>
+                        </div>
 
-                        <div class="space-y-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                             <div>
-                                <label for="Nama" class="form-label">Nama Produk</label>
-                                <input type="text" id="Nama" name="Nama" value="<%= product.Nama %>" 
-                                    class="w-full bg-transparent border-b border-white/10 px-0 py-2 text-3xl font-bold text-pale focus:border-accent outline-none transition-colors placeholder-white/20" 
-                                    required>
-                            </div>
-
-                            <div>
-                                <label for="Kategori" class="form-label">Kategori</label>
+                                <label for="Kategori" class="input-label">Klasifikasi</label>
                                 <div class="select-wrapper">
-                                    <select id="Kategori" name="Kategori" class="form-input cursor-pointer">
-                                        <option value="Sayur" <%= product.Kategori === 'Sayur' ? 'selected' : '' %>>Sayur</option>
-                                        <option value="Buah" <%= product.Kategori === 'Buah' ? 'selected' : '' %>>Buah</option>
-                                        <option value="Herbal" <%= product.Kategori === 'Herbal' ? 'selected' : '' %>>Herbal</option>
+                                    <select id="Kategori" name="Kategori" class="input-luxury cursor-pointer">
+                                        <option value="Sayur" <%= product.Kategori === 'Sayur' ? 'selected' : '' %>>Sayur-mayur</option>
+                                        <option value="Buah" <%= product.Kategori === 'Buah' ? 'selected' : '' %>>Buah-buahan</option>
+                                        <option value="Herbal" <%= product.Kategori === 'Herbal' ? 'selected' : '' %>>Tanaman Obat (Herbal)</option>
                                         <option value="Lainnya" <%= (product.Kategori !== 'Sayur' && product.Kategori !== 'Buah' && product.Kategori !== 'Herbal') ? 'selected' : '' %>>Lainnya</option>
                                     </select>
                                 </div>
                             </div>
-                            
-                            <div>
-                                <label for="Deskripsi" class="form-label">Deskripsi Lengkap</label>
-                                <textarea id="Deskripsi" name="Deskripsi" rows="5" class="form-input leading-relaxed resize-none"><%= product.Deskripsi || '' %></textarea>
-                            </div>
+                        </div>
+                        
+                        <div>
+                            <label for="Deskripsi" class="input-label">Catatan Deskriptif</label>
+                            <textarea id="Deskripsi" name="Deskripsi" rows="6" 
+                                class="w-full bg-paper/50 border border-deep/10 p-6 text-sm text-deep/80 leading-loose font-serif italic focus:outline-none focus:border-gold resize-none placeholder-deep/20 transition-all shadow-inner"><%= product.Deskripsi || '' %></textarea>
                         </div>
                     </div>
 
-                    <div class="bg-surface rounded-2xl p-6 md:p-8 shadow-xl border border-white/5">
-                        <h3 class="text-lg font-bold text-pale mb-4 flex items-center gap-2">
-                            <svg class="w-5 h-5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                            Harga & Diskon
+                    <div class="bg-deep/5 p-8 border border-deep/5 shadow-sm rounded-sm">
+                        <h3 class="font-crest text-sm text-deep mb-6 flex items-center gap-2 border-b border-deep/10 pb-3">
+                            <svg class="w-4 h-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            Valuasi & Penawaran
                         </h3>
                         
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
-                            <div>
-                                <label for="Harga" class="form-label">Harga Satuan (Rp)</label>
-                                <input type="number" id="Harga" name="Harga" value="<%= product.Harga %>" class="form-input font-mono text-lg" placeholder="0" required>
+                            <div class="relative">
+                                <label for="Harga" class="input-label">Harga Satuan</label>
+                                <div class="relative flex items-center">
+                                    <span class="absolute left-4 text-gold font-serif italic text-sm pointer-events-none">Rp</span>
+                                    <input type="number" id="Harga" name="Harga" value="<%= product.Harga %>" class="input-luxury pl-12 font-mono text-lg" placeholder="0" required>
+                                </div>
                             </div>
 
                             <div>
-                                <label for="Diskon" class="form-label text-warning">Diskon (%)</label>
-                                <input type="number" id="Diskon" name="Diskon" value="<%= product.Diskon ? (product.Diskon * 100).toFixed(0) : 0 %>" class="form-input font-mono text-warning text-center" placeholder="0" min="0" max="100">
+                                <label for="Diskon" class="input-label text-danger">Potongan (%)</label>
+                                <input type="number" id="Diskon" name="Diskon" value="<%= product.Diskon ? (product.Diskon * 100).toFixed(0) : 0 %>" class="input-luxury text-center font-mono text-danger border-danger/20 focus:border-danger focus:ring-danger/20" placeholder="0" min="0" max="100">
                             </div>
 
-                            <div>
-                                <label class="form-label text-accent">Harga Akhir</label>
-                                <div id="final-price-preview" class="w-full h-[46px] flex items-center justify-center bg-accent/10 border border-accent/20 rounded-xl text-accent font-bold font-mono text-xl">
-                                    Rp 0
+                            <div class="relative group">
+                                <label class="input-label text-gold">Harga Akhir (Net)</label>
+                                <div id="final-price-preview" class="w-full h-[46px] flex items-center justify-center bg-white border-2 border-double border-deep/20 text-deep font-bold font-mono text-xl shadow-sm relative overflow-hidden">
+                                    <div class="absolute inset-0 bg-gold/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                    <span class="relative z-10 tracking-tight">Rp 0</span>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="bg-surface rounded-2xl p-6 md:p-8 shadow-xl border border-white/5">
-                        <div class="flex justify-between items-center mb-4">
-                            <h3 class="text-lg font-bold text-pale flex items-center gap-2">
-                                <svg class="w-5 h-5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                                Galeri Produk
+                    <div class="bg-white p-8 border border-deep/5 shadow-elegant">
+                        <div class="flex justify-between items-center mb-6 border-b border-deep/10 pb-4">
+                            <h3 class="font-crest text-sm text-deep flex items-center gap-2">
+                                <svg class="w-4 h-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                Arsip Visual
                             </h3>
-                            <div class="flex gap-2">
-                                <button type="button" id="edit-photo-btn" class="px-4 py-1.5 rounded-lg text-xs font-bold bg-info/20 text-info hover:bg-info hover:text-white transition disabled:opacity-30 disabled:cursor-not-allowed" disabled>
-                                    Ganti Terpilih
+                            <div class="flex gap-3">
+                                <button type="button" id="edit-photo-btn" class="text-[10px] uppercase tracking-wider font-bold text-info hover:underline disabled:opacity-30 disabled:no-underline disabled:cursor-not-allowed" disabled>
+                                    [ Ganti ]
                                 </button>
-                                <button type="button" id="delete-photos-btn" class="px-4 py-1.5 rounded-lg text-xs font-bold bg-danger/20 text-danger hover:bg-danger hover:text-white transition disabled:opacity-30 disabled:cursor-not-allowed" disabled>
-                                    Hapus Terpilih
+                                <button type="button" id="delete-photos-btn" class="text-[10px] uppercase tracking-wider font-bold text-danger hover:underline disabled:opacity-30 disabled:no-underline disabled:cursor-not-allowed" disabled>
+                                    [ Hapus ]
                                 </button>
                             </div>
                         </div>
@@ -169,36 +201,37 @@
                             <div id="photo-list-container" class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                                 <% if (existingPhotos && existingPhotos.length > 0) { %>
                                     <% existingPhotos.forEach(photo => { %>
-                                        <div class="relative group photo-item aspect-square rounded-xl overflow-hidden border border-white/10 hover:border-accent/50 transition-colors bg-darker">
-                                            <img id="img-<%= photo.ID_Foto %>" src="/images/produk/<%= photo.Foto %>" class="w-full h-full object-cover">
-                                            <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-between p-3">
-                                                <div class="flex justify-between items-start w-full">
-                                                     <label class="cursor-pointer bg-black/50 rounded-md p-1.5 hover:bg-info/80 text-white text-[10px]" title="Pilih untuk ganti">
-                                                        <span class="block mb-1 text-center font-bold text-info">Ganti</span>
-                                                        <input type="radio" name="selectPhotoToEdit" value="<%= photo.ID_Foto %>" class="edit-photo-radio accent-info w-4 h-4 cursor-pointer block mx-auto">
-                                                    </label>
-                                                    <label class="cursor-pointer bg-black/50 rounded-md p-1.5 hover:bg-danger/80 text-white text-[10px]" title="Pilih untuk hapus">
-                                                        <span class="block mb-1 text-center font-bold text-danger">Hapus</span>
-                                                        <input type="checkbox" name="deletePhotos" value="<%= photo.ID_Foto %>" class="delete-photo-checkbox accent-danger w-4 h-4 cursor-pointer block mx-auto">
-                                                    </label>
-                                                </div>
+                                        <div class="relative group photo-item aspect-square bg-linen p-2 shadow-sm border border-deep/10 hover:border-gold transition-all">
+                                            <div class="relative w-full h-full overflow-hidden bg-charcoal">
+                                                <img id="img-<%= photo.ID_Foto %>" src="/images/produk/<%= photo.Foto %>" class="w-full h-full object-cover filter sepia-[0.3] group-hover:sepia-0 transition-all duration-500">
+                                            </div>
+                                            
+                                            <div class="absolute -bottom-2 -right-2 bg-paper border border-deep/10 shadow-lg p-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity z-10 scale-90 group-hover:scale-100">
+                                                <label class="cursor-pointer" title="Tandai Ganti (Biru)">
+                                                    <input type="radio" name="selectPhotoToEdit" value="<%= photo.ID_Foto %>" class="custom-radio">
+                                                </label>
+                                                <label class="cursor-pointer" title="Tandai Hapus (Merah)">
+                                                    <input type="checkbox" name="deletePhotos" value="<%= photo.ID_Foto %>" class="custom-check">
+                                                </label>
                                             </div>
                                         </div>
                                     <% }) %>
                                 <% } else { %>
-                                    <p class="text-sm text-muted col-span-full text-center py-10 italic no-photos-msg border border-dashed border-white/10 rounded-xl">Belum ada foto yang diunggah.</p>
+                                    <p class="text-xs font-serif italic text-deep/40 col-span-full text-center py-10 border border-dashed border-deep/20 bg-paper/50">
+                                        Arsip visual kosong.
+                                    </p>
                                 <% } %>
                                 
-                                <div class="relative group aspect-square bg-darker/50 border-2 border-dashed border-white/10 rounded-xl flex flex-col items-center justify-center hover:border-accent/50 transition-colors cursor-pointer hover:bg-darker">
+                                <div class="relative group aspect-square bg-paper border-2 border-dashed border-deep/10 hover:border-gold transition-all flex flex-col items-center justify-center cursor-pointer hover:bg-white">
                                     <input type="file" name="productImages" multiple accept="image/png, image/jpeg, image/jpg" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
-                                    <svg class="w-8 h-8 text-muted mb-2 group-hover:text-accent transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-                                    <span class="text-[10px] text-muted font-bold group-hover:text-white uppercase tracking-wider">Upload Baru</span>
+                                    <svg class="w-6 h-6 text-deep/20 group-hover:text-gold transition-colors mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4v16m8-8H4"></path></svg>
+                                    <span class="text-[9px] text-deep/40 font-bold uppercase tracking-widest group-hover:text-deep">Upload</span>
                                 </div>
                             </div>
 
-                            <div class="h-5 flex items-center justify-center">
-                                <p id="edit-status" class="text-xs"></p>
-                                <p id="delete-status" class="text-xs"></p>
+                            <div class="h-5 flex items-center justify-center font-mono">
+                                <p id="edit-status" class="text-[10px]"></p>
+                                <p id="delete-status" class="text-[10px]"></p>
                             </div>
                         </div>
                     </div>
@@ -207,82 +240,88 @@
 
                 <div class="w-full lg:w-[380px] shrink-0 flex flex-col gap-6">
                     
-                    <div class="bg-surface rounded-2xl p-6 shadow-xl border border-white/5 sticky top-0">
-                        <div class="flex justify-between items-center mb-6">
-                            <h3 class="text-lg font-bold text-pale flex items-center gap-2">
-                                <svg class="w-5 h-5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
-                                Parameter
+                    <div class="bg-paper border border-deep/10 shadow-elegant sticky top-6 relative overflow-hidden">
+                        <div class="bg-deep p-4 flex justify-between items-center border-b-4 border-double border-gold/30">
+                            <h3 class="font-crest text-xs text-paper uppercase tracking-widest flex items-center gap-2">
+                                <svg class="w-4 h-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                Parameter Tumbuh
                             </h3>
-                            <button type="button" id="add-parameter-btn" class="text-xs bg-accent/10 hover:bg-accent hover:text-main text-accent border border-accent/20 py-1.5 px-3 rounded transition-all font-bold">
-                                + Tambah
+                            <button type="button" id="add-parameter-btn" class="text-[9px] bg-gold/20 hover:bg-gold hover:text-deep text-gold border border-gold/30 py-1 px-2 transition-all font-bold uppercase tracking-wider">
+                                + Entri
                             </button>
                         </div>
                         
-                        <div id="parameter-container" class="space-y-3 min-h-[200px]">
+                        <div id="parameter-container" class="p-4 space-y-0 min-h-[200px] bg-[linear-gradient(rgba(15,31,24,0.03)_1px,transparent_1px)] bg-[length:100%_2rem]">
                             <% if (existingParameters && existingParameters.length > 0) { %>
                                 <% existingParameters.forEach(param => { %>
-                                    <div class="parameter-row p-3 bg-darker/30 border border-white/10 rounded-xl relative group">
-                                        <div class="mb-2">
-                                            <div class="select-wrapper">
-                                                <select name="paramNama[]" class="param-select w-full bg-darker border border-white/10 rounded-lg px-3 py-1.5 text-xs text-pale focus:border-accent outline-none appearance-none" data-selected-value="<%= param.Nama %>">
+                                    <div class="parameter-row py-2 relative group border-b border-dashed border-deep/10">
+                                        <div class="mb-1 flex justify-between items-baseline">
+                                            <div class="select-wrapper w-[65%]">
+                                                <select name="paramNama[]" class="param-select w-full bg-transparent border-none text-xs font-bold text-deep focus:ring-0 p-0 cursor-pointer" data-selected-value="<%= param.Nama %>">
                                                     <option value="">-- Pilih --</option>
                                                 </select>
                                             </div>
-                                            <span class="param-unit text-[9px] text-accent mt-1 block font-mono pl-1">Unit: -</span>
+                                            <span class="param-unit text-[9px] text-deep/50 font-mono">Unit: -</span>
                                         </div>
                                         <div class="grid grid-cols-2 gap-2">
-                                            <div>
-                                                <input type="number" step="any" name="paramMin[]" value="<%= param.Minimal %>" placeholder="Min" class="w-full bg-darker border border-white/10 rounded-lg px-2 py-1.5 text-xs text-pale text-center focus:border-accent outline-none">
+                                            <div class="flex items-center">
+                                                <span class="text-[9px] text-deep/40 mr-1 font-serif italic">min:</span>
+                                                <input type="number" step="any" name="paramMin[]" value="<%= param.Minimal %>" class="w-full bg-white/50 border-b border-deep/20 text-xs text-deep font-mono focus:outline-none focus:border-gold px-1">
                                             </div>
-                                            <div>
-                                                <input type="number" step="any" name="paramMax[]" value="<%= param.Maksimal %>" placeholder="Max" class="w-full bg-darker border border-white/10 rounded-lg px-2 py-1.5 text-xs text-pale text-center focus:border-accent outline-none">
+                                            <div class="flex items-center">
+                                                <span class="text-[9px] text-deep/40 mr-1 font-serif italic">max:</span>
+                                                <input type="number" step="any" name="paramMax[]" value="<%= param.Maksimal %>" class="w-full bg-white/50 border-b border-deep/20 text-xs text-deep font-mono focus:outline-none focus:border-gold px-1">
                                             </div>
                                         </div>
-                                        <button type="button" class="remove-parameter-btn absolute -top-1.5 -right-1.5 bg-danger text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity shadow-lg z-10">
-                                            <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                        <button type="button" class="remove-parameter-btn absolute top-2 right-0 text-danger opacity-0 group-hover:opacity-100 transition-opacity hover:bg-danger/10 rounded px-1">
+                                            <span class="text-[10px] font-bold">×</span>
                                         </button>
                                     </div>
                                 <% }) %>
                             <% } else { %>
-                                <div class="text-center py-6 border-2 border-dashed border-white/5 rounded-xl placeholder-message flex flex-col items-center justify-center h-full">
-                                    <p class="text-muted text-xs">Belum ada parameter.</p>
+                                <div class="text-center py-10 placeholder-message flex flex-col items-center justify-center h-full opacity-40">
+                                    <p class="font-serif italic text-xs text-deep">Belum ada catatan parameter.</p>
                                 </div>
                             <% } %>
                         </div>
                     </div>
 
-                </div> </div> </form>
+                </div> 
+            </div> 
+        </form>
     </main>
 
     <template id="parameter-row-template">
-        <div class="parameter-row p-3 bg-darker/30 border border-white/10 rounded-xl relative group animate-fade-in">
-            <div class="mb-2">
-                <div class="select-wrapper">
-                    <select name="paramNama[]" class="param-select w-full bg-darker border border-white/10 rounded-lg px-3 py-1.5 text-xs text-pale focus:border-accent outline-none appearance-none">
+        <div class="parameter-row py-2 relative group border-b border-dashed border-deep/10 animate-[fadeIn_0.3s_ease-out]">
+            <div class="mb-1 flex justify-between items-baseline">
+                <div class="select-wrapper w-[65%]">
+                    <select name="paramNama[]" class="param-select w-full bg-transparent border-none text-xs font-bold text-deep focus:ring-0 p-0 cursor-pointer">
                         <option value="">-- Pilih --</option>
                     </select>
                 </div>
-                <span class="param-unit text-[9px] text-accent mt-1 block font-mono pl-1">Unit: -</span>
+                <span class="param-unit text-[9px] text-deep/50 font-mono">Unit: -</span>
             </div>
             <div class="grid grid-cols-2 gap-2">
-                <div>
-                    <input type="number" step="any" name="paramMin[]" placeholder="Min" class="w-full bg-darker border border-white/10 rounded-lg px-2 py-1.5 text-xs text-pale text-center focus:border-accent outline-none">
+                <div class="flex items-center">
+                    <span class="text-[9px] text-deep/40 mr-1 font-serif italic">min:</span>
+                    <input type="number" step="any" name="paramMin[]" class="w-full bg-white/50 border-b border-deep/20 text-xs text-deep font-mono focus:outline-none focus:border-gold px-1">
                 </div>
-                <div>
-                    <input type="number" step="any" name="paramMax[]" placeholder="Max" class="w-full bg-darker border border-white/10 rounded-lg px-2 py-1.5 text-xs text-pale text-center focus:border-accent outline-none">
+                <div class="flex items-center">
+                    <span class="text-[9px] text-deep/40 mr-1 font-serif italic">max:</span>
+                    <input type="number" step="any" name="paramMax[]" class="w-full bg-white/50 border-b border-deep/20 text-xs text-deep font-mono focus:outline-none focus:border-gold px-1">
                 </div>
             </div>
-            <button type="button" class="remove-parameter-btn absolute -top-1.5 -right-1.5 bg-danger text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity shadow-lg z-10">
-                <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            <button type="button" class="remove-parameter-btn absolute top-2 right-0 text-danger opacity-0 group-hover:opacity-100 transition-opacity hover:bg-danger/10 rounded px-1">
+                <span class="text-[10px] font-bold">×</span>
             </button>
         </div>
     </template>
 
     <script>
-        // --- 1. HARGA & DISKON ---
+        // --- 1. LOGIC HARGA (Heritage Style) ---
         const hargaInput = document.getElementById('Harga');
         const diskonInput = document.getElementById('Diskon');
-        const pricePreview = document.getElementById('final-price-preview');
+        const pricePreview = document.getElementById('final-price-preview').querySelector('span');
         const formatter = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 });
 
         function updatePricePreview() {
@@ -297,11 +336,11 @@
         diskonInput.addEventListener('input', updatePricePreview);
         updatePricePreview();
 
-        // --- 2. PARAMETER ---
+        // --- 2. LOGIC PARAMETER (Logbook Style) ---
         const parameterDetails = { 
             'Suhu Rata-rata': { unit: '°C' }, 'Kelembaban Relatif': { unit: '%' }, 'Curah Hujan': { unit: 'mm' }, 
             'Kecepatan Angin': { unit: 'm/s' }, 'Radiasi Matahari': { unit: 'MJ/m²/day' }, 'Evapotranspirasi': { unit: 'mm/day' }, 
-            'Suhu Tanah (0-7cm)': { unit: '°C' }, 'Kelembaban Tanah': { unit: 'm³/m³' }, 'pH Tanah': { unit: 'pH' }, 'Kandungan Organik': { unit: '%' } 
+            'Suhu Tanah': { unit: '°C' }, 'Kelembaban Tanah': { unit: 'm³/m³' }, 'pH Tanah': { unit: 'pH' }, 'Kandungan Organik': { unit: '%' } 
         };
         const predefinedParameters = Object.keys(parameterDetails);
         const container = document.getElementById('parameter-container');
@@ -316,9 +355,9 @@
                 const currentVal = currentSelect.value;
                 Array.from(currentSelect.options).forEach(opt => {
                     if (opt.value && opt.value !== currentVal && selectedValues.has(opt.value)) {
-                        opt.disabled = true; opt.classList.add('text-muted');
+                        opt.disabled = true; opt.style.color = '#ccc';
                     } else {
-                        opt.disabled = false; opt.classList.remove('text-muted');
+                        opt.disabled = false; opt.style.color = '';
                     }
                 });
             });
@@ -357,7 +396,7 @@
         });
         updateAllDropdowns();
 
-        // --- 3. FOTO (AJAX) ---
+        // --- 3. LOGIC FOTO (Archive Style AJAX) ---
         const photoContainer = document.getElementById('photo-list-container');
         const deleteBtn = document.getElementById('delete-photos-btn');
         const editBtn = document.getElementById('edit-photo-btn');
@@ -367,42 +406,44 @@
         const productId = '<%= product.ID_Product %>';
 
         function updateControls() {
-            deleteBtn.disabled = !photoContainer.querySelector('.delete-photo-checkbox:checked');
-            editBtn.disabled = !photoContainer.querySelector('.edit-photo-radio:checked');
+            const hasDelete = photoContainer.querySelector('.custom-check:checked');
+            const hasEdit = photoContainer.querySelector('.custom-radio:checked');
+            deleteBtn.disabled = !hasDelete;
+            editBtn.disabled = !hasEdit;
         }
         photoContainer.addEventListener('change', updateControls);
 
         deleteBtn.addEventListener('click', async () => {
-            const ids = Array.from(photoContainer.querySelectorAll('.delete-photo-checkbox:checked')).map(cb => cb.value);
-            if (!confirm(`Hapus ${ids.length} foto?`)) return;
-            deleteBtn.disabled = true; deleteStatus.textContent = 'Menghapus...'; deleteStatus.className = 'text-xs text-center text-warning';
+            const ids = Array.from(photoContainer.querySelectorAll('.custom-check:checked')).map(cb => cb.value);
+            if (!confirm(`Hapus ${ids.length} foto dari arsip?`)) return;
+            deleteBtn.disabled = true; deleteStatus.textContent = 'Menghapus...'; deleteStatus.className = 'text-[10px] text-danger font-bold';
             try {
                 const res = await fetch(`/admin/produk/${productId}/delete-photos`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ photoIds: ids }) });
                 const data = await res.json();
                 if (res.ok && data.success) {
-                    deleteStatus.textContent = 'Terhapus!'; deleteStatus.className = 'text-xs text-center text-accent';
-                    ids.forEach(id => document.querySelector(`.delete-photo-checkbox[value="${id}"]`).closest('.photo-item').remove());
+                    deleteStatus.textContent = 'Data dihapus.'; 
+                    ids.forEach(id => document.querySelector(`.custom-check[value="${id}"]`).closest('.photo-item').remove());
                 } else throw new Error(data.message);
-            } catch (e) { deleteStatus.textContent = e.message; deleteStatus.className = 'text-xs text-center text-danger'; }
+            } catch (e) { deleteStatus.textContent = 'Gagal.'; }
             finally { updateControls(); setTimeout(() => deleteStatus.textContent = '', 2000); }
         });
 
         editBtn.addEventListener('click', () => editPhotoInput.click());
         editPhotoInput.addEventListener('change', async (e) => {
             const file = e.target.files[0];
-            const radio = photoContainer.querySelector('.edit-photo-radio:checked');
+            const radio = photoContainer.querySelector('.custom-radio:checked');
             if (!file || !radio) { editPhotoInput.value = ''; return; }
-            editBtn.disabled = true; editStatus.textContent = 'Upload...'; editStatus.className = 'text-xs text-center text-info';
+            editBtn.disabled = true; editStatus.textContent = 'Mengganti...'; editStatus.className = 'text-[10px] text-info font-bold';
             const formData = new FormData(); formData.append('editedPhoto', file); formData.append('photoIdToReplace', radio.value);
             try {
                 const res = await fetch(`/admin/produk/${productId}/edit-photo`, { method: 'POST', body: formData });
                 const data = await res.json();
                 if (res.ok && data.success) {
-                    editStatus.textContent = 'Sukses!'; editStatus.className = 'text-xs text-center text-accent';
+                    editStatus.textContent = 'Diperbarui.';
                     document.getElementById(`img-${data.photoId}`).src = `/images/produk/${data.newFilename}?t=${Date.now()}`;
                     radio.checked = false;
                 } else throw new Error(data.message);
-            } catch (e) { editStatus.textContent = e.message; editStatus.className = 'text-xs text-center text-danger'; }
+            } catch (e) { editStatus.textContent = 'Gagal.'; }
             finally { editPhotoInput.value = ''; updateControls(); setTimeout(() => editStatus.textContent = '', 2000); }
         });
         updateControls();

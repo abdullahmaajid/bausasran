@@ -3,8 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Galeri - Bausasran</title>
+    <title>Arsip Visual - Bausasran Heritage</title>
     
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Lato:wght@300;400;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.jsdelivr.net/gh/studio-freight/lenis@1.0.29/bundled/lenis.min.js"></script>
+
     <script src="https://cdn.tailwindcss.com"></script>
 
     <script>
@@ -12,14 +18,27 @@
             theme: {
                 extend: {
                     colors: {
-                        main: '#003024',    // Background Gelap
-                        surface: '#004030', // Warna Kartu
-                        accent: '#83C540',  // Hijau Neon
-                        pale: '#F5FEF9',    // Teks Putih
-                        muted: '#A3C2B8',   // Teks Pudar
+                        paper: '#F9F7F2',       // Cream Background
+                        deep: '#0F1F18',        // Dark Green (Primary)
+                        gold: '#C5B388',        // Luxury Accent
+                        charcoal: '#4A4A4A',    // Text
+                        sand: '#E5E0D8',        // Border/Secondary
+                        white: '#FFFFFF',
                     },
                     fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
+                        sans: ['Lato', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                        crest: ['Cinzel', 'serif'], 
+                    },
+                    letterSpacing: {
+                        'luxury': '0.2em',
+                        'widest': '0.3em',
+                    },
+                    transitionDuration: {
+                        '1500': '1500ms',
+                    },
+                    boxShadow: {
+                        'elegant': '0 10px 40px -10px rgba(15, 31, 24, 0.15)',
                     }
                 }
             }
@@ -29,152 +48,178 @@
     <style type="text/tailwindcss">
         @layer base {
             body {
-                @apply bg-main text-pale font-sans antialiased;
+                @apply bg-paper text-deep font-sans antialiased selection:bg-deep selection:text-paper;
+                overscroll-behavior: none; 
             }
         }
-        .no-scroll {
-            overflow: hidden;
+        
+        /* TEXTURE OVERLAY */
+        .noise-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.04'/%3E%3C/svg%3E");
+            pointer-events: none; z-index: 9999; mix-blend-mode: multiply;
         }
+
+        /* SCROLLBAR */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: #E5E0D8; }
+        ::-webkit-scrollbar-thumb { background: #0F1F18; }
+        
+        .no-scroll { overflow: hidden; padding-right: 4px; }
     </style>
 </head>
 
-<body class="flex flex-col min-h-screen">
+<body class="flex flex-col min-h-screen relative">
+
+    <div class="noise-overlay"></div>
 
     <%- include('../partials/navbar.ejs') %>
 
-    <main class="container mx-auto px-4 py-12 flex-grow">
+    <main class="flex-grow pt-40 pb-24 px-6 relative z-10">
+        
         <%- include('../partials/flash.ejs') %>
 
-        <div class="text-center mb-12">
-            <h1 class="text-4xl md:text-5xl font-bold text-pale mb-4">
-                Galeri <span class="text-accent">Foto</span>
-            </h1>
-            <p class="text-lg text-muted max-w-2xl mx-auto">
-                Dokumentasi kegiatan, produk, dan momen berharga di Kampung Wisata Bausasran.
+        <div class="max-w-6xl mx-auto text-center mb-16 animate-[fadeIn_1.5s]">
+            <span class="font-sans text-[10px] uppercase tracking-widest text-gold mb-4 block">Official Documentation</span>
+            <h1 class="font-crest text-4xl md:text-6xl text-deep mb-6 leading-none">Galeri Bausasran</h1>
+            <p class="font-serif italic text-lg md:text-xl text-charcoal/70 max-w-2xl mx-auto leading-relaxed">
+                "Sebuah koleksi visual yang merekam jejak langkah, momen berharga, dan estetika budaya kampung wisata."
             </p>
+            <div class="w-[1px] h-16 bg-deep/10 mx-auto mt-10"></div>
         </div>
 
         <% if(groupFotoList && groupFotoList.length > 0) { %>
-            <div class="flex flex-wrap justify-center mb-10 gap-3">
-                <button onclick="filterGaleri('all')" id="btn-all" 
-                    class="filter-btn active px-6 py-2.5 rounded-full text-sm font-bold border border-accent bg-accent text-main transition-all duration-300 shadow-[0_0_15px_rgba(131,197,64,0.3)]">
-                    Semua
-                </button>
-                <% groupFotoList.forEach(group => { %>
-                    <button onclick="filterGaleri('<%= group.ID_GroupFoto %>')" id="btn-<%= group.ID_GroupFoto %>"
-                        class="filter-btn px-6 py-2.5 rounded-full text-sm font-bold border border-white/10 text-muted hover:border-accent hover:text-pale bg-surface transition-all duration-300">
-                        <%= group.Nama %>
+            <div class="flex flex-col items-center mb-20">
+                <div class="flex flex-wrap justify-center gap-4 max-w-5xl transition-all duration-500">
+                    
+                    <button onclick="filterGaleri('all')" id="btn-all" 
+                        class="filter-btn px-8 py-2 text-[10px] uppercase tracking-widest border border-deep bg-deep text-paper hover:shadow-elegant transition-all duration-300">
+                        Semua
                     </button>
-                <% }) %>
+
+                    <% groupFotoList.forEach((group, index) => { %>
+                        <button onclick="filterGaleri('<%= group.ID_GroupFoto %>')" id="btn-<%= group.ID_GroupFoto %>"
+                            class="filter-btn px-8 py-2 text-[10px] uppercase tracking-widest border border-deep/10 text-deep/60 hover:border-gold hover:text-deep bg-transparent transition-all duration-300 <%= index >= 5 ? 'hidden extra-filter' : '' %>">
+                            <%= group.Nama %>
+                        </button>
+                    <% }) %>
+                </div>
+
+                <% if(groupFotoList.length > 5) { %>
+                    <div class="mt-8">
+                        <button onclick="toggleFilters()" id="btn-toggle-more"
+                            class="group flex items-center gap-3 text-[9px] uppercase tracking-luxury text-gold hover:text-deep transition-colors">
+                            <span>Lihat Kategori Lainnya (<%= groupFotoList.length - 5 %>)</span>
+                            <span class="transform group-hover:translate-y-1 transition-transform duration-300">↓</span>
+                        </button>
+                    </div>
+                <% } %>
             </div>
         <% } %>
 
         <% if(fotoList && fotoList.length > 0) { %>
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                <% fotoList.forEach((foto, index) => { %>
-                    <% 
-                    // Logika Server Side (EJS)
-                    let folder = 'anggota'; // Default fallback
-                    // Cek apakah ada di dataValues (Sequelize instance) atau properti langsung
-                    const kName = (foto.dataValues && foto.dataValues.kategoriName) ? foto.dataValues.kategoriName : (foto.kategoriName || '');
+            <div class="max-w-[1400px] mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8" id="galeri-grid">
+                <% fotoList.forEach((foto, index) => { 
+                    const vals = foto.dataValues || foto;
+                    const kName = vals.kategoriName || (vals.GroupFoto ? vals.GroupFoto.Nama : '');
+                    const folder = vals.folder || 'galeri';
+                    const fileName = vals.Foto;
+                    const deskripsi = vals.Deskripsi;
+                    const groupID = vals.ID_GroupFoto;
+                %>
                     
-                    if (kName) {
-                        const kategori = kName.toLowerCase();
-                        if (kategori.includes('kegiatan')) folder = 'kegiatan';
-                        else if (kategori.includes('produk')) folder = 'produk';
-                        else if (kategori.includes('galeri')) folder = 'galeri';
-                        else if (kategori.includes('prestasi')) folder = 'prestasi';
-                    }
-                    
-                    // Ambil nama file
-                    const fileName = (foto.dataValues && foto.dataValues.Foto) ? foto.dataValues.Foto : foto.Foto;
-                    const deskripsi = (foto.dataValues && foto.dataValues.Deskripsi) ? foto.dataValues.Deskripsi : foto.Deskripsi;
-                    const tanggal = (foto.dataValues && foto.dataValues.Tanggal) ? foto.dataValues.Tanggal : foto.Tanggal;
-                    %>
-                    
-                    <div class="galeri-item group relative aspect-[4/3] bg-surface rounded-2xl overflow-hidden shadow-lg border border-white/5 cursor-pointer hover:shadow-accent/20 transition-all duration-500" 
-                         data-category="<%= foto.ID_GroupFoto || (foto.dataValues && foto.dataValues.ID_GroupFoto) %>"
+                    <article class="galeri-item group relative aspect-[3/4] cursor-pointer" 
+                         data-category="<%= groupID %>"
                          data-index="<%= index %>"
                          onclick="openLightbox(this.dataset.index)">
                         
-                        <img src="/images/<%= folder %>/<%= fileName %>" 
-                             alt="<%= kName || 'Foto' %>" 
-                             loading="lazy"
-                             class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                             onerror="this.onerror=null;this.src='https://via.placeholder.com/400x300?text=Gambar+Rusak'">
-                        
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
+                        <div class="absolute inset-0 border border-deep/5 bg-sand/10 shadow-sm group-hover:shadow-elegant transition-all duration-700 group-hover:-translate-y-2 z-0"></div>
+
+                        <div class="absolute inset-2 overflow-hidden bg-sand/20 z-10">
+                            <img src="/images/<%= folder %>/<%= fileName %>" 
+                                 alt="<%= kName || 'Bausasran Gallery' %>" 
+                                 loading="lazy"
+                                 class="w-full h-full object-cover filter grayscale transition-transform duration-1500 ease-out group-hover:scale-110 group-hover:grayscale-0"
+                                 onerror="this.onerror=null;this.src='https://via.placeholder.com/400x500?text=Image+Unavailable'">
                             
-                            <% if (kName) { %>
-                                <span class="absolute top-4 left-4 px-3 py-1 bg-accent/90 text-main text-xs font-bold rounded-lg backdrop-blur-sm transform -translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 delay-100">
-                                    <%= kName %>
-                                </span>
-                            <% } %>
-
-                            <div class="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
-                                <h3 class="text-white font-bold text-lg leading-tight mb-1">
-                                    <%= deskripsi ? (deskripsi.length > 30 ? deskripsi.substring(0, 30) + '...' : deskripsi) : 'Dokumentasi' %>
-                                </h3>
-                                <% if (tanggal) { %>
-                                    <p class="text-accent text-xs font-medium">
-                                        <%= new Date(tanggal).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' }) %>
-                                    </p>
+                            <div class="absolute inset-0 bg-deep/60 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-center items-center p-6 text-center backdrop-blur-[1px]">
+                                
+                                <% if (kName) { %>
+                                    <span class="text-[8px] uppercase tracking-luxury text-gold mb-3 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500 delay-100 border-b border-gold/30 pb-1">
+                                        <%= kName %>
+                                    </span>
                                 <% } %>
-                            </div>
-                        </div>
 
-                        <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
-                            <div class="bg-white/10 backdrop-blur-md p-3 rounded-full border border-white/20">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
-                                </svg>
+                                <h3 class="font-serif text-lg text-paper italic mb-4 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500 delay-200 line-clamp-3 leading-relaxed">
+                                    "<%= deskripsi ? deskripsi : 'Lihat Detail' %>"
+                                </h3>
+
+                                <div class="mt-4 transform scale-50 opacity-0 group-hover:scale-100 group-hover:opacity-100 transition-all duration-500 delay-300">
+                                    <span class="inline-block border border-paper/30 rounded-full p-3 hover:bg-paper hover:text-deep transition-colors">
+                                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" /></svg>
+                                    </span>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    </article>
                 <% }) %>
             </div>
         <% } else { %>
-            <div class="text-center py-20 border-2 border-dashed border-white/10 rounded-2xl bg-surface/30">
-                <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-white/5 mb-6 text-muted">
-                    <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                    </svg>
-                </div>
-                <h3 class="text-xl font-semibold text-pale mb-2">Belum Ada Foto</h3>
-                <p class="text-muted">Galeri foto akan segera diperbarui.</p>
+            <div class="max-w-2xl mx-auto text-center py-32 border border-dashed border-deep/10 bg-sand/10 rounded-sm">
+                <span class="font-crest text-4xl text-deep/20 mb-4 block">∅</span>
+                <h3 class="font-crest text-xl text-deep mb-2">Arsip Kosong</h3>
+                <p class="font-serif italic text-charcoal/60 text-sm">Belum ada dokumentasi yang diunggah saat ini.</p>
             </div>
         <% } %>
     </main>
 
     <%- include('../partials/footer.ejs') %>
 
-    <div id="lightbox" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/95 backdrop-blur-xl opacity-0 transition-opacity duration-300" onclick="closeLightbox()">
+    <div id="lightbox" class="fixed inset-0 z-[100] hidden items-center justify-center bg-deep/98 backdrop-blur-md opacity-0 transition-opacity duration-500">
         
-        <div class="absolute top-0 left-0 w-full p-4 flex justify-between items-center z-20 bg-gradient-to-b from-black/80 to-transparent">
-            <span id="lightbox-counter" class="text-muted text-sm font-mono ml-2">1 / 10</span>
-            <button onclick="closeLightbox()" class="text-white hover:text-accent p-2 rounded-full hover:bg-white/10 transition-colors cursor-pointer">
-                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                </svg>
+        <div class="absolute top-0 left-0 w-full p-6 flex justify-between items-center z-50">
+            <span id="lightbox-counter" class="font-sans text-[10px] uppercase tracking-widest text-gold ml-2 border border-gold/30 px-3 py-1 bg-deep/50 backdrop-blur-sm"></span>
+            <button onclick="closeLightbox()" class="text-paper hover:text-gold p-2 transition-transform hover:rotate-90 duration-300 cursor-pointer">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M6 18L18 6M6 6l12 12"></path></svg>
             </button>
         </div>
 
-        <div class="relative max-w-6xl w-full mx-4 h-full max-h-[85vh] flex flex-col items-center justify-center" onclick="event.stopPropagation()">
+        <div class="relative w-full h-full flex items-center justify-center" onclick="closeLightbox()">
             
-            <img id="lightbox-img" src="" alt="" 
-                 class="max-w-full max-h-[70vh] md:max-h-[80vh] object-contain shadow-2xl rounded-lg border border-white/10"
-                 onerror="this.onerror=null;this.src='https://via.placeholder.com/800x600?text=Foto+Tidak+Ditemukan'">
-            
-            <div class="mt-4 text-center max-w-2xl px-4">
-                <h3 id="lightbox-desc" class="text-xl font-bold text-pale mb-1"></h3>
-                <p id="lightbox-date" class="text-accent text-sm"></p>
+            <button onclick="navigateLightbox(-1); event.stopPropagation()" class="absolute left-2 md:left-8 text-paper/30 hover:text-gold transition-colors p-4 hidden md:block group z-50">
+                <span class="font-crest text-5xl group-hover:-translate-x-2 transition-transform block">&larr;</span>
+            </button>
+
+            <div class="relative w-full h-full flex flex-col justify-center items-center" onclick="event.stopPropagation()">
+                
+                <div class="relative flex-grow flex items-center justify-center w-full px-4 md:px-20 pb-32 md:pb-24 pt-12">
+                    <img id="lightbox-img" src="" alt="" 
+                         class="max-h-full max-w-full object-contain shadow-2xl transition-opacity duration-300 opacity-0 select-none"
+                         onload="this.style.opacity=1">
+                </div>
+
+                <div class="absolute bottom-0 left-0 w-full bg-gradient-to-t from-deep via-deep/95 to-transparent pt-32 pb-10 px-6 z-40 pointer-events-none">
+                    <div class="max-w-4xl mx-auto text-center pointer-events-auto">
+                        
+                        <div class="flex items-center justify-center gap-4 mb-4">
+                            <span id="lightbox-category" class="inline-block px-3 py-1 border border-gold/40 text-gold text-[9px] uppercase tracking-widest font-bold bg-deep/50 backdrop-blur-sm"></span>
+                            <span class="text-deep/40 hidden md:inline">|</span>
+                            <span id="lightbox-date" class="text-sand/60 text-[10px] uppercase tracking-luxury font-sans"></span>
+                        </div>
+
+                        <div class="relative inline-block">
+                            <span class="absolute -top-4 -left-6 text-4xl text-gold/20 font-serif">“</span>
+                            <p id="lightbox-desc" class="font-serif text-lg md:text-2xl text-paper leading-relaxed italic drop-shadow-md max-w-3xl mx-auto"></p>
+                            <span class="absolute -bottom-4 -right-6 text-4xl text-gold/20 font-serif">”</span>
+                        </div>
+
+                    </div>
+                </div>
+
             </div>
 
-            <button onclick="navigateLightbox(-1); event.stopPropagation()" class="absolute left-2 md:-left-12 top-1/2 transform -translate-y-1/2 text-white hover:text-accent p-3 rounded-full bg-black/50 hover:bg-white/10 transition-all border border-white/10 cursor-pointer">
-                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
-            </button>
-            <button onclick="navigateLightbox(1); event.stopPropagation()" class="absolute right-2 md:-right-12 top-1/2 transform -translate-y-1/2 text-white hover:text-accent p-3 rounded-full bg-black/50 hover:bg-white/10 transition-all border border-white/10 cursor-pointer">
-                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+            <button onclick="navigateLightbox(1); event.stopPropagation()" class="absolute right-2 md:right-8 text-paper/30 hover:text-gold transition-colors p-4 hidden md:block group z-50">
+                <span class="font-crest text-5xl group-hover:translate-x-2 transition-transform block">&rarr;</span>
             </button>
         </div>
     </div>
@@ -184,58 +229,83 @@
     </script>
 
     <script>
+        // 1. Initialize Smooth Scroll
+        const lenis = new Lenis({ duration: 1.2, easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), direction: 'vertical', smooth: true });
+        function raf(time) { lenis.raf(time); requestAnimationFrame(raf); }
+        requestAnimationFrame(raf);
+
+        // 2. Data Initialization
         let currentImageIndex = 0;
         let fotoData = [];
+        let isFilterExpanded = false;
         
-        // Parse data from JSON safely
         try {
             const dataElement = document.getElementById('foto-data');
             if (dataElement && dataElement.textContent) {
                 fotoData = JSON.parse(dataElement.textContent);
             }
-        } catch (e) {
-            console.error('Error parsing foto data:', e);
-        }
+        } catch (e) { console.error('Data parsing error:', e); }
 
-        // --- FILTER FUNCTION ---
+        // 3. Filter Logic (TETAP SAMA)
         function filterGaleri(category) {
             const items = document.querySelectorAll('.galeri-item');
             const buttons = document.querySelectorAll('.filter-btn');
             
-            // Update Button Styles
             buttons.forEach(btn => {
-                btn.classList.remove('bg-accent', 'text-main', 'border-accent', 'shadow-[0_0_15px_rgba(131,197,64,0.3)]');
-                btn.classList.add('bg-surface', 'text-muted', 'border-white/10');
+                btn.classList.remove('bg-deep', 'text-paper', 'border-deep');
+                btn.classList.add('bg-transparent', 'text-deep/60', 'border-deep/10');
             });
 
-            // Set Active Style
-            const activeBtnID = category === 'all' ? 'btn-all' : `btn-${category}`;
-            const activeBtn = document.getElementById(activeBtnID);
+            const activeBtn = document.getElementById(category === 'all' ? 'btn-all' : `btn-${category}`);
             if(activeBtn) {
-                activeBtn.classList.remove('bg-surface', 'text-muted', 'border-white/10');
-                activeBtn.classList.add('bg-accent', 'text-main', 'border-accent', 'shadow-[0_0_15px_rgba(131,197,64,0.3)]');
+                activeBtn.classList.remove('bg-transparent', 'text-deep/60', 'border-deep/10');
+                activeBtn.classList.add('bg-deep', 'text-paper', 'border-deep');
             }
             
-            // Filter Items
             items.forEach(item => {
                 if (category === 'all' || item.dataset.category === category) {
-                    item.classList.remove('hidden');
-                    // Reset animation
-                    item.style.animation = 'none';
-                    item.offsetHeight; /* trigger reflow */
-                    item.style.animation = null; 
-                    
-                    item.animate([
-                        { opacity: 0, transform: 'scale(0.95)' },
-                        { opacity: 1, transform: 'scale(1)' }
-                    ], { duration: 300, fill: 'forwards' });
+                    item.style.display = 'block';
+                    requestAnimationFrame(() => {
+                        item.style.opacity = '1';
+                        item.style.transform = 'translateY(0)';
+                    });
                 } else {
-                    item.classList.add('hidden');
+                    item.style.opacity = '0';
+                    item.style.transform = 'translateY(10px)';
+                    setTimeout(() => { item.style.display = 'none'; }, 300);
                 }
             });
         }
 
-        // --- LIGHTBOX FUNCTIONS ---
+        // 4. Toggle "View More" (TETAP SAMA)
+        function toggleFilters() {
+            const extraFilters = document.querySelectorAll('.extra-filter');
+            const toggleBtn = document.getElementById('btn-toggle-more');
+            const toggleTextSpan = toggleBtn ? toggleBtn.querySelector('span') : null;
+            const toggleIcon = toggleBtn ? toggleBtn.querySelector('span:last-child') : null;
+            
+            isFilterExpanded = !isFilterExpanded;
+
+            extraFilters.forEach((btn, index) => {
+                if (isFilterExpanded) {
+                    btn.classList.remove('hidden');
+                    btn.animate([
+                        { opacity: 0, transform: 'translateY(-5px)' },
+                        { opacity: 1, transform: 'translateY(0)' }
+                    ], { duration: 300, delay: index * 30, fill: 'forwards' });
+                } else {
+                    btn.classList.add('hidden');
+                }
+            });
+
+            if (toggleBtn && toggleTextSpan) {
+                const hiddenCount = <%= (groupFotoList && groupFotoList.length) ? groupFotoList.length - 5 : 0 %>;
+                toggleTextSpan.innerText = isFilterExpanded ? "Tutup Kategori" : `Lihat Kategori Lainnya (${hiddenCount})`;
+                if(toggleIcon) toggleIcon.style.transform = isFilterExpanded ? "rotate(180deg)" : "rotate(0deg)";
+            }
+        }
+
+        // 5. Lightbox Logic (UPDATED: Menampilkan Semua Parameter)
         const lightbox = document.getElementById('lightbox');
         const img = document.getElementById('lightbox-img');
 
@@ -243,81 +313,73 @@
             currentImageIndex = parseInt(index);
             updateLightboxContent();
             
-            lightbox.classList.remove('hidden', 'opacity-0');
+            lightbox.classList.remove('hidden');
+            void lightbox.offsetWidth; // Force reflow
+            lightbox.classList.remove('opacity-0');
             lightbox.classList.add('flex', 'opacity-100');
+            
             document.body.classList.add('no-scroll');
         }
 
         function closeLightbox() {
+            lightbox.classList.remove('opacity-100');
             lightbox.classList.add('opacity-0');
             setTimeout(() => {
                 lightbox.classList.add('hidden');
                 lightbox.classList.remove('flex');
-                img.src = ""; // Clear src to stop loading
-            }, 300);
+                img.src = ""; // Clear memory
+            }, 500);
             document.body.classList.remove('no-scroll');
         }
 
         function navigateLightbox(direction) {
+            if (fotoData.length === 0) return;
             currentImageIndex = (currentImageIndex + direction + fotoData.length) % fotoData.length;
-            updateLightboxContent();
+            
+            // Animasi transisi konten
+            img.style.opacity = '0.5';
+            document.getElementById('lightbox-desc').style.opacity = '0';
+            
+            setTimeout(() => {
+                updateLightboxContent();
+                img.style.opacity = '1';
+                document.getElementById('lightbox-desc').style.opacity = '1';
+            }, 150);
         }
 
         function updateLightboxContent() {
             if (!fotoData || fotoData.length === 0) return;
             
-            const foto = fotoData[currentImageIndex];
+            const raw = fotoData[currentImageIndex];
+            const data = raw.dataValues || raw;
+            const folder = data.folder || 'galeri';
             
-            // --- PERBAIKAN LOGIKA DISINI ---
-            // Cek properti langsung (setelah JSON.stringify) ATAU dataValues (jika ada)
-            let rawKategori = foto.kategoriName || (foto.dataValues ? foto.dataValues.kategoriName : '');
-            let rawFoto = foto.Foto || (foto.dataValues ? foto.dataValues.Foto : '');
-            let rawDeskripsi = foto.Deskripsi || (foto.dataValues ? foto.dataValues.Deskripsi : 'Dokumentasi');
-            let rawTanggal = foto.Tanggal || (foto.dataValues ? foto.dataValues.Tanggal : null);
-
-            // Tentukan folder
-            let folder = 'anggota'; // Default
-            if (rawKategori) {
-                const k = rawKategori.toLowerCase();
-                if (k.includes('kegiatan')) folder = 'kegiatan';
-                else if (k.includes('produk')) folder = 'produk';
-                else if (k.includes('galeri')) folder = 'galeri';
-            }
+            // Set Image
+            img.src = `/images/${folder}/${data.Foto}`;
             
-            // Update Image
-            img.style.opacity = '0.5';
+            // Set Deskripsi
+            const descEl = document.getElementById('lightbox-desc');
+            descEl.textContent = data.Deskripsi || "Dokumentasi Bausasran Heritage";
             
-            // Pastikan path image benar
-            const finalSrc = `/images/${folder}/${rawFoto}`;
-            img.src = finalSrc;
-            
-            // Efek smooth saat gambar load
-            img.onload = () => { img.style.opacity = '1'; };
-            
-            // Fallback jika error (handled juga di HTML tag onerror)
-            img.onerror = () => { 
-                console.log("Gagal memuat:", finalSrc);
-                img.style.opacity = '1'; 
-            };
-
-            // Update Texts
-            document.getElementById('lightbox-desc').textContent = rawDeskripsi;
-            
-            if (rawTanggal) {
-                const date = new Date(rawTanggal).toLocaleDateString('id-ID', { 
-                    year: 'numeric', month: 'long', day: 'numeric' 
-                });
-                document.getElementById('lightbox-date').textContent = date;
+            // Set Tanggal
+            const dateEl = document.getElementById('lightbox-date');
+            if (data.Tanggal) {
+                dateEl.textContent = new Date(data.Tanggal).toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
             } else {
-                document.getElementById('lightbox-date').textContent = '';
+                dateEl.textContent = '-';
             }
 
-            // Update Counter
-            document.getElementById('lightbox-counter').textContent = `${currentImageIndex + 1} / ${fotoData.length}`;
+            // Set Kategori / Album
+            const catEl = document.getElementById('lightbox-category');
+            const categoryName = data.kategoriName || (data.GroupFoto ? data.GroupFoto.Nama : 'Galeri Umum');
+            catEl.textContent = categoryName;
+
+            // Set Counter
+            document.getElementById('lightbox-counter').textContent = `FOTO ${currentImageIndex + 1} / ${fotoData.length}`;
         }
 
-        // Keyboard Listener
-        document.addEventListener('keydown', function(e) {
+        // Keyboard Navigation
+        document.addEventListener('keydown', (e) => {
             if (!lightbox.classList.contains('hidden')) {
                 if (e.key === 'ArrowLeft') navigateLightbox(-1);
                 if (e.key === 'ArrowRight') navigateLightbox(1);
@@ -325,6 +387,5 @@
             }
         });
     </script>
-
 </body>
 </html>

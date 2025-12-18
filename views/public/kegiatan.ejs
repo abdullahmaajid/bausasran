@@ -3,197 +3,245 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daftar Kegiatan - Bausasran</title>
+    <title>Agenda & Kegiatan - Bausasran Heritage</title>
     
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Lato:wght@300;400;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.jsdelivr.net/gh/studio-freight/lenis@1.0.29/bundled/lenis.min.js"></script>
+
     <script src="https://cdn.tailwindcss.com"></script>
+
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        main: '#003024',    // Background Gelap
-                        surface: '#004030', // Warna Kartu
-                        accent: '#83C540',  // Hijau Neon
-                        pale: '#F5FEF9',    // Teks Putih
-                        muted: '#A3C2B8',   // Teks Pudar
+                        paper: '#F9F7F2',       // Cream Background (Dominan)
+                        deep: '#0F1F18',        // Dark Green (Teks Utama)
+                        gold: '#C5B388',        // Gold (Aksen Mewah)
+                        charcoal: '#4A4A4A',    // Teks Sekunder
+                        linen: '#EBE9E4',       // Background Kartu/Placeholder
                     },
-                    fontFamily: { sans: ['Inter', 'sans-serif'] }
+                    fontFamily: {
+                        sans: ['Lato', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                        crest: ['Cinzel', 'serif'], 
+                    },
+                    letterSpacing: {
+                        'luxury': '0.2em',
+                        'widest': '0.3em',
+                    },
+                    transitionDuration: {
+                        '1500': '1500ms',       // Untuk efek hover lambat
+                    }
                 }
             }
         }
     </script>
+
     <style type="text/tailwindcss">
-        @layer base { body { @apply bg-main text-pale font-sans antialiased; } }
+        @layer base {
+            body {
+                @apply bg-paper text-deep font-sans antialiased selection:bg-deep selection:text-paper;
+                overscroll-behavior: none; 
+            }
+        }
+
+        /* TEXTURE OVERLAY: Memberikan kesan kertas tua/film grain */
+        .noise-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.04'/%3E%3C/svg%3E");
+            pointer-events: none; z-index: 9999; mix-blend-mode: multiply;
+        }
+
+        /* FILTER BUTTON STYLE */
+        .filter-btn {
+            @apply transition-all duration-500 ease-out;
+        }
+        .filter-btn.active {
+            @apply bg-deep text-paper border-deep;
+        }
+        
+        /* CARD HOVER ANIMATION */
+        .card-hover-effect .card-img {
+            @apply grayscale transition-all duration-1500 ease-out;
+        }
+        .card-hover-effect:hover .card-img {
+            @apply scale-105 grayscale-0;
+        }
     </style>
 </head>
 
-<body class="flex flex-col min-h-screen">
+<body class="flex flex-col min-h-screen relative">
+
+    <div class="noise-overlay"></div>
 
     <%- include('../partials/navbar.ejs') %>
 
-    <main class="container mx-auto px-4 py-12 flex-grow">
+    <main class="flex-grow pt-40 pb-24 px-6 relative z-10">
         
         <%- include('../partials/flash.ejs') %>
 
-        <div class="text-center mb-12">
-            <h1 class="text-4xl md:text-5xl font-bold text-pale mb-4">
-                Kegiatan <span class="text-accent">Kami</span>
-            </h1>
-            <p class="text-lg text-muted max-w-2xl mx-auto">
-                Ikuti berbagai agenda menarik, pelatihan, dan festival budaya yang diselenggarakan di Kampung Wisata Bausasran.
+        <div class="max-w-7xl mx-auto text-center mb-20 animate-[fadeIn_1.5s]">
+            <span class="font-sans text-[10px] uppercase tracking-widest text-gold mb-4 block">Archive & Future</span>
+            <h1 class="font-crest text-4xl md:text-6xl text-deep mb-6 leading-none">Agenda Desa</h1>
+            <p class="font-serif italic text-lg md:text-xl text-charcoal/70 max-w-2xl mx-auto leading-relaxed">
+                "Menelusuri jejak kegiatan lampau dan menyambut agenda mendatang di Kampung Wisata Bausasran."
             </p>
+            <div class="w-[1px] h-16 bg-deep/10 mx-auto mt-10"></div>
         </div>
 
-        <div class="flex justify-center mb-10">
-            <div class="inline-flex rounded-xl bg-surface border border-white/10 p-1.5 shadow-lg">
+        <div class="max-w-7xl mx-auto mb-16 text-center">
+            <div class="inline-flex gap-4 flex-wrap justify-center p-2 border-b border-deep/5 pb-8">
                 <button onclick="filterKegiatan('all')" id="btnAll" 
-                    class="filter-btn active px-6 py-2 rounded-lg text-sm font-bold transition-all duration-300">
+                    class="filter-btn active px-8 py-3 text-[10px] uppercase tracking-widest border border-deep/10 text-deep hover:border-gold rounded-sm">
                     Semua
                 </button>
                 <button onclick="filterKegiatan('upcoming')" id="btnUpcoming" 
-                    class="filter-btn px-6 py-2 rounded-lg text-sm font-bold transition-all duration-300">
+                    class="filter-btn px-8 py-3 text-[10px] uppercase tracking-widest border border-deep/10 text-deep hover:border-gold rounded-sm">
                     Akan Datang
                 </button>
                 <button onclick="filterKegiatan('past')" id="btnPast" 
-                    class="filter-btn px-6 py-2 rounded-lg text-sm font-bold transition-all duration-300">
+                    class="filter-btn px-8 py-3 text-[10px] uppercase tracking-widest border border-deep/10 text-deep hover:border-gold rounded-sm">
                     Selesai
                 </button>
             </div>
         </div>
 
-        <% if(kegiatanList && kegiatanList.length > 0) { %>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" id="kegiatanGrid">
-                <% kegiatanList.forEach(kegiatan => { 
-                    // 1. Tentukan Status
-                    let isUpcoming = new Date(kegiatan.Tanggal) >= new Date();
-                    let statusFilter = isUpcoming ? 'upcoming' : 'past';
-                    if(kegiatan.Status && kegiatan.Status.toLowerCase() === 'upcoming') {
-                         statusFilter = 'upcoming'; 
-                         isUpcoming = true;
-                    }
+        <div class="max-w-7xl mx-auto">
+            <% if(kegiatanList && kegiatanList.length > 0) { %>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-10 gap-y-20">
+                    <% kegiatanList.forEach(kegiatan => { 
+                        // 1. Status Logic
+                        let isUpcoming = new Date(kegiatan.Tanggal) >= new Date();
+                        let statusFilter = isUpcoming ? 'upcoming' : 'past';
+                        // Override if specific status exists
+                        if(kegiatan.Status && kegiatan.Status.toLowerCase() === 'upcoming') {
+                             statusFilter = 'upcoming'; 
+                             isUpcoming = true;
+                        }
 
-                    // 2. LOGIKA PENCARIAN GAMBAR (SMART CHECK)
-                    // Kode ini mencari nama file di 3 kemungkinan lokasi variabel
-                    let namaFile = null;
-
-                    // Cek 1: Apakah ada di dataValues (seperti di Admin)?
-                    if (kegiatan.dataValues && kegiatan.dataValues.thumbnailFile) {
-                        namaFile = kegiatan.dataValues.thumbnailFile;
-                    } 
-                    // Cek 2: Apakah ada sebagai property langsung (thumbnailFile)?
-                    else if (kegiatan.thumbnailFile) {
-                        namaFile = kegiatan.thumbnailFile;
-                    } 
-                    // Cek 3: Apakah ada di kolom standar 'Foto'?
-                    else if (kegiatan.Foto) {
-                        namaFile = kegiatan.Foto;
-                    }
-
-                    // Tentukan URL Akhir
-                    let fotoUrl = namaFile 
-                        ? '/images/kegiatan/' + namaFile 
-                        : `https://placehold.co/600x400/004030/FFF?text=${encodeURIComponent(kegiatan.Judul)}`;
-                %>
-                    <article class="kegiatan-card group bg-surface border border-white/5 rounded-2xl overflow-hidden shadow-lg hover:shadow-accent/20 transition-all duration-300 hover:-translate-y-1 flex flex-col h-full" 
-                             data-status="<%= statusFilter %>">
-                        
-                        <div class="relative h-52 overflow-hidden bg-black/20">
-                            <img 
-                                src="<%= (kegiatan.photos && kegiatan.photos.length > 0) ? '/images/kegiatan/' + kegiatan.photos[0].Foto : 'https://via.placeholder.com/400x250?text=' + encodeURIComponent(kegiatan.Judul) %>"  
-                                alt="<%= kegiatan.Judul %>" 
-                                class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                                onerror="this.onerror=null; this.src='https://placehold.co/600x400/004030/FFF?text=Image+Not+Found';"
-                            >
+                        // 2. Image Logic (Priority: thumbnailFile -> photos array -> placeholder)
+                        let namaFile = null;
+                        if (kegiatan.dataValues && kegiatan.dataValues.thumbnailFile) {
+                            namaFile = kegiatan.dataValues.thumbnailFile;
+                        } else if (kegiatan.thumbnailFile) {
+                            namaFile = kegiatan.thumbnailFile;
+                        } else if (kegiatan.photos && kegiatan.photos.length > 0) {
+                            namaFile = kegiatan.photos[0].Foto;
+                        }
+                    %>
+                        <article class="kegiatan-card group flex flex-col" data-status="<%= statusFilter %>">
                             
-                            <span class="absolute top-4 right-4 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider shadow-sm
-                                <%= isUpcoming ? 'bg-accent text-main' : 'bg-white/10 text-muted border border-white/10' %>">
-                                <%= isUpcoming ? 'Akan Datang' : 'Selesai' %>
-                            </span>
-                        </div>
-
-                        <div class="p-6 flex flex-col flex-grow">
-                            <div class="flex items-center text-sm text-accent mb-3 font-medium">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                </svg>
-                                <%= new Date(kegiatan.Tanggal).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) %>
-                            </div>
-
-                            <h3 class="text-xl font-bold text-pale mb-3 line-clamp-2 group-hover:text-accent transition-colors">
-                                <%= kegiatan.Judul %>
-                            </h3>
-
-                            <% if (kegiatan.Lokasi) { %>
-                                <div class="flex items-center text-sm text-muted mb-4">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2 text-accent/70" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                                    </svg>
-                                    <span class="truncate"><%= kegiatan.Lokasi %></span>
+                            <a href="/kegiatan/<%= kegiatan.ID_Kegiatan %>" class="card-hover-effect relative aspect-[4/3] overflow-hidden bg-linen mb-8 border border-deep/5 shadow-sm">
+                                <img 
+                                    src="<%= namaFile ? '/images/kegiatan/' + namaFile : 'https://via.placeholder.com/600x400?text=' + encodeURIComponent(kegiatan.Judul) %>"  
+                                    alt="<%= kegiatan.Judul %>" 
+                                    class="card-img w-full h-full object-cover transform"
+                                    onerror="this.onerror=null; this.src='https://via.placeholder.com/600x400?text=No+Image';"
+                                >
+                                
+                                <div class="absolute top-4 left-4 z-20">
+                                    <span class="px-4 py-1.5 text-[9px] uppercase tracking-widest font-bold border backdrop-blur-md
+                                        <%= isUpcoming ? 'bg-deep/90 text-gold border-gold' : 'bg-paper/90 text-deep border-deep/20' %>">
+                                        <%= isUpcoming ? 'Upcoming' : 'Finished' %>
+                                    </span>
                                 </div>
-                            <% } %>
-
-                            <% if (kegiatan.Deskripsi) { %>
-                                <p class="text-muted text-sm line-clamp-3 mb-6 flex-grow border-l-2 border-white/5 pl-3">
-                                    <%= kegiatan.Deskripsi %>
-                                </p>
-                            <% } else { %>
-                                <div class="flex-grow"></div>
-                            <% } %>
-
-                            <a href="/kegiatan/<%= kegiatan.ID_Kegiatan %>" class="block w-full text-center bg-transparent border border-accent text-accent hover:bg-accent hover:text-main font-bold py-2.5 px-4 rounded-lg transition-all duration-300">
-                                Lihat Detail
                             </a>
-                        </div>
-                    </article>
-                <% }) %>
-            </div>
-        <% } else { %>
-            <div class="text-center py-20 border-2 border-dashed border-white/10 rounded-2xl bg-surface/30">
-                <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-white/5 mb-6 text-muted">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                    </svg>
+
+                            <div class="flex flex-col flex-grow text-center px-2">
+                                <div class="mb-4">
+                                    <span class="font-sans text-[10px] uppercase tracking-widest text-gold border-b border-gold/30 pb-1">
+                                        <%= new Date(kegiatan.Tanggal).toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) %>
+                                    </span>
+                                </div>
+
+                                <h3 class="font-serif text-2xl md:text-3xl text-deep mb-4 leading-tight group-hover:text-gold transition-colors duration-300">
+                                    <a href="/kegiatan/<%= kegiatan.ID_Kegiatan %>">
+                                        <%= kegiatan.Judul %>
+                                    </a>
+                                </h3>
+
+                                <% if (kegiatan.Lokasi) { %>
+                                    <p class="text-[10px] uppercase tracking-widest text-charcoal/50 mb-6 flex justify-center items-center gap-3">
+                                        <span class="w-1 h-1 bg-gold rounded-full"></span>
+                                        <%= kegiatan.Lokasi %>
+                                        <span class="w-1 h-1 bg-gold rounded-full"></span>
+                                    </p>
+                                <% } %>
+
+                                <div class="mt-auto w-full pt-6 border-t border-deep/5">
+                                    <a href="/kegiatan/<%= kegiatan.ID_Kegiatan %>" class="inline-flex items-center text-[9px] uppercase tracking-luxury text-deep hover:text-gold transition-colors font-bold">
+                                        Baca Selengkapnya <span class="ml-2 font-serif italic text-lg">&rarr;</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </article>
+                    <% }) %>
                 </div>
-                <h3 class="text-xl font-bold text-pale mb-2">Belum Ada Kegiatan</h3>
-                <p class="text-muted">Saat ini belum ada data kegiatan yang tersedia.</p>
-            </div>
-        <% } %>
+            <% } else { %>
+                <div class="max-w-2xl mx-auto text-center py-32 border border-dashed border-deep/10 bg-linen/20 rounded-sm">
+                    <span class="font-crest text-4xl text-deep/20 mb-4 block">∅</span>
+                    <p class="font-crest text-xl text-deep mb-2">Arsip Kosong</p>
+                    <p class="font-serif italic text-charcoal/50 text-sm">Belum ada agenda kegiatan yang tercatat saat ini.</p>
+                </div>
+            <% } %>
+        </div>
     </main>
 
     <%- include('../partials/footer.ejs') %>
 
     <script>
+        // 1. Initialize Smooth Scroll (Lenis)
+        const lenis = new Lenis({
+            duration: 1.2,
+            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), 
+            direction: 'vertical',
+            smooth: true,
+        });
+        function raf(time) {
+            lenis.raf(time);
+            requestAnimationFrame(raf);
+        }
+        requestAnimationFrame(raf);
+
+        // 2. Filter Logic
         function filterKegiatan(status) {
             const cards = document.querySelectorAll('.kegiatan-card');
             const btns = document.querySelectorAll('.filter-btn');
             
-            // 1. Reset & Set Active Button
-            btns.forEach(btn => {
-                btn.classList.remove('bg-accent', 'text-main');
-                btn.classList.add('text-muted', 'hover:text-pale', 'hover:bg-white/5');
-            });
+            // Reset Button Styles
+            btns.forEach(btn => btn.classList.remove('active'));
 
+            // Activate Clicked Button
             const activeBtnId = status === 'all' ? 'btnAll' : (status === 'upcoming' ? 'btnUpcoming' : 'btnPast');
             const activeBtn = document.getElementById(activeBtnId);
-            
-            if(activeBtn) {
-                activeBtn.classList.remove('text-muted', 'hover:text-pale', 'hover:bg-white/5');
-                activeBtn.classList.add('bg-accent', 'text-main');
-            }
+            if(activeBtn) activeBtn.classList.add('active');
 
-            // 2. Filter Cards
+            // Filter Cards with Animation
             cards.forEach(card => {
                 const cardStatus = card.getAttribute('data-status');
+                
                 if (status === 'all' || cardStatus === status) {
                     card.style.display = 'flex';
+                    // Trigger reflow/animation
+                    card.style.opacity = '0';
+                    card.style.transform = 'translateY(20px)';
+                    
+                    requestAnimationFrame(() => {
+                        card.style.transition = 'all 0.6s ease-out';
+                        card.style.opacity = '1';
+                        card.style.transform = 'translateY(0)';
+                    });
                 } else {
                     card.style.display = 'none';
                 }
             });
         }
 
-        // Init
+        // Run filter 'all' on load
         document.addEventListener("DOMContentLoaded", () => {
             filterKegiatan('all');
         });

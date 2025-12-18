@@ -3,7 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Bausasran</title>
+    <title>Login - Bausasran Heritage</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Lato:wght@300;400;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
     
     <script src="https://cdn.tailwindcss.com"></script>
 
@@ -12,17 +16,25 @@
             theme: {
                 extend: {
                     colors: {
-                        main: '#003024',    // Background Gelap
-                        surface: '#004030', // Warna Kartu
-                        accent: '#83C540',  // Hijau Neon
-                        pale: '#F5FEF9',    // Teks Putih
-                        muted: '#A3C2B8',   // Teks Pudar
+                        paper: '#F9F7F2',       // Cream Background
+                        deep: '#0F1F18',        // Dark Green (Primary)
+                        gold: '#C5B388',        // Luxury Accent
+                        charcoal: '#4A4A4A',    // Text
+                        sand: '#E5E0D8',        // Border/Secondary
+                        white: '#FFFFFF',
                     },
                     fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
+                        sans: ['Lato', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                        crest: ['Cinzel', 'serif'], 
+                    },
+                    letterSpacing: {
+                        'luxury': '0.2em',
+                        'widest': '0.3em',
                     },
                     boxShadow: {
-                        'neon': '0 0 15px rgba(131, 197, 64, 0.3)',
+                        'elegant': '0 20px 40px -10px rgba(15, 31, 24, 0.1)',
+                        'sharp': '5px 5px 0px 0px rgba(197, 179, 136, 0.3)',
                     }
                 }
             }
@@ -32,121 +44,114 @@
     <style type="text/tailwindcss">
         @layer base {
             body {
-                @apply bg-main text-pale font-sans antialiased;
+                @apply bg-paper text-deep font-sans antialiased selection:bg-deep selection:text-paper;
+            }
+            input:-webkit-autofill,
+            input:-webkit-autofill:hover, 
+            input:-webkit-autofill:focus, 
+            input:-webkit-autofill:active{
+                -webkit-box-shadow: 0 0 0 30px #FFFFFF inset !important;
+                -webkit-text-fill-color: #0F1F18 !important;
+                transition: background-color 5000s ease-in-out 0s;
             }
         }
-        /* Custom autofill style for dark mode */
-        input:-webkit-autofill,
-        input:-webkit-autofill:hover, 
-        input:-webkit-autofill:focus, 
-        input:-webkit-autofill:active{
-            -webkit-box-shadow: 0 0 0 30px #003024 inset !important;
-            -webkit-text-fill-color: #F5FEF9 !important;
-            transition: background-color 5000s ease-in-out 0s;
+        
+        /* TEXTURE OVERLAY */
+        .noise-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.04'/%3E%3C/svg%3E");
+            pointer-events: none; z-index: 9999; mix-blend-mode: multiply;
         }
     </style>
 </head>
 
-<body class="flex flex-col min-h-screen relative overflow-x-hidden">
+<body class="flex flex-col min-h-screen relative overflow-x-hidden justify-center">
 
-    <div class="fixed top-0 left-0 w-full h-full overflow-hidden -z-10 pointer-events-none">
-        <div class="absolute -top-[20%] -left-[10%] w-[50%] h-[50%] bg-accent/10 rounded-full blur-[100px]"></div>
-        <div class="absolute top-[40%] right-[10%] w-[30%] h-[30%] bg-surface rounded-full blur-[80px]"></div>
-    </div>
+    <div class="noise-overlay"></div>
 
+    <div class="fixed top-0 left-0 w-64 h-64 bg-gold/10 rounded-full blur-[80px] -translate-x-1/2 -translate-y-1/2 pointer-events-none"></div>
+    <div class="fixed bottom-0 right-0 w-96 h-96 bg-deep/5 rounded-full blur-[100px] translate-x-1/3 translate-y-1/3 pointer-events-none"></div>
 
-
-    <main class="container mx-auto px-4 flex-grow flex items-center justify-center py-12">
+    <main class="container mx-auto px-4 relative z-10 py-12">
         
-        <div class="w-full max-w-md">
+        <div class="w-full max-w-md mx-auto">
             
             <%- include('../partials/flash.ejs') %>
 
-            <div class="bg-surface p-8 md:p-10 rounded-3xl shadow-2xl border border-white/10 relative overflow-hidden backdrop-blur-sm">
-                
-                <div class="text-center mb-8">
-                    <h1 class="text-3xl font-bold text-pale mb-2">Selamat Datang</h1>
-                    <p class="text-muted text-sm">Masuk untuk mengakses dasbor Bausasran.</p>
+            <div class="bg-white border border-deep/10 p-8 md:p-12 shadow-elegant relative overflow-hidden animate-[fadeIn_0.8s]">
+                <div class="absolute top-0 left-0 w-full h-1 bg-gold"></div>
+
+                <div class="text-center mb-10">
+                    <span class="font-crest text-4xl text-deep mb-2 block">✦</span>
+                    <h1 class="font-crest text-2xl md:text-3xl text-deep mb-2">Selamat Datang</h1>
+                    <p class="font-serif italic text-charcoal/60 text-sm">Masuk untuk mengakses dasbor admin.</p>
                 </div>
 
                 <form action="/login" method="POST" class="space-y-6">
                     
-                    <div>
-                        <label for="username" class="block text-sm font-medium text-muted mb-2 ml-1">Username</label>
-                        <div class="relative group">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <svg class="h-5 w-5 text-muted group-focus-within:text-accent transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                                </svg>
-                            </div>
+                    <div class="group">
+                        <label for="username" class="block text-[9px] uppercase tracking-widest text-deep/40 mb-2 font-bold group-focus-within:text-gold transition-colors">Username</label>
+                        <div class="relative">
                             <input type="text" id="username" name="username" 
-                                class="block w-full pl-10 pr-3 py-3 bg-main border border-white/10 rounded-xl text-pale placeholder-gray-500 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-300 sm:text-sm" 
-                                placeholder="Masukkan username" required>
+                                class="block w-full px-4 py-3 bg-paper border border-deep/10 text-deep font-serif placeholder-deep/20 focus:outline-none focus:border-gold focus:bg-white transition-all duration-300" 
+                                placeholder="nama.pengguna" required>
+                            <div class="absolute right-3 top-1/2 -translate-y-1/2 text-deep/20">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                            </div>
                         </div>
                     </div>
                     
-                    <div>
-                        <label for="password" class="block text-sm font-medium text-muted mb-2 ml-1">Password</label>
-                        <div class="relative group">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <svg class="h-5 w-5 text-muted group-focus-within:text-accent transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                                </svg>
-                            </div>
+                    <div class="group">
+                        <div class="flex justify-between items-center mb-2">
+                            <label for="password" class="block text-[9px] uppercase tracking-widest text-deep/40 font-bold group-focus-within:text-gold transition-colors">Password</label>
+                        </div>
+                        <div class="relative">
                             <input type="password" id="password" name="password" 
-                                class="block w-full pl-10 pr-10 py-3 bg-main border border-white/10 rounded-xl text-pale placeholder-gray-500 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-300 sm:text-sm" 
+                                class="block w-full px-4 py-3 bg-paper border border-deep/10 text-deep font-serif placeholder-deep/20 focus:outline-none focus:border-gold focus:bg-white transition-all duration-300" 
                                 placeholder="••••••••" required>
                             
-                            <button type="button" onclick="togglePassword()" class="absolute inset-y-0 right-0 pr-3 flex items-center text-muted hover:text-white transition-colors focus:outline-none">
-                                <svg id="eye-icon" class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                            <button type="button" onclick="togglePassword()" class="absolute right-3 top-1/2 -translate-y-1/2 text-deep/30 hover:text-gold transition-colors focus:outline-none">
+                                <svg id="eye-icon" class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                 </svg>
-                                <svg id="eye-slash-icon" class="h-5 w-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                                <svg id="eye-slash-icon" class="h-4 w-4 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
                                 </svg>
                             </button>
                         </div>
                     </div>
                     
-                    <div class="flex items-center justify-between text-sm">
-                        <div class="flex items-center">
-                            <input id="rememberMe" name="rememberMe" type="checkbox" class="h-4 w-4 text-accent focus:ring-accent border-white/20 rounded bg-main cursor-pointer">
-                            <label for="rememberMe" class="ml-2 block text-muted cursor-pointer hover:text-pale transition-colors">
-                                Ingat saya
-                            </label>
-                        </div>
-                        <div class="text-sm">
-                            <a href="/lupa-password" class="font-medium text-accent hover:text-white transition-colors">
-                                Lupa password?
-                            </a>
-                        </div>
+                    <div class="flex items-center justify-between text-sm pt-2">
+                        <label class="flex items-center cursor-pointer group">
+                            <input id="rememberMe" name="rememberMe" type="checkbox" class="w-3 h-3 text-deep border-deep/20 rounded-sm focus:ring-0 focus:ring-offset-0 bg-paper checked:bg-deep transition-colors">
+                            <span class="ml-2 text-[10px] uppercase tracking-widest text-deep/60 group-hover:text-deep transition-colors">Ingat saya</span>
+                        </label>
+                        <a href="/lupa-password" class="font-serif italic text-gold hover:text-deep transition-colors text-sm underline decoration-gold/30 underline-offset-4">
+                            Lupa password?
+                        </a>
                     </div>
                     
-                    <div>
-                        <button type="submit" class="group w-full flex justify-center py-3 px-4 border border-transparent text-sm font-bold rounded-xl text-main bg-accent hover:bg-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent focus:ring-offset-main transition-all duration-300 shadow-neon transform active:scale-95">
-                            MASUK
-                            <svg class="w-5 h-5 ml-2 -mr-1 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
-                            </svg>
+                    <div class="pt-4">
+                        <button type="submit" class="w-full py-4 bg-deep text-paper text-[10px] uppercase tracking-widest font-bold border border-deep hover:bg-gold hover:border-gold hover:text-deep transition-all duration-300 shadow-sharp">
+                            Masuk Sekarang
                         </button>
                     </div>
                 </form>
                 
-                <div class="mt-8 pt-6 border-t border-white/10 text-center">
-                    <p class="text-sm text-muted">
-                        Belum punya akun? 
-                        <a href="/register" class="font-bold text-accent hover:text-white hover:underline transition-colors">
-                            Daftar di sini
+                <div class="mt-8 pt-6 border-t border-deep/5 text-center">
+                    <p class="font-serif text-charcoal/60 text-sm">
+                        Belum menjadi warga? 
+                        <a href="/register" class="text-deep font-bold hover:text-gold transition-colors">
+                            Daftar Disini
                         </a>
                     </p>
                 </div>
             </div>
             
-            <div class="mt-8 text-center">
-                <a href="/" class="text-muted text-sm hover:text-pale transition-colors flex items-center justify-center gap-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
-                    Kembali ke Beranda
+            <div class="mt-8 text-center animate-[fadeIn_1.2s]">
+                <a href="/" class="text-[9px] uppercase tracking-widest text-deep/40 hover:text-deep transition-colors flex items-center justify-center gap-2">
+                    <span>←</span> Kembali ke Beranda
                 </a>
             </div>
 

@@ -3,8 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Publik - Bausasran</title>
+    <title>Bausasran Heritage Estate &mdash; Capstone Project</title>
     
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Lato:wght@300;400;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.jsdelivr.net/gh/studio-freight/lenis@1.0.29/bundled/lenis.min.js"></script>
+
     <script src="https://cdn.tailwindcss.com"></script>
 
     <script>
@@ -12,14 +18,23 @@
             theme: {
                 extend: {
                     colors: {
-                        main: '#003024',    // Background Gelap
-                        surface: '#004030', // Warna Kartu
-                        accent: '#83C540',  // Warna Hijau Terang (Heading/Tombol)
-                        pale: '#F5FEF9',    // Warna Teks Putih Gading
-                        muted: '#A3C2B8',   // Warna Teks Pudar
+                        paper: '#F9F7F2',       
+                        deep: '#0F1F18',        
+                        gold: '#C5B388',        
+                        charcoal: '#4A4A4A',    
+                        linen: '#EBE9E4',       
                     },
                     fontFamily: {
-                        sans: ['Inter', 'sans-serif'], // Pastikan font enak dibaca
+                        sans: ['Lato', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                        crest: ['Cinzel', 'serif'], 
+                    },
+                    letterSpacing: {
+                        'luxury': '0.2em',
+                        'widest': '0.3em',
+                    },
+                    transitionDuration: {
+                        '2000': '2000ms',
                     }
                 }
             }
@@ -29,103 +44,373 @@
     <style type="text/tailwindcss">
         @layer base {
             body {
-                @apply bg-main text-pale font-sans antialiased;
+                @apply bg-paper text-deep font-sans antialiased selection:bg-deep selection:text-paper;
+                overscroll-behavior: none; 
             }
         }
-    </style>
 
-    <link rel="stylesheet" href="/css/style.css">
+        /* TEXTURE: FILM GRAIN */
+        .noise-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.04'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 9999;
+            mix-blend-mode: multiply;
+        }
+
+        /* SCROLLBAR */
+        ::-webkit-scrollbar { width: 3px; }
+        ::-webkit-scrollbar-track { background: #F9F7F2; }
+        ::-webkit-scrollbar-thumb { background: #0F1F18; }
+
+        /* ANIMATION UTILS */
+        .reveal-text {
+            @apply opacity-0 translate-y-12 transition-all duration-[1200ms] ease-out;
+            will-change: transform, opacity;
+        }
+        .reveal-text.active {
+            @apply opacity-100 translate-y-0;
+        }
+
+        .curtain-wrapper {
+            @apply relative overflow-hidden;
+        }
+        .curtain-panel {
+            @apply absolute inset-0 bg-paper z-20 transition-transform duration-[1500ms] ease-[cubic-bezier(0.77,0,0.175,1)];
+            transform: translateY(0);
+        }
+        .curtain-wrapper.active .curtain-panel {
+            transform: translateY(-101%);
+        }
+        .curtain-img {
+            @apply scale-110 transition-transform duration-[2000ms] ease-out;
+        }
+        .curtain-wrapper.active .curtain-img {
+            @apply scale-100;
+        }
+
+        .btn-luxury {
+            @apply inline-block py-3 px-8 border border-deep/20 text-[10px] uppercase tracking-luxury hover:bg-deep hover:text-paper hover:border-deep transition-all duration-500;
+        }
+    </style>
 </head>
 
-<body class="flex flex-col min-h-screen">
+<body class="flex flex-col min-h-screen relative overflow-x-hidden">
+
+    <div class="noise-overlay"></div>
 
     <%- include('../partials/navbar.ejs') %>
 
-    <header class="relative bg-gradient-to-b from-surface to-main pt-24 pb-16 px-6 text-center border-b border-white/5">
-        <div class="max-w-4xl mx-auto">
-            <h1 class="text-4xl md:text-6xl font-bold mb-6 text-pale">
-                Selamat Datang di <span class="text-accent">Bausasran</span>
-            </h1>
-            <p class="text-lg md:text-xl text-muted max-w-2xl mx-auto">
-                Menjelajahi Potensi Alam, Melestarikan Budaya, dan Mengukir Prestasi Bersama.
+    <header class="relative pt-48 pb-32 min-h-[85vh] flex flex-col justify-center items-center text-center bg-paper">
+        <div class="absolute top-0 left-1/2 -translate-x-1/2 h-40 w-[1px] bg-deep/10"></div>
+        
+        <div class="max-w-7xl mx-auto px-6 z-10 w-full">
+            <p class="font-sans text-[10px] uppercase tracking-widest mb-8 text-gold animate-pulse reveal-text">
+                Capstone Project &mdash; UMY 2025
             </p>
+            <h1 class="font-crest text-5xl md:text-8xl lg:text-9xl text-deep mb-8 leading-[0.9] opacity-0 animate-[fadeIn_1.5s_ease-out_forwards]">
+                BAUSASRAN
+            </h1>
+            <p class="font-serif italic text-xl md:text-3xl text-charcoal/80 max-w-4xl mx-auto leading-relaxed reveal-text" style="transition-delay: 200ms;">
+                "Penggunaan Teknologi untuk Optimalisasi Publikasi dan Ekonomi Kampung Wisata."
+            </p>
+        </div>
+        <div class="absolute bottom-12 reveal-text" style="transition-delay: 400ms;">
+            <span class="text-[9px] uppercase tracking-widest text-deep/40">Scroll to Explore</span>
+            <div class="w-[1px] h-12 bg-deep/20 mx-auto mt-4"></div>
         </div>
     </header>
 
-    <main class="container mx-auto px-4 py-12 flex-grow">
+    <main class="flex-grow">
     
         <%- include('../partials/flash.ejs') %>
 
-        <section id="kegiatan" class="mb-20 scroll-mt-24">
-            <div class="flex items-center justify-between mb-8">
-                <h2 class="text-3xl font-bold text-accent">Kegiatan Terbaru</h2>
+        <section id="kegiatan" class="py-32 bg-paper scroll-mt-12">
+            <div class="max-w-7xl mx-auto px-6">
+                
+                <div class="flex flex-col md:flex-row justify-between items-end mb-24 border-b border-deep/10 pb-6 reveal-text">
+                    <div>
+                        <span class="font-serif italic text-gold text-lg mb-2 block">The Chronicles</span>
+                        <h2 class="font-crest text-4xl md:text-5xl text-deep">Kegiatan Terbaru</h2>
+                    </div>
+                    <a href="/kegiatan" class="text-[10px] uppercase tracking-luxury text-charcoal/50 hover:text-deep transition-colors mt-4 md:mt-0">View All</a>
                 </div>
-            
-            <% if(kegiatan && kegiatan.length > 0) { %>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    <% for(let item of kegiatan) { %>
-                        <div class="bg-surface border border-white/5 rounded-xl overflow-hidden shadow-lg hover:shadow-accent/20 transition-all duration-300 hover:-translate-y-1">
-                            <div class="relative h-48 overflow-hidden">
-                                <img src="<%= (item.photos && item.photos.length > 0) ? '/images/kegiatan/' + item.photos[0].Foto : 'https://via.placeholder.com/400x250?text=' + encodeURIComponent(item.Judul) %>" alt="<%= item.Judul %>" class="w-full h-48 object-cover">
-                            </div>
-                            <div class="p-6">
-                                <p class="text-sm text-accent font-semibold mb-2">
-                                    <%= new Date(item.Tanggal).toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) %>
-                                </p>
-                                <h3 class="text-xl font-bold text-pale mb-3 truncate"><%= item.Judul %></h3>
-                                <a href="/kegiatan/<%= item.ID_Kegiatan %>" class="inline-block text-muted hover:text-white border-b border-accent/50 hover:border-accent pb-0.5 transition-colors">
-                                    Lihat Detail &rarr;
-                                </a>
-                            </div>
-                        </div>
-                    <% } %>
-                </div>
-            <% } else { %>
-                <p class="text-center text-muted py-10 border border-dashed border-white/10 rounded-lg">
-                    Belum ada data kegiatan untuk ditampilkan.
-                </p>
-            <% } %>
-        </section>
-
-        <section id="produk" class="mb-12 scroll-mt-24">
-            <h2 class="text-3xl font-bold text-accent text-center mb-10">Produk Unggulan</h2>
-            
-            <% if(produk && produk.length > 0) { %>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    <% for(let item of produk) { %>
-                        <div class="bg-surface border border-white/5 rounded-xl overflow-hidden shadow-lg hover:shadow-accent/20 transition-all duration-300 group">
-                            <div class="relative h-56 overflow-hidden bg-black/20">
-                                <img src="<%= (item.photos && item.photos.length > 0) ? '/images/produk/' + item.photos[0].Foto : 'https://via.placeholder.com/400x250?text=' + encodeURIComponent(item.Nama) %>" alt="<%= item.Nama %>" class="w-full h-48 object-cover">
-                                <span class="absolute top-3 right-3 bg-accent text-main text-xs font-bold px-3 py-1 rounded-full">
-                                    <%= item.Kategori || 'Umum' %>
-                                </span>
-                            </div>
-                            
-                            <div class="p-6">
-                                <h3 class="text-xl font-bold text-pale mb-2 truncate"><%= item.Nama %></h3>
-                                <div class="flex items-center justify-between mt-4">
-                                    <p class="text-2xl font-bold text-accent">
-                                        Rp <%= new Intl.NumberFormat('id-ID').format(item.Harga) %>
+                
+                <% if(kegiatan && kegiatan.length > 0) { %>
+                    <div class="flex flex-col gap-24">
+                        <% let kIndex = 0; for(let item of kegiatan) { kIndex++; %>
+                            <div class="flex flex-col md:flex-row gap-12 md:gap-20 items-center <%= kIndex % 2 === 0 ? 'md:flex-row-reverse' : '' %>">
+                                <div class="w-full md:w-3/5 curtain-wrapper aspect-[16/10]">
+                                    <div class="curtain-panel"></div>
+                                    <img src="<%= (item.photos && item.photos.length > 0) ? '/images/kegiatan/' + item.photos[0].Foto : 'https://via.placeholder.com/800x500?text=' + encodeURIComponent(item.Judul) %>" 
+                                         alt="<%= item.Judul %>" 
+                                         class="w-full h-full object-cover curtain-img grayscale hover:grayscale-0 transition-all duration-1000">
+                                </div>
+                                <div class="w-full md:w-2/5 reveal-text">
+                                    <span class="font-sans text-[9px] uppercase tracking-widest text-gold mb-4 block">
+                                        <%= new Date(item.Tanggal).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' }) %>
+                                    </span>
+                                    <h3 class="font-serif text-3xl md:text-4xl text-deep mb-6 leading-tight hover:text-gold transition-colors duration-500">
+                                        <a href="/kegiatan/<%= item.ID_Kegiatan %>"><%= item.Judul %></a>
+                                    </h3>
+                                    <p class="font-sans text-charcoal/70 font-light text-sm leading-loose mb-8 line-clamp-3">
+                                        Dokumentasi kegiatan agrowisata yang memadukan pelestarian budaya dan potensi pertanian...
                                     </p>
-                                    <a href="/produk/<%= item.ID_Product %>" class="bg-accent text-main font-bold py-2 px-4 rounded-lg hover:bg-opacity-90 transition-colors">
-                                        Lihat
+                                    <a href="/kegiatan/<%= item.ID_Kegiatan %>" class="inline-block text-[10px] uppercase tracking-widest border-b border-deep pb-1 hover:text-gold hover:border-gold transition-all">
+                                        Read Narrative
                                     </a>
                                 </div>
                             </div>
-                        </div>
-                    <% } %>
+                        <% } %>
+                    </div>
+                <% } else { %>
+                    <div class="text-center py-20 border border-dashed border-deep/10 reveal-text">
+                        <p class="font-serif italic text-charcoal/50">Journal entries empty.</p>
+                    </div>
+                <% } %>
+
+            </div>
+        </section>
+
+        <section id="produk" class="py-32 bg-linen scroll-mt-12">
+            <div class="max-w-7xl mx-auto px-6">
+                
+                <div class="flex flex-col md:flex-row justify-between items-end mb-24 reveal-text">
+                    <div>
+                        <span class="font-serif italic text-gold text-lg mb-2 block">The Atelier</span>
+                        <h2 class="font-crest text-4xl md:text-5xl text-deep">Produk Unggulan</h2>
+                    </div>
+                    <a href="/produk" class="btn-luxury mt-6 md:mt-0 group">View Collection</a>
                 </div>
-            <% } else { %>
-                <p class="text-center text-muted py-10 border border-dashed border-white/10 rounded-lg">
-                    Belum ada data produk untuk ditampilkan.
-                </p>
-            <% } %>
+                
+                <% if(produk && produk.length > 0) { %>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-y-20 gap-x-10">
+                        <% for(let item of produk) { %>
+                            <div class="group cursor-pointer reveal-text">
+                                <div class="bg-paper p-8 shadow-sm transition-all duration-700 hover:shadow-2xl hover:-translate-y-2 relative">
+                                    <div class="aspect-[3/4] relative overflow-hidden bg-linen/30 mb-6 curtain-wrapper">
+                                        <div class="curtain-panel"></div>
+                                        <img src="<%= (item.photos && item.photos.length > 0) ? '/images/produk/' + item.photos[0].Foto : 'https://via.placeholder.com/400x600?text=' + encodeURIComponent(item.Nama) %>" 
+                                             alt="<%= item.Nama %>" 
+                                             class="w-full h-full object-cover curtain-img mix-blend-multiply opacity-90 group-hover:opacity-100">
+                                        <span class="absolute top-0 right-0 bg-deep text-paper text-[8px] uppercase tracking-widest px-3 py-2">
+                                            <%= item.Kategori || 'Collection' %>
+                                        </span>
+                                    </div>
+                                    <div class="text-center">
+                                        <h3 class="font-serif text-2xl text-deep mb-2"><%= item.Nama %></h3>
+                                        <div class="w-8 h-[1px] bg-gold mx-auto mb-3 group-hover:w-16 transition-all duration-500"></div>
+                                        <p class="font-sans text-xs font-bold tracking-widest text-deep/60">
+                                            IDR <%= new Intl.NumberFormat('id-ID').format(item.Harga) %>
+                                        </p>
+                                    </div>
+                                    <a href="/produk/<%= item.ID_Product %>" class="absolute inset-0 z-10"></a>
+                                </div>
+                            </div>
+                        <% } %>
+                    </div>
+                <% } else { %>
+                    <div class="text-center py-20 border border-dashed border-deep/10">
+                        <p class="font-serif italic text-charcoal/50">Collection unavailable.</p>
+                    </div>
+                <% } %>
+
+            </div>
+        </section>
+
+        <section id="prestasi" class="py-32 bg-deep text-paper scroll-mt-12 relative overflow-hidden">
+            <div class="absolute top-0 left-12 w-[1px] h-32 bg-gold/20"></div>
+            <div class="absolute bottom-0 right-12 w-[1px] h-32 bg-gold/20"></div>
+
+            <div class="max-w-7xl mx-auto px-6 relative z-10">
+                
+                <div class="flex flex-col md:flex-row justify-between items-end mb-24 border-b border-white/10 pb-6 reveal-text">
+                    <div>
+                        <span class="font-serif italic text-gold text-lg mb-2 block">Honors & Awards</span>
+                        <h2 class="font-crest text-4xl md:text-5xl text-paper">Prestasi Desa</h2>
+                    </div>
+                    <a href="/prestasi" class="text-[10px] uppercase tracking-widest text-white/50 hover:text-gold transition-colors mt-6 md:mt-0">View All Honors</a>
+                </div>
+
+                <% if(prestasi && prestasi.length > 0) { %>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
+                        <% for(let item of prestasi) { %>
+                            <div class="group reveal-text">
+                                <div class="relative aspect-[4/3] overflow-hidden mb-6 border border-white/5 hover:border-gold/50 transition-colors duration-700 curtain-wrapper">
+                                    <div class="curtain-panel bg-deep"></div>
+                                    <img src="<%= (item.photos && item.photos.length > 0) ? '/images/' + (item.folder || 'prestasi') + '/' + item.photos[0].Foto : 'https://via.placeholder.com/400x300?text=Prestasi' %>" 
+                                         alt="<%= item.Judul %>" 
+                                         class="w-full h-full object-cover curtain-img opacity-70 group-hover:opacity-100 grayscale group-hover:grayscale-0 transition-all duration-1000">
+                                    <div class="absolute top-4 left-4 bg-gold text-deep text-xs font-serif italic px-3 py-1">
+                                        <%= new Date(item.Tanggal).getFullYear() %>
+                                    </div>
+                                </div>
+                                <h3 class="font-serif text-xl text-paper group-hover:text-gold transition-colors leading-relaxed">
+                                    <%= item.Judul %>
+                                </h3>
+                            </div>
+                        <% } %>
+                    </div>
+                <% } else { %>
+                    <div class="text-center py-20 border border-dashed border-white/10">
+                        <p class="font-serif italic text-white/50">No honors recorded.</p>
+                    </div>
+                <% } %>
+
+            </div>
+        </section>
+
+        <section id="galeri" class="py-32 bg-paper scroll-mt-12">
+            <div class="max-w-7xl mx-auto px-6">
+                
+                <div class="flex flex-col md:flex-row justify-between items-end mb-16 reveal-text">
+                    <h2 class="font-crest text-3xl md:text-4xl text-deep">Visual Memory</h2>
+                    <a href="/galeri" class="text-[10px] uppercase tracking-widest text-charcoal/50 hover:text-deep transition-colors">Enter Gallery</a>
+                </div>
+                
+                <% if(galeri && galeri.length > 0) { %>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+                        <% for(let item of galeri) { %>
+                            <div class="group relative aspect-square overflow-hidden bg-linen cursor-crosshair curtain-wrapper">
+                                <div class="curtain-panel"></div>
+                                <img src="/images/<%= item.folder || 'galeri' %>/<%= item.Foto %>" 
+                                     alt="Galeri" 
+                                     class="w-full h-full object-cover curtain-img transition-transform duration-[3000ms] group-hover:scale-110"
+                                     onerror="this.onerror=null;this.src='https://via.placeholder.com/400x400?text=Art'">
+                                <div class="absolute inset-0 bg-deep/20 opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
+                            </div>
+                        <% } %>
+                    </div>
+                <% } else { %>
+                    <div class="text-center py-20 border border-dashed border-deep/10">
+                        <p class="font-serif italic text-charcoal/50">Gallery is empty.</p>
+                    </div>
+                <% } %>
+
+            </div>
+        </section>
+
+        <section id="anggota" class="py-32 bg-linen scroll-mt-12">
+            <div class="max-w-7xl mx-auto px-6">
+                
+                <div class="text-center mb-24 reveal-text">
+                    <span class="font-sans text-[10px] uppercase tracking-widest text-gold mb-4 block">Community Pillars</span>
+                    <h2 class="font-crest text-4xl md:text-5xl text-deep">Tim & Anggota</h2>
+                </div>
+                
+                <% if(anggota && anggota.length > 0) { %>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-16">
+                        <% for(let item of anggota) { %>
+                            <div class="flex flex-col items-center group text-center reveal-text">
+                                <div class="w-32 h-32 md:w-40 md:h-40 rounded-full p-1 border border-deep/10 group-hover:border-gold transition-colors duration-700 mb-6 relative">
+                                    <img src="<%= item.fotoFile ? '/images/' + (item.folder || 'anggota') + '/' + item.fotoFile : 'https://ui-avatars.com/api/?name=' + encodeURIComponent(item.Nama) + '&background=0F1F18&color=F9F7F2' %>" 
+                                         alt="<%= item.Nama %>" 
+                                         class="w-full h-full rounded-full object-cover grayscale group-hover:grayscale-0 transition-all duration-1000">
+                                </div>
+                                <h3 class="font-serif text-2xl text-deep mb-1"><%= item.Nama %></h3>
+                                <p class="font-sans text-[9px] uppercase tracking-widest text-gold mb-4"><%= item.Jabatan || 'Member' %></p>
+                                <a href="/anggota/<%= item.ID_Pengguna %>" class="text-[9px] uppercase tracking-luxury text-charcoal/40 hover:text-deep transition-colors">View Profile</a>
+                            </div>
+                        <% } %>
+                    </div>
+                    <div class="text-center mt-16 reveal-text">
+                        <a href="/anggota" class="btn-luxury">Meet The Council</a>
+                    </div>
+                <% } else { %>
+                    <div class="text-center py-20">
+                        <p class="font-serif italic text-charcoal/50">Members unavailable.</p>
+                    </div>
+                <% } %>
+
+            </div>
+        </section>
+
+        <section id="testimoni" class="py-32 bg-paper border-t border-deep/5 scroll-mt-12">
+            <div class="max-w-7xl mx-auto px-6">
+                
+                <div class="flex flex-col md:flex-row justify-between items-end mb-24 reveal-text">
+                    <div>
+                        <span class="font-serif italic text-gold text-lg mb-2 block">Guest Book</span>
+                        <h2 class="font-crest text-4xl text-deep">Apa Kata Mereka?</h2>
+                    </div>
+                    <a href="/testimoni" class="text-[10px] uppercase tracking-widest text-charcoal/50 hover:text-gold transition-colors mt-6 md:mt-0">Read More</a>
+                </div>
+                
+                <% if(testimoni && testimoni.length > 0) { %>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
+                        <% for(let item of testimoni) { %>
+                            <div class="bg-linen p-10 relative group hover:shadow-lg transition-all duration-700 reveal-text">
+                                <div class="absolute top-6 right-6 font-serif text-6xl text-gold/20 leading-none">”</div>
+                                <div class="flex items-center gap-4 mb-6">
+                                    <div class="w-10 h-10 rounded-full overflow-hidden grayscale opacity-80">
+                                       <img src="<%= (item.pengguna && item.pengguna.fotoFile) ? '/images/anggota/' + item.pengguna.fotoFile : 'https://ui-avatars.com/api/?name=' + encodeURIComponent(item.pengguna ? item.pengguna.Nama : 'Anon') %>" 
+                                            alt="Avatar" class="w-full h-full object-cover">
+                                    </div>
+                                    <div>
+                                        <h4 class="font-sans text-[9px] font-bold uppercase tracking-widest text-deep">
+                                            <%= item.pengguna ? item.pengguna.Nama : 'Visitor' %>
+                                        </h4>
+                                        <div class="text-[8px] text-gold tracking-widest mt-1">
+                                            <% for(let i=0; i<item.Rating; i++) { %>★<% } %>
+                                        </div>
+                                    </div>
+                                </div>
+                                <p class="font-serif text-deep/80 text-lg italic leading-relaxed relative z-10">
+                                    "<%= item.Ulasan %>"
+                                </p>
+                            </div>
+                        <% } %>
+                    </div>
+                <% } else { %>
+                    <div class="text-center py-20">
+                        <p class="font-serif italic text-charcoal/50">No testimonials yet.</p>
+                    </div>
+                <% } %>
+
+            </div>
         </section>
     </main>
 
-    <footer class="bg-surface border-t border-white/5 text-muted text-center py-8 mt-auto">
-        <p>&copy; 2024 Kampung Wisata Bausasran. All rights reserved.</p>
-    </footer>
+    <%- include('../partials/footer.ejs') %>
+
+    <script>
+        // Smooth Scroll Initialization
+        const lenis = new Lenis({
+            duration: 1.2,
+            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), 
+            direction: 'vertical',
+            gestureDirection: 'vertical',
+            smooth: true,
+            mouseMultiplier: 1,
+            smoothTouch: false,
+            touchMultiplier: 2,
+        });
+        function raf(time) {
+            lenis.raf(time);
+            requestAnimationFrame(raf);
+        }
+        requestAnimationFrame(raf);
+
+        // Intersection Observer for Animations
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.1
+        };
+        const observer = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.reveal-text, .curtain-wrapper').forEach((el) => {
+            observer.observe(el);
+        });
+    </script>
 
 </body>
 </html>

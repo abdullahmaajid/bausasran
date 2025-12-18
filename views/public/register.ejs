@@ -3,159 +3,162 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daftar Akun - Bausasran</title>
+    <title>Daftar Warga - Bausasran Heritage</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Lato:wght@300;400;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
     
     <script src="https://cdn.tailwindcss.com"></script>
+
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        main: '#003024',    // Background Gelap
-                        surface: '#004030', // Warna Kartu
-                        accent: '#83C540',  // Hijau Neon
-                        pale: '#F5FEF9',    // Teks Putih
-                        muted: '#A3C2B8',   // Teks Pudar
+                        paper: '#F9F7F2',       // Cream Background
+                        deep: '#0F1F18',        // Dark Green (Primary)
+                        gold: '#C5B388',        // Luxury Accent
+                        charcoal: '#4A4A4A',    // Text
+                        sand: '#E5E0D8',        // Border/Secondary
+                        white: '#FFFFFF',
+                        danger: '#EF4444',      // Error Red
+                        success: '#10B981',     // Success Green
                     },
-                    fontFamily: { sans: ['Inter', 'sans-serif'] }
+                    fontFamily: {
+                        sans: ['Lato', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                        crest: ['Cinzel', 'serif'], 
+                    },
+                    boxShadow: {
+                        'elegant': '0 20px 40px -10px rgba(15, 31, 24, 0.1)',
+                        'sharp': '5px 5px 0px 0px rgba(197, 179, 136, 0.3)',
+                    }
                 }
             }
         }
     </script>
+
     <style type="text/tailwindcss">
-        @layer base { body { @apply bg-main text-pale font-sans antialiased; } }
+        @layer base {
+            body {
+                @apply bg-paper text-deep font-sans antialiased;
+            }
+        }
+        .noise-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.04'/%3E%3C/svg%3E");
+            pointer-events: none; z-index: 9999; mix-blend-mode: multiply;
+        }
     </style>
 </head>
 
-<body class="flex flex-col min-h-screen">
+<body class="flex flex-col min-h-screen relative justify-center py-12">
 
-  
+    <div class="noise-overlay"></div>
+    
+    <div class="fixed top-0 right-0 w-96 h-96 bg-gold/10 rounded-full blur-[100px] translate-x-1/3 -translate-y-1/3 pointer-events-none"></div>
+    <div class="fixed bottom-0 left-0 w-64 h-64 bg-deep/5 rounded-full blur-[80px] -translate-x-1/3 translate-y-1/3 pointer-events-none"></div>
 
-    <main class="container mx-auto p-4 md:p-12 flex-grow flex items-center justify-center">
+    <main class="container mx-auto px-4 relative z-10 flex items-center justify-center">
         
         <div class="w-full max-w-2xl">
-            <div class="mb-6">
-                <%- include('../partials/flash.ejs') %>
-            </div>
+            <%- include('../partials/flash.ejs') %>
 
-            <div class="bg-surface p-8 md:p-10 rounded-2xl border border-white/5 shadow-2xl relative overflow-hidden">
-                
-                <div class="absolute -top-10 -right-10 w-32 h-32 bg-accent/5 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="bg-white border border-deep/10 p-8 md:p-12 shadow-elegant relative overflow-hidden animate-[fadeIn_0.5s]">
+                <div class="absolute top-0 left-0 w-full h-1 bg-gold"></div>
 
-                <div class="text-center mb-8">
-                    <h1 class="text-3xl font-bold text-pale mb-2">Daftar Akun Baru</h1>
-                    <p class="text-muted">Bergabunglah dengan komunitas Kampung Wisata Bausasran</p>
+                <div class="text-center mb-10">
+                    <span class="font-crest text-3xl text-deep mb-2 block">✦</span>
+                    <h1 class="font-crest text-2xl md:text-3xl text-deep mb-2">Registrasi Warga</h1>
+                    <p class="font-serif italic text-charcoal/60 text-sm">Bergabunglah menjaga warisan budaya Bausasran.</p>
                 </div>
                 
-                <form action="/register" method="POST" id="registerForm">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                        <div>
-                            <label for="Nama" class="block text-muted text-xs font-bold uppercase tracking-wider mb-2">
-                                Nama Lengkap <span class="text-accent">*</span>
+                <form action="/register" method="POST" id="registerForm" class="space-y-6">
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="group">
+                            <label for="Nama" class="block text-[9px] uppercase tracking-widest text-deep/40 mb-2 font-bold group-focus-within:text-gold transition-colors">
+                                Nama Lengkap <span class="text-gold">*</span>
                             </label>
-                            <input 
-                                type="text" 
-                                id="Nama" 
-                                name="Nama" 
-                                class="w-full bg-main border border-white/10 rounded-xl px-4 py-3 text-pale focus:border-accent focus:ring-1 focus:ring-accent outline-none transition-all placeholder-white/20" 
-                                required
-                                placeholder="Cth: Budi Santoso">
+                            <input type="text" id="Nama" name="Nama" 
+                                class="block w-full px-4 py-3 bg-paper border border-deep/10 text-deep font-serif placeholder-deep/20 focus:outline-none focus:border-gold focus:bg-white transition-all duration-300" 
+                                required placeholder="Cth: Budi Santoso">
                         </div>
                         
-                        <div>
-                            <label for="Username" class="block text-muted text-xs font-bold uppercase tracking-wider mb-2">
-                                Username <span class="text-accent">*</span>
+                        <div class="group">
+                            <label for="Username" class="block text-[9px] uppercase tracking-widest text-deep/40 mb-2 font-bold group-focus-within:text-gold transition-colors">
+                                Username <span class="text-gold">*</span>
                             </label>
-                            <input 
-                                type="text" 
-                                id="Username" 
-                                name="Username" 
-                                class="w-full bg-main border border-white/10 rounded-xl px-4 py-3 text-pale focus:border-accent focus:ring-1 focus:ring-accent outline-none transition-all placeholder-white/20" 
-                                required
-                                placeholder="Cth: budi_san"
-                                pattern="[a-zA-Z0-9_]+"
-                                title="Hanya huruf, angka, dan underscore">
+                            <input type="text" id="Username" name="Username" 
+                                class="block w-full px-4 py-3 bg-paper border border-deep/10 text-deep font-serif placeholder-deep/20 focus:outline-none focus:border-gold focus:bg-white transition-all duration-300" 
+                                required placeholder="Cth: budi_san" pattern="[a-zA-Z0-9_]+" title="Hanya huruf, angka, dan underscore">
                         </div>
                     </div>
                     
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                        <div>
-                            <label for="Password" class="block text-muted text-xs font-bold uppercase tracking-wider mb-2">
-                                Password <span class="text-accent">*</span>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="group">
+                            <label for="Password" class="block text-[9px] uppercase tracking-widest text-deep/40 mb-2 font-bold group-focus-within:text-gold transition-colors">
+                                Password <span class="text-gold">*</span>
                             </label>
                             <div class="relative">
-                                <input 
-                                    type="password" 
-                                    id="Password" 
-                                    name="Password" 
-                                    class="w-full bg-main border border-white/10 rounded-xl px-4 py-3 text-pale focus:border-accent focus:ring-1 focus:ring-accent outline-none transition-all placeholder-white/20 pr-10" 
-                                    required
-                                    minlength="6"
-                                    placeholder="••••••••">
-                                <button 
-                                    type="button" 
-                                    onclick="togglePassword('Password')"
-                                    class="absolute right-3 top-3 text-muted hover:text-pale transition-colors">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                <input type="password" id="Password" name="Password" 
+                                    class="block w-full px-4 py-3 bg-paper border border-deep/10 text-deep font-serif placeholder-deep/20 focus:outline-none focus:border-gold focus:bg-white transition-all duration-300" 
+                                    required minlength="6" placeholder="••••••••">
+                                <button type="button" onclick="togglePassword('Password')" class="absolute right-3 top-1/2 -translate-y-1/2 text-deep/30 hover:text-gold transition-colors">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
                                 </button>
                             </div>
                         </div>
                         
-                        <div>
-                            <label for="ConfirmPassword" class="block text-muted text-xs font-bold uppercase tracking-wider mb-2">
-                                Konfirmasi Password <span class="text-accent">*</span>
+                        <div class="group">
+                            <label for="ConfirmPassword" class="block text-[9px] uppercase tracking-widest text-deep/40 mb-2 font-bold group-focus-within:text-gold transition-colors">
+                                Konfirmasi Password <span class="text-gold">*</span>
                             </label>
                             <div class="relative">
-                                <input 
-                                    type="password" 
-                                    id="ConfirmPassword" 
-                                    name="ConfirmPassword" 
-                                    class="w-full bg-main border border-white/10 rounded-xl px-4 py-3 text-pale focus:border-accent focus:ring-1 focus:ring-accent outline-none transition-all placeholder-white/20 pr-10" 
-                                    required
-                                    minlength="6"
-                                    placeholder="••••••••">
-                                <button 
-                                    type="button" 
-                                    onclick="togglePassword('ConfirmPassword')"
-                                    class="absolute right-3 top-3 text-muted hover:text-pale transition-colors">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                <input type="password" id="ConfirmPassword" name="ConfirmPassword" 
+                                    class="block w-full px-4 py-3 bg-paper border border-deep/10 text-deep font-serif placeholder-deep/20 focus:outline-none focus:border-gold focus:bg-white transition-all duration-300" 
+                                    required minlength="6" placeholder="••••••••">
+                                <button type="button" onclick="togglePassword('ConfirmPassword')" class="absolute right-3 top-1/2 -translate-y-1/2 text-deep/30 hover:text-gold transition-colors">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
                                 </button>
                             </div>
-                            <p class="text-xs text-red-400 mt-2 hidden" id="passwordError">
-                                <span class="inline-block mr-1">⚠</span> Password tidak cocok!
+                            <p class="text-[10px] text-danger mt-1 hidden font-bold tracking-wider uppercase" id="passwordError">
+                                ⚠ Password tidak cocok!
                             </p>
                         </div>
                     </div>
 
-                    <div class="mb-8 bg-main/50 p-4 rounded-xl border border-white/5">
+                    <div class="bg-deep/5 p-4 border border-deep/5">
                         <div class="flex items-center justify-between mb-2">
-                            <span class="text-xs text-muted">Kekuatan Password</span>
-                            <span id="strengthText" class="text-xs font-bold text-muted">Belum diisi</span>
+                            <span class="text-[9px] uppercase tracking-widest text-deep/50">Keamanan Password</span>
+                            <span id="strengthText" class="text-[9px] uppercase tracking-widest font-bold text-deep/30">Belum diisi</span>
                         </div>
-                        <div class="w-full bg-black/30 rounded-full h-1.5 overflow-hidden">
-                            <div id="passwordStrength" class="h-full transition-all duration-500 ease-out bg-red-500 w-0"></div>
-                        </div>
-                        <div class="mt-2 text-[10px] text-muted opacity-60">
-                            Gunakan kombinasi huruf besar, kecil, angka, dan simbol.
+                        <div class="w-full bg-white h-1 overflow-hidden">
+                            <div id="passwordStrength" class="h-full transition-all duration-500 ease-out w-0 bg-deep/20"></div>
                         </div>
                     </div>
 
-                    <button 
-                        type="submit" 
-                        class="w-full bg-accent hover:bg-white text-main hover:text-main font-bold py-3.5 px-4 rounded-xl shadow-lg shadow-green-900/20 hover:shadow-green-500/20 transition-all duration-300 transform hover:-translate-y-0.5">
+                    <button type="submit" 
+                        class="w-full py-4 bg-deep text-paper text-[10px] uppercase tracking-widest font-bold border border-deep hover:bg-gold hover:border-gold hover:text-deep transition-all duration-300 shadow-sharp mt-4">
                         Buat Akun Sekarang
                     </button>
                 </form>
                 
-                <div class="mt-8 text-center pt-6 border-t border-white/10">
-                    <p class="text-muted text-sm">
-                        Sudah punya akun? 
-                        <a href="/login" class="text-accent hover:text-white font-bold ml-1 transition-colors relative group">
-                            Login di sini
-                            <span class="absolute left-0 bottom-0 w-0 h-0.5 bg-white transition-all group-hover:w-full"></span>
+                <div class="mt-8 pt-6 border-t border-deep/5 text-center">
+                    <p class="font-serif text-charcoal/60 text-sm">
+                        Sudah menjadi warga? 
+                        <a href="/login" class="text-deep font-bold hover:text-gold transition-colors decoration-gold/30 underline underline-offset-4">
+                            Login Disini
                         </a>
                     </p>
                 </div>
+            </div>
+            
+            <div class="mt-8 text-center animate-[fadeIn_0.8s]">
+                <a href="/" class="text-[9px] uppercase tracking-widest text-deep/40 hover:text-deep transition-colors flex items-center justify-center gap-2">
+                    <span>←</span> Kembali ke Beranda
+                </a>
             </div>
         </div>
     </main>
@@ -183,27 +186,27 @@
             if (/[0-9]/.test(password)) strength += 15;
             if (/[^a-zA-Z0-9]/.test(password)) strength += 15;
             
-            // Cap at 100
             if(strength > 100) strength = 100;
 
             strengthBar.style.width = strength + '%';
             
+            // Mengubah warna bar & text berdasarkan kekuatan (Heritage Palette)
             if (strength === 0) {
-                strengthBar.className = 'h-full transition-all duration-500 bg-red-500';
+                strengthBar.className = 'h-full transition-all duration-500 bg-deep/20';
                 strengthText.textContent = 'Belum diisi';
-                strengthText.className = 'text-xs font-bold text-muted';
+                strengthText.className = 'text-[9px] uppercase tracking-widest font-bold text-deep/30';
             } else if (strength < 40) {
-                strengthBar.className = 'h-full transition-all duration-500 bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.5)]';
+                strengthBar.className = 'h-full transition-all duration-500 bg-danger';
                 strengthText.textContent = 'Lemah';
-                strengthText.className = 'text-xs font-bold text-red-400';
+                strengthText.className = 'text-[9px] uppercase tracking-widest font-bold text-danger';
             } else if (strength < 70) {
-                strengthBar.className = 'h-full transition-all duration-500 bg-yellow-400 shadow-[0_0_10px_rgba(250,204,21,0.5)]';
+                strengthBar.className = 'h-full transition-all duration-500 bg-gold';
                 strengthText.textContent = 'Sedang';
-                strengthText.className = 'text-xs font-bold text-yellow-400';
+                strengthText.className = 'text-[9px] uppercase tracking-widest font-bold text-gold';
             } else {
-                strengthBar.className = 'h-full transition-all duration-500 bg-accent shadow-[0_0_10px_rgba(131,197,64,0.5)]';
+                strengthBar.className = 'h-full transition-all duration-500 bg-deep';
                 strengthText.textContent = 'Kuat';
-                strengthText.className = 'text-xs font-bold text-accent';
+                strengthText.className = 'text-[9px] uppercase tracking-widest font-bold text-deep';
             }
         });
 
@@ -215,17 +218,17 @@
         function checkMatch() {
             if (confirmPassword.value && confirmPassword.value !== passwordInput.value) {
                 passwordError.classList.remove('hidden');
-                confirmPassword.classList.add('border-red-500', 'focus:border-red-500', 'focus:ring-red-500');
-                confirmPassword.classList.remove('border-white/10', 'focus:border-accent', 'focus:ring-accent');
+                confirmPassword.classList.add('border-danger', 'text-danger');
+                confirmPassword.classList.remove('border-deep/10', 'focus:border-gold');
             } else {
                 passwordError.classList.add('hidden');
-                confirmPassword.classList.remove('border-red-500', 'focus:border-red-500', 'focus:ring-red-500');
-                confirmPassword.classList.add('border-white/10', 'focus:border-accent', 'focus:ring-accent');
+                confirmPassword.classList.remove('border-danger', 'text-danger');
+                confirmPassword.classList.add('border-deep/10', 'focus:border-gold');
             }
         }
 
         confirmPassword.addEventListener('input', checkMatch);
-        passwordInput.addEventListener('input', checkMatch); // Cek juga saat password utama berubah
+        passwordInput.addEventListener('input', checkMatch);
 
         form.addEventListener('submit', function(e) {
             if (passwordInput.value !== confirmPassword.value) {

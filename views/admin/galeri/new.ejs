@@ -3,7 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tambah Galeri Baru - Admin Bausasran</title>
+    <title>Tambah Galeri - Executive Console</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Lato:wght@300;400;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
     
     <script src="https://cdn.tailwindcss.com"></script>
 
@@ -12,15 +16,22 @@
             theme: {
                 extend: {
                     colors: {
-                        main: '#003024',    // Background Gelap
-                        surface: '#004030', // Warna Kartu
-                        accent: '#83C540',  // Hijau Neon
-                        pale: '#F5FEF9',    // Teks Putih
-                        muted: '#A3C2B8',   // Teks Pudar
-                        darker: '#00251a',  // Background Input
+                        paper: '#F9F7F2',       /* Latar Belakang Kertas Tua */
+                        deep: '#0F1F18',        /* Tinta Hijau Gelap */
+                        gold: '#C5B388',        /* Emas Antik */
+                        charcoal: '#4A4A4A',    /* Abu Arang */
+                        linen: '#EBE9E4',       /* Abu Linen */
+                        white: '#FFFFFF',
+                        danger: '#8B3A3A',      /* Merah Bata Elegan */
                     },
                     fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
+                        sans: ['Lato', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                        crest: ['Cinzel', 'serif'], 
+                    },
+                    boxShadow: {
+                        'elegant': '0 20px 50px -12px rgba(15, 31, 24, 0.08)',
+                        'gold-glow': '0 0 15px rgba(197, 179, 136, 0.2)',
                     }
                 }
             }
@@ -29,76 +40,93 @@
 
     <style type="text/tailwindcss">
         @layer base {
-            body { @apply bg-main text-pale font-sans antialiased; }
+            body { @apply bg-paper text-deep font-sans antialiased; }
+        }
+
+        /* TEXTURE: Film Grain Overlay */
+        .noise-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E");
+            pointer-events: none; z-index: 50; mix-blend-mode: multiply;
+        }
+
+        /* COMPONENTS */
+        .input-label { 
+            @apply block text-[10px] uppercase tracking-[0.15em] font-bold text-deep/60 mb-2 font-sans; 
         }
         
+        .required-mark { 
+            @apply text-danger ml-0.5 text-xs align-top; 
+        }
+
+        .input-luxury {
+            @apply w-full bg-white border border-deep/10 px-4 py-3 text-sm text-deep placeholder-deep/20 focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold/50 transition-all duration-300 font-sans shadow-sm rounded-sm;
+        }
+
+        .input-headline {
+            @apply w-full bg-transparent border-b-2 border-deep/10 px-2 py-2 -mx-2 text-3xl md:text-4xl font-serif font-bold text-deep placeholder-deep/15 focus:outline-none focus:border-gold focus:bg-white/40 transition-all duration-300;
+        }
+
+        /* Custom Date Picker Icon Styling */
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            filter: sepia(100%) hue-rotate(10deg) brightness(0.9) contrast(0.8);
+            cursor: pointer; opacity: 0.6;
+        }
+        input[type="date"]::-webkit-calendar-picker-indicator:hover { opacity: 1; }
+
         /* Custom Scrollbar */
         .custom-scroll::-webkit-scrollbar { width: 6px; }
         .custom-scroll::-webkit-scrollbar-track { background: transparent; }
-        .custom-scroll::-webkit-scrollbar-thumb { background: #004030; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); }
-        .custom-scroll::-webkit-scrollbar-thumb:hover { background: #83C540; }
-
-        /* Input Styles */
-        .form-input {
-            @apply w-full bg-darker border border-white/10 rounded-xl px-4 py-3 text-sm text-pale focus:border-accent focus:ring-1 focus:ring-accent outline-none transition-all placeholder-white/20;
-        }
-        .form-label {
-            @apply block text-sm font-bold text-muted mb-2 uppercase tracking-wider;
-        }
-        
-        /* Fix Date Input Icon */
-        input[type="date"]::-webkit-calendar-picker-indicator {
-            filter: invert(1);
-            cursor: pointer;
-            opacity: 0.6;
-        }
-        input[type="date"]::-webkit-calendar-picker-indicator:hover { opacity: 1; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #C5B388; border-radius: 3px; }
+        .custom-scroll::-webkit-scrollbar-thumb:hover { background: #0F1F18; }
     </style>
 </head>
 
-<body class="flex h-screen overflow-hidden w-full">
+<body class="flex h-screen overflow-hidden relative">
+
+    <div class="noise-overlay"></div>
 
     <%- include('../../partials/admin_sidebar.ejs') %>
 
-    <main class="flex-1 h-full overflow-y-auto overflow-x-hidden custom-scroll relative">
+    <main class="flex-1 h-full overflow-y-auto overflow-x-hidden custom-scroll relative z-10 p-6 md:p-12">
         <%- include('../../partials/flash.ejs') %>
 
-        <form action="/admin/galeri" method="POST" enctype="multipart/form-data" class="min-h-full p-6 md:p-8 flex flex-col">
+        <form action="/admin/galeri" method="POST" enctype="multipart/form-data" id="gallery-form" class="max-w-6xl mx-auto flex flex-col min-h-full">
             
-            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 shrink-0">
+            <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10 border-b border-deep/10 pb-6 animate-enter">
                 <div>
-                    <h1 class="text-3xl font-bold text-pale tracking-tight">Tambah Galeri</h1>
-                    <p class="text-muted text-sm mt-1">Buat album foto baru untuk dokumentasi wilayah.</p>
+                    <span class="font-sans text-[10px] uppercase tracking-widest text-gold mb-2 block">Katalog Visual</span>
+                    <h1 class="font-crest text-3xl md:text-4xl text-deep leading-tight">Buat Album Galeri</h1>
+                    <p class="font-serif italic text-charcoal/60 text-sm mt-2">Koleksi foto kegiatan, dokumentasi wilayah, dan momen penting.</p>
                 </div>
-                <div class="md:hidden flex gap-2">
-                    <button type="submit" class="flex-1 bg-accent text-main font-bold py-2 px-4 rounded-lg text-sm">Simpan</button>
-                    <a href="/admin/galeri" class="bg-surface text-pale py-2 px-4 rounded-lg text-sm border border-white/10">Batal</a>
+                <div class="flex gap-4">
+                    <a href="/admin/galeri" class="px-6 py-3 border border-deep/10 text-deep/60 text-[10px] uppercase tracking-widest font-bold hover:bg-white hover:text-deep transition-all flex items-center justify-center">
+                        Batal
+                    </a>
+                    <button type="submit" id="btn-submit" class="px-8 py-3 bg-deep text-gold text-[10px] uppercase tracking-[0.2em] font-bold border border-deep hover:bg-gold hover:text-deep hover:border-gold transition-all shadow-lg hover:shadow-gold-glow flex items-center gap-2 group">
+                        <span>Simpan Album</span>
+                        <svg class="w-3 h-3 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                    </button>
                 </div>
             </div>
 
-            <div class="flex flex-col lg:flex-row gap-6 items-stretch flex-1">
+            <div class="flex flex-col lg:flex-row gap-8 lg:gap-12 items-start">
                 
-                <div class="w-full lg:flex-1 min-w-0 flex flex-col">
+                <div class="w-full lg:flex-1 space-y-8">
                     
-                    <div class="bg-surface rounded-2xl p-6 md:p-8 shadow-xl border border-white/5 flex-1 flex flex-col h-full">
+                    <div class="bg-white p-8 border border-deep/5 shadow-elegant relative group h-full">
+                        <div class="absolute top-0 left-0 w-1 h-full bg-gold/50 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                         
-                        <div class="mb-6 shrink-0">
-                            <label for="Nama" class="form-label text-xs mb-2">Nama Album / Galeri</label>
-                            <input type="text" id="Nama" name="Nama" 
-                                class="w-full bg-transparent border-b border-white/10 px-0 py-2 text-2xl md:text-3xl font-bold text-pale focus:border-accent outline-none transition-colors placeholder-white/20" 
-                                placeholder="Cth: Dokumentasi Kerja Bakti 2024" required>
+                        <div class="mb-8 relative">
+                            <label for="Nama" class="input-label text-gold">Nama Album / Galeri <span class="required-mark">*</span></label>
+                            <input type="text" id="Nama" name="Nama" class="input-headline" placeholder="Cth: Dokumentasi Kerja Bakti 2024" required autocomplete="off">
                         </div>
 
-                        <div class="mb-6 shrink-0">
-                            <label for="Tanggal" class="form-label text-xs mb-2">Tanggal Kegiatan</label>
-                            <input type="date" id="Tanggal" name="Tanggal" class="form-input">
-                        </div>
-
-                        <div class="flex-1 flex flex-col min-h-[200px]">
-                            <label for="Deskripsi" class="form-label text-xs mb-3 shrink-0">Deskripsi Singkat</label>
-                            <textarea id="Deskripsi" name="Deskripsi" 
-                                class="w-full h-full bg-darker/50 border border-white/10 rounded-xl p-5 text-base text-pale leading-relaxed focus:border-accent outline-none transition-all resize-none placeholder-white/20" 
-                                placeholder="Tuliskan keterangan singkat mengenai album foto ini..."></textarea>
+                        <div class="flex flex-col h-full">
+                            <label for="Deskripsi" class="input-label">Keterangan Album</label>
+                            <textarea id="Deskripsi" name="Deskripsi" rows="8"
+                                class="w-full bg-paper/50 border border-deep/10 p-6 text-sm text-deep/80 leading-loose font-serif italic focus:outline-none focus:border-gold resize-none placeholder-deep/20 focus:bg-white transition-all rounded-sm shadow-inner" 
+                                placeholder="Tuliskan cerita singkat di balik koleksi foto ini untuk keperluan arsip..."></textarea>
                         </div>
                     </div>
 
@@ -106,95 +134,105 @@
 
                 <div class="w-full lg:w-[400px] shrink-0 flex flex-col gap-6">
                     
-                    <div class="bg-surface rounded-2xl p-6 shadow-xl border border-white/5 flex-1 flex flex-col">
-                        <h3 class="text-lg font-bold text-pale mb-4 flex items-center gap-2">
-                            <svg class="w-5 h-5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                            Upload Foto
-                        </h3>
+                    <div class="bg-deep/5 p-6 border border-deep/5 rounded-sm relative overflow-hidden">
+                        <div class="absolute inset-0 opacity-[0.03]" style="background-image: url('data:image/svg+xml,%3Csvg width=\'20\' height=\'20\' viewBox=\'0 0 20 20\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'%230F1F18\' fill-opacity=\'1\' fill-rule=\'evenodd\'%3E%3Ccircle cx=\'3\' cy=\'3\' r=\'3\'/%3E%3Ccircle cx=\'13\' cy=\'13\' r=\'3\'/%3E%3C/g%3E%3C/svg%3E');"></div>
                         
-                        <div class="w-full bg-darker/50 border-2 border-dashed border-white/10 rounded-xl p-6 text-center hover:border-accent/50 transition-colors group relative overflow-hidden shrink-0">
-                            <input type="file" id="fotoGaleri" name="fotoGaleri" multiple accept="image/png, image/jpeg, image/jpg" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" onchange="previewImages()">
-                            
-                            <div class="flex flex-col items-center justify-center py-4">
-                                <div class="w-14 h-14 rounded-full bg-white/5 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-                                    <svg class="w-7 h-7 text-muted group-hover:text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-                                </div>
-                                <span class="text-sm font-bold text-pale group-hover:text-accent transition-colors">Pilih Foto</span>
-                                <span class="text-[10px] text-muted mt-1">Max 20 file (5MB/file)</span>
+                        <h3 class="font-crest text-sm text-deep mb-5 flex items-center gap-2 relative z-10 border-b border-deep/10 pb-3">
+                            <svg class="w-4 h-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                            Waktu & Konteks
+                        </h3>
+
+                        <div class="space-y-5 relative z-10">
+                            <div>
+                                <label for="Tanggal" class="input-label">Tanggal Kegiatan</label>
+                                <input type="date" id="Tanggal" name="Tanggal" class="input-luxury cursor-pointer">
                             </div>
-                        </div>
 
-                        <div class="mt-4 flex-1 overflow-y-auto custom-scroll min-h-[150px] border-t border-white/5 pt-4">
-                            <p id="empty-msg" class="text-xs text-muted text-center italic mt-10">Belum ada foto dipilih.</p>
-                            <div id="preview-container" class="grid grid-cols-3 gap-2">
-                                </div>
-                        </div>
-
-                        <div class="hidden md:flex flex-col gap-3 mt-6 pt-6 border-t border-white/10 shrink-0">
-                            <button type="submit" class="w-full bg-accent hover:bg-white text-main font-bold py-3 px-6 rounded-xl transition-all shadow-lg hover:shadow-accent/20 flex justify-center items-center gap-2">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                                Simpan Galeri
-                            </button>
-                            <a href="/admin/galeri" class="w-full text-center py-2 text-sm text-muted hover:text-white transition-colors">
-                                Batalkan
-                            </a>
+                            <div>
+                                <label for="Lokasi" class="input-label">Lokasi (Opsional)</label>
+                                <input type="text" id="Lokasi" name="Lokasi" class="input-luxury" placeholder="Cth: Balai Desa">
+                            </div>
                         </div>
                     </div>
 
-                </div> </div> </form>
+                    <div class="bg-white p-6 border border-deep/5 shadow-elegant">
+                        <div class="mb-4 flex items-center justify-between">
+                            <span class="input-label mb-0 text-deep">Unggah Foto</span>
+                            <div class="h-[1px] flex-1 bg-deep/10 ml-4"></div>
+                        </div>
+
+                        <label for="fotoGaleri" class="relative flex flex-col items-center justify-center w-full aspect-[3/2] bg-linen/20 border border-dashed border-deep/20 cursor-pointer group hover:border-gold transition-all duration-300 overflow-hidden mb-4">
+                            <div class="flex flex-col items-center justify-center pt-5 pb-6 text-deep/30 group-hover:text-gold transition-colors">
+                                <div class="w-12 h-12 rounded-full border border-current flex items-center justify-center mb-3">
+                                    <svg class="w-6 h-6 stroke-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                </div>
+                                <p class="text-[9px] uppercase tracking-widest font-bold">Pilih Foto (Max 20)</p>
+                                <p class="text-[8px] mt-1 font-mono opacity-60">Klik untuk jelajah file</p>
+                            </div>
+                            <input type="file" id="fotoGaleri" name="fotoGaleri" multiple accept="image/png, image/jpeg, image/jpg" class="hidden" onchange="previewImages()">
+                        </label>
+
+                        <p id="empty-msg" class="text-[10px] text-deep/40 text-center italic mt-2 font-serif">Belum ada foto dipilih.</p>
+                        <div id="preview-container" class="grid grid-cols-3 gap-3 p-2 bg-deep/5 rounded-sm min-h-[100px]">
+                            </div>
+                    </div>
+
+                </div>
+            </div>
+        </form>
     </main>
 
     <script>
+        // --- Image Preview Logic (Polaroid Stack Effect) ---
         function previewImages() {
             const input = document.getElementById('fotoGaleri');
             const container = document.getElementById('preview-container');
             const emptyMsg = document.getElementById('empty-msg');
             
-            // Bersihkan preview lama
-            container.innerHTML = '';
+            container.innerHTML = ''; // Clear previous
             
-            const files = input.files;
+            if (input.files && input.files.length > 0) {
+                // Validation Warning
+                if (input.files.length > 20) {
+                    alert("Mohon maaf, maksimal 20 foto per album.");
+                    input.value = "";
+                    emptyMsg.style.display = 'block';
+                    return;
+                }
 
-            // Validasi Jumlah
-            if (files.length > 20) {
-                alert('Maksimal 20 foto sekaligus!');
-                input.value = ''; // Reset input
-                emptyMsg.style.display = 'block';
-                return;
-            }
-
-            if (files.length > 0) {
                 emptyMsg.style.display = 'none';
                 
-                Array.from(files).forEach(file => {
-                    // Validasi Size
-                    if (file.size > 5 * 1024 * 1024) {
-                        alert(`File ${file.name} terlalu besar (Max 5MB)`);
-                        return;
-                    }
-                    // Validasi Tipe
-                    if (!file.type.match('image.*')) {
-                        return;
-                    }
-
+                Array.from(input.files).forEach((file, index) => {
                     const reader = new FileReader();
                     reader.onload = function(e) {
                         const div = document.createElement('div');
-                        div.className = "relative aspect-square rounded-lg overflow-hidden border border-white/10 group";
+                        // Random rotation for pile effect
+                        const rotation = Math.floor(Math.random() * 6) - 3; // -3deg to +3deg
+                        
+                        div.className = `relative aspect-square bg-white p-1 border border-deep/10 shadow-sm hover:z-10 hover:scale-110 transition-all duration-300 transform rotate-[${rotation}deg]`;
                         div.innerHTML = `
-                            <img src="${e.target.result}" class="w-full h-full object-cover">
-                            <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center p-1">
-                                <span class="text-[10px] text-white text-center break-all leading-tight">${file.name}</span>
+                            <div class="w-full h-full overflow-hidden">
+                                <img src="${e.target.result}" class="w-full h-full object-cover filter sepia-[0.3]">
                             </div>
                         `;
                         container.appendChild(div);
-                    };
+                    }
                     reader.readAsDataURL(file);
                 });
             } else {
                 emptyMsg.style.display = 'block';
             }
         }
+
+        // --- Submit Loading State ---
+        document.getElementById('gallery-form').addEventListener('submit', function(e) {
+            const btn = document.getElementById('btn-submit');
+            btn.style.width = `${btn.offsetWidth}px`;
+            btn.disabled = true;
+            btn.innerHTML = `<svg class="animate-spin h-4 w-4 text-deep mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>`;
+            btn.classList.add('opacity-75', 'cursor-not-allowed', 'bg-gold', 'text-deep', 'border-gold');
+            btn.classList.remove('bg-deep', 'text-gold');
+        });
     </script>
 </body>
 </html>

@@ -3,7 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Prestasi: <%= prestasi.Judul %></title>
+    <title>Arsip Prestasi: <%= prestasi.Judul %> - Executive Console</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Lato:wght@300;400;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -11,203 +15,238 @@
             theme: {
                 extend: {
                     colors: {
-                        main: '#003024',    // Background Gelap
-                        surface: '#004030', // Warna Kartu
-                        accent: '#83C540',  // Hijau Neon
-                        pale: '#F5FEF9',    // Teks Putih
-                        muted: '#A3C2B8',   // Teks Pudar
-                        darker: '#00251a',  // Background Input
-                        danger: '#ff4d4d',  // Merah Error
-                        warning: '#FFC107', // Kuning Warning
+                        paper: '#F9F7F2',       /* Latar Belakang Kertas Tua */
+                        deep: '#0F1F18',        /* Tinta Hijau Gelap */
+                        gold: '#C5B388',        /* Emas Antik */
+                        charcoal: '#4A4A4A',    /* Abu Arang */
+                        linen: '#EBE9E4',       /* Abu Linen */
+                        white: '#FFFFFF',
+                        danger: '#8B3A3A',      /* Merah Bata Elegan */
+                        info: '#5B7C99',        /* Biru Pudar */
                     },
-                    fontFamily: { sans: ['Inter', 'sans-serif'] }
+                    fontFamily: {
+                        sans: ['Lato', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                        crest: ['Cinzel', 'serif'], 
+                        mono: ['Courier Prime', 'monospace'],
+                    },
+                    boxShadow: {
+                        'elegant': '0 20px 50px -12px rgba(15, 31, 24, 0.08)',
+                        'gold-glow': '0 0 15px rgba(197, 179, 136, 0.2)',
+                    }
                 }
             }
         }
     </script>
     <style type="text/tailwindcss">
-        @layer base { body { @apply bg-main text-pale font-sans antialiased; } }
+        @layer base { body { @apply bg-paper text-deep font-sans antialiased; } }
         
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #004030; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: #83C540; }
-
-        /* Input Styling */
-        .form-input {
-            @apply w-full bg-darker border border-white/10 rounded-xl px-4 py-3 text-sm text-pale focus:border-accent focus:ring-1 focus:ring-accent outline-none transition-all placeholder-white/20;
-        }
-        .form-label {
-            @apply block text-xs font-bold text-muted mb-2 uppercase tracking-wider;
+        /* TEXTURE: Film Grain Overlay */
+        .noise-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E");
+            pointer-events: none; z-index: 50; mix-blend-mode: multiply;
         }
 
-        /* Modal Styling */
-        dialog::backdrop { background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(2px); }
+        /* COMPONENTS */
+        .input-label { 
+            @apply block text-[10px] uppercase tracking-[0.15em] font-bold text-deep/60 mb-2 font-sans; 
+        }
+
+        .input-luxury {
+            @apply w-full bg-white border border-deep/10 px-4 py-3 text-sm text-deep placeholder-deep/20 focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold/50 transition-all duration-300 font-sans shadow-sm rounded-sm appearance-none;
+        }
+
+        .input-headline {
+            @apply w-full bg-transparent border-b-2 border-deep/10 px-2 py-2 -mx-2 text-2xl md:text-3xl font-serif font-bold text-deep placeholder-deep/15 focus:outline-none focus:border-gold focus:bg-white/40 transition-all duration-300;
+        }
+
+        /* Checkbox Custom */
+        .custom-check { @apply appearance-none w-4 h-4 border border-deep/30 rounded-sm checked:bg-deep checked:border-deep cursor-pointer transition-colors relative; }
+        .custom-check:checked::after { content: '✓'; @apply absolute inset-0 flex items-center justify-center text-gold text-[10px] font-bold leading-none; }
+
+        /* Modal Backdrop */
+        dialog::backdrop { background: rgba(15, 31, 24, 0.6); backdrop-filter: sepia(80%); }
     </style>
 </head>
 
-<body class="flex h-screen overflow-hidden w-full">
+<body class="flex h-screen overflow-hidden relative">
+
+    <div class="noise-overlay"></div>
 
     <%- include('../../partials/admin_sidebar.ejs') %>
 
-    <main class="flex-1 h-full overflow-y-auto overflow-x-hidden p-6 md:p-8 relative">
+    <main class="flex-1 h-full overflow-y-auto overflow-x-hidden p-6 md:p-12 relative z-10 custom-scroll">
         <%- include('../../partials/flash.ejs') %>
 
-        <form action="/admin/prestasi/<%= prestasi.ID_Prestasi %>/edit" method="POST" enctype="multipart/form-data">
+        <div class="max-w-6xl mx-auto flex flex-col min-h-full">
             
-            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+            <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10 border-b border-deep/10 pb-6">
+                <div>
+                    <span class="font-sans text-[10px] uppercase tracking-widest text-gold mb-2 block">Arsip & Penghargaan</span>
+                    <h1 class="font-crest text-3xl md:text-4xl text-deep leading-tight">Sunting Catatan Prestasi</h1>
+                    <p class="font-serif italic text-charcoal/60 text-sm mt-2">Pembaruan data penghargaan dan bukti fisik.</p>
+                </div>
+                <div class="flex gap-4">
+                    <a href="/admin/prestasi" class="px-6 py-3 border border-deep/10 text-deep/60 text-[10px] uppercase tracking-widest font-bold hover:bg-white hover:text-deep transition-all flex items-center justify-center">
+                        Tutup Berkas
+                    </a>
+                </div>
+            </div>
+
+            <form action="/admin/prestasi/<%= prestasi.ID_Prestasi %>/edit" method="POST" enctype="multipart/form-data" class="flex flex-col lg:flex-row gap-8 lg:gap-12 items-start mb-12">
                 
-                <div class="flex-1">
-                    <h1 class="text-3xl font-bold text-pale tracking-tight flex items-center gap-2">
-                        <span class="text-accent">Edit:</span> <%= prestasi.Judul %>
-                    </h1>
-                    <p class="text-muted text-sm mt-1">Perbarui detail prestasi dan kelola dokumentasi.</p>
+                <div class="w-full lg:flex-1 space-y-8">
+                    <div class="bg-white p-8 border border-deep/5 shadow-elegant relative h-full">
+                        <div class="absolute top-0 left-0 w-1 h-full bg-gold/50"></div>
+                        
+                        <div class="space-y-8">
+                            <div>
+                                <label for="Judul" class="input-label text-gold">Nama Penghargaan / Kejuaraan</label>
+                                <input type="text" id="Judul" name="Judul" value="<%= prestasi.Judul %>" class="input-headline" required>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label for="Tanggal" class="input-label">Tanggal Perolehan</label>
+                                    <input type="date" id="Tanggal" name="Tanggal" value="<%= prestasi.Tanggal %>" class="input-luxury font-mono text-xs uppercase" required>
+                                </div>
+                                <div>
+                                    <label for="Kategori" class="input-label">Tingkat / Lingkup</label>
+                                    <div class="relative">
+                                        <input type="text" id="Kategori" name="Kategori" value="<%= prestasi.Kategori || '' %>" list="kategoriList" class="input-luxury" placeholder="Pilih atau ketik...">
+                                        <datalist id="kategoriList">
+                                            <option value="Kelurahan">
+                                            <option value="Kecamatan">
+                                            <option value="Kota Yogyakarta">
+                                            <option value="Provinsi DIY">
+                                            <option value="Nasional">
+                                            <option value="Internasional">
+                                        </datalist>
+                                        <div class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none opacity-50">
+                                            <svg class="w-4 h-4 text-deep" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="flex items-center gap-3 shrink-0">
-                    <a href="/admin/prestasi" class="bg-surface hover:bg-white/10 text-pale font-bold py-2.5 px-6 rounded-xl border border-white/10 transition-all text-sm shadow-lg">
-                        Kembali
-                    </a>
-                    <button type="submit" class="bg-accent hover:bg-accent/90 text-main font-bold py-2.5 px-6 rounded-xl shadow-lg shadow-accent/20 transition-all flex items-center gap-2 text-sm">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                <div class="w-full lg:w-[350px] shrink-0 flex flex-col gap-6">
+                    
+                    <div class="bg-white p-6 border border-deep/5 shadow-elegant relative">
+                        <h3 class="font-crest text-sm text-deep mb-4 border-b border-deep/10 pb-2">Tambah Bukti Foto</h3>
+                        
+                        <div class="relative group w-full mb-4">
+                            <label for="fotoPrestasi" class="flex flex-col items-center justify-center w-full h-32 bg-linen/30 border-2 border-dashed border-deep/20 cursor-pointer hover:border-gold hover:bg-white transition-all duration-300">
+                                <div class="flex flex-col items-center pointer-events-none pt-2">
+                                    <svg class="w-6 h-6 text-deep/40 mb-2 group-hover:text-gold transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4v16m8-8H4"></path></svg>
+                                    <p class="text-[9px] text-deep/60 uppercase tracking-widest font-bold">Unggah Dokumen</p>
+                                </div>
+                                <input type="file" id="fotoPrestasi" name="fotoPrestasi" multiple accept="image/png, image/jpeg, image/jpg" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+                            </label>
+                        </div>
+                        
+                        <div id="foto-preview-container" class="grid grid-cols-3 gap-2 empty:hidden border-t border-deep/10 pt-3">
+                            </div>
+                    </div>
+
+                    <button type="submit" class="w-full px-8 py-4 bg-deep text-gold text-[11px] uppercase tracking-[0.2em] font-bold border border-deep hover:bg-gold hover:text-deep hover:border-gold transition-all shadow-lg flex items-center justify-center gap-3 group">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg>
                         Simpan Perubahan
                     </button>
                 </div>
-            </div>
+            </form>
 
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
-                
-                <div class="lg:col-span-2 bg-surface rounded-2xl p-6 shadow-xl border border-white/5 flex flex-col h-full">
-                    <h3 class="text-lg font-bold text-pale mb-6 border-b border-white/5 pb-4 flex items-center gap-2 shrink-0">
-                        <svg class="w-5 h-5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                        Detail Data
+            <div class="border-t border-deep/10 pt-8 mt-4">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="font-crest text-xl text-deep flex items-center gap-2">
+                        <span class="text-gold text-2xl">❖</span> Lembar Kontak (Bukti Visual)
                     </h3>
-                    
-                    <div class="space-y-5 h-full">
-                        <div>
-                            <label for="Judul" class="form-label">Judul Prestasi</label>
-                            <input type="text" id="Judul" name="Judul" value="<%= prestasi.Judul %>" class="form-input text-lg font-bold" required>
-                        </div>
-
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                            <div>
-                                <label for="Tanggal" class="form-label">Tanggal Diraih</label>
-                                <input type="date" id="Tanggal" name="Tanggal" value="<%= prestasi.Tanggal %>" class="form-input" required>
-                            </div>
-                            <div>
-                                <label for="Kategori" class="form-label">Kategori</label>
-                                <input type="text" id="Kategori" name="Kategori" value="<%= prestasi.Kategori || '' %>" placeholder="Misal: Tingkat Nasional" class="form-input">
-                            </div>
-                        </div>
-                    </div>
                 </div>
 
-                <div class="lg:col-span-1 h-full">
-                    <div class="bg-surface rounded-2xl p-6 shadow-xl border border-white/5 flex flex-col h-full">
-                        <h3 class="text-lg font-bold text-pale mb-6 border-b border-white/5 pb-4 flex items-center gap-2 shrink-0">
-                            <svg class="w-5 h-5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                            Tambah Foto Baru
-                        </h3>
+                <% if (fotoList && fotoList.length > 0) { %>
+                    <form action="/admin/prestasi/<%= prestasi.ID_Prestasi %>/bulk-delete-fotos" method="POST" id="bulk-foto-form">
                         
-                        <div class="relative group w-full flex-1 min-h-[160px] bg-darker/50 border-2 border-dashed border-white/10 rounded-xl flex flex-col items-center justify-center hover:border-accent/50 transition-colors cursor-pointer mb-4">
-                            <input type="file" id="fotoPrestasi" name="fotoPrestasi" multiple accept="image/png, image/jpeg, image/jpg" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
-                            <div class="flex flex-col items-center pointer-events-none p-4 text-center">
-                                <svg class="w-10 h-10 text-muted mb-3 group-hover:text-accent transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-                                <span class="text-xs text-muted font-bold uppercase tracking-wider group-hover:text-pale">Klik untuk Upload</span>
-                            </div>
+                        <div class="flex items-center gap-4 mb-6 bg-linen/30 p-3 border border-deep/5">
+                            <label class="flex items-center gap-2 cursor-pointer select-none text-xs font-bold text-deep/60 hover:text-deep transition-colors uppercase tracking-wider">
+                                <input type="checkbox" id="select-all-fotos" class="custom-check">
+                                <span>Pilih Semua</span>
+                            </label>
+                            <div class="h-4 w-px bg-deep/10"></div>
+                            <button type="submit" id="btn-delete-bulk" disabled class="text-xs font-bold text-danger disabled:opacity-30 disabled:cursor-not-allowed hover:underline flex items-center gap-1 uppercase tracking-wider">
+                                [ Hapus Terpilih ]
+                            </button>
                         </div>
 
-                        <div id="foto-preview-container" class="grid grid-cols-3 gap-2 shrink-0 empty:hidden"></div>
-                    </div>
-                </div>
-            </div>
-        </form>
-
-        <div class="mt-8 bg-surface rounded-2xl p-6 md:p-8 shadow-xl border border-white/5">
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6 border-b border-white/5 pb-4">
-                <h3 class="text-lg font-bold text-pale flex items-center gap-2">
-                    <svg class="w-5 h-5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
-                    Manajemen Galeri
-                </h3>
-            </div>
-
-            <% if (fotoList && fotoList.length > 0) { %>
-                <form action="/admin/prestasi/<%= prestasi.ID_Prestasi %>/bulk-delete-fotos" method="POST" id="bulk-foto-form">
-                    
-                    <div class="flex items-center gap-4 mb-4 bg-darker/50 p-3 rounded-xl border border-white/5">
-                        <label class="flex items-center gap-2 cursor-pointer select-none text-sm text-muted hover:text-pale transition-colors">
-                            <input type="checkbox" id="select-all-fotos" class="accent-accent w-4 h-4 rounded cursor-pointer">
-                            <span>Pilih Semua</span>
-                        </label>
-                        <div class="h-4 w-px bg-white/10"></div>
-                        <button type="submit" id="btn-delete-bulk" disabled class="text-sm font-bold text-danger disabled:opacity-30 disabled:cursor-not-allowed hover:text-red-400 transition-colors flex items-center gap-1">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                            Hapus Terpilih
-                        </button>
-                    </div>
-
-                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-                        <% fotoList.forEach(foto => { %>
-                            <div class="relative group aspect-square rounded-xl overflow-hidden border border-white/10 bg-darker shadow-sm hover:border-accent/50 transition-all">
-                                
-                                <img src="/images/prestasi/<%= foto.Foto %>" alt="Dokumentasi" class="w-full h-full object-cover">
-                                
-                                <div class="absolute top-2 left-2 z-20">
-                                    <input type="checkbox" name="fotoIds" value="<%= foto.ID_Foto %>" class="row-foto-checkbox accent-danger w-5 h-5 cursor-pointer shadow-md">
-                                </div>
-
-                                <% if (foto.ID_Foto === thumbnailId) { %>
-                                    <div class="absolute top-2 right-2 bg-accent text-main text-[10px] font-bold px-2 py-1 rounded-full shadow-lg z-20 border border-main/20">
-                                        COVER
-                                    </div>
-                                <% } %>
-
-                                <div class="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-center items-center gap-2 p-4">
+                        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+                            <% fotoList.forEach(foto => { %>
+                                <div class="relative group bg-white p-2 shadow-sm border border-deep/10 hover:shadow-gold-glow transition-all">
                                     
-                                    <% if (foto.ID_Foto !== thumbnailId) { %>
-                                        <button type="button" 
-                                            onclick="setThumbnail('<%= prestasi.ID_Prestasi %>', '<%= foto.ID_Foto %>')"
-                                            class="w-full py-1.5 bg-accent text-main text-xs font-bold rounded hover:bg-white hover:text-main transition-colors">
-                                            Jadikan Cover
-                                        </button>
-                                    <% } %>
+                                    <div class="aspect-square overflow-hidden bg-charcoal relative">
+                                        <img src="/images/prestasi/<%= foto.Foto %>" alt="Dokumentasi" class="w-full h-full object-cover filter sepia-[0.3] group-hover:sepia-0 transition-all duration-500">
+                                        
+                                        <div class="absolute top-2 left-2 z-20">
+                                            <input type="checkbox" name="fotoIds" value="<%= foto.ID_Foto %>" class="row-foto-checkbox custom-check bg-white/80 border-none shadow-sm">
+                                        </div>
 
-                                    <button type="button" 
-                                        onclick="openReplaceModal('<%= prestasi.ID_Prestasi %>', '<%= foto.ID_Foto %>')"
-                                        class="w-full py-1.5 bg-white/10 text-white text-xs font-bold rounded hover:bg-warning hover:text-black border border-white/20 hover:border-transparent transition-colors">
-                                        Ganti Foto
-                                    </button>
+                                        <% if (foto.ID_Foto === thumbnailId) { %>
+                                            <div class="absolute top-2 right-2 bg-gold text-deep text-[9px] font-bold px-2 py-0.5 border border-deep/20 shadow-md z-20 uppercase tracking-widest">
+                                                Sampul
+                                            </div>
+                                        <% } %>
+                                    </div>
+
+                                    <div class="mt-2 flex flex-col gap-1">
+                                        <% if (foto.ID_Foto !== thumbnailId) { %>
+                                            <button type="button" 
+                                                onclick="setThumbnail('<%= prestasi.ID_Prestasi %>', '<%= foto.ID_Foto %>')"
+                                                class="w-full py-1 text-[9px] font-bold text-deep/60 hover:text-deep hover:bg-linen/50 transition-colors uppercase tracking-wider border border-transparent hover:border-deep/5 text-center">
+                                                Jadikan Sampul
+                                            </button>
+                                        <% } else { %>
+                                            <span class="w-full py-1 text-[9px] font-bold text-gold text-center uppercase tracking-wider border-b border-gold/20 block">
+                                                Foto Utama
+                                            </span>
+                                        <% } %>
+
+                                        <button type="button" 
+                                            onclick="openReplaceModal('<%= prestasi.ID_Prestasi %>', '<%= foto.ID_Foto %>')"
+                                            class="w-full py-1 text-[9px] font-bold text-info hover:text-deep hover:bg-linen/50 transition-colors uppercase tracking-wider border border-transparent hover:border-deep/5 text-center">
+                                            Ganti File
+                                        </button>
+                                    </div>
                                 </div>
-                            </div>
-                        <% }) %>
+                            <% }) %>
+                        </div>
+                    </form>
+                <% } else { %>
+                    <div class="text-center py-12 border border-dashed border-deep/20 bg-linen/10">
+                        <p class="font-serif italic text-deep/40 text-sm">Belum ada bukti visual yang dilampirkan dalam arsip ini.</p>
                     </div>
-                </form>
-            <% } else { %>
-                <div class="text-center py-10 border-2 border-dashed border-white/5 rounded-xl">
-                    <p class="text-muted text-sm">Belum ada foto prestasi di galeri.</p>
-                </div>
-            <% } %>
+                <% } %>
+            </div>
         </div>
     </main>
 
-    <dialog id="replace-foto-modal" class="bg-surface p-0 rounded-2xl shadow-2xl w-full max-w-md backdrop:bg-black/80 border border-white/10">
-        <div class="p-6">
-            <h3 class="text-xl font-bold text-pale mb-4 border-b border-white/10 pb-2">Ganti Foto</h3>
+    <dialog id="replace-foto-modal" class="bg-paper p-0 shadow-2xl w-full max-w-sm border border-deep/10 outline-none">
+        <div class="relative p-6 border-4 border-double border-deep/5">
+            <h3 class="font-crest text-lg text-deep mb-4 border-b border-deep/10 pb-2 text-center">Ganti Dokumen Foto</h3>
             
             <form id="replace-foto-form" method="POST" enctype="multipart/form-data">
                 <input type="hidden" name="_method" value="POST"> 
                 
                 <div class="mb-6">
-                    <label for="newFoto" class="form-label">Pilih Foto Pengganti</label>
-                    <input type="file" id="newFoto" name="newFoto" accept="image/png, image/jpeg, image/jpg" class="form-input" required>
+                    <label for="newFoto" class="input-label text-center mb-4">Pilih File Pengganti</label>
+                    <input type="file" id="newFoto" name="newFoto" accept="image/png, image/jpeg, image/jpg" class="block w-full text-xs text-deep file:mr-4 file:py-2 file:px-4 file:border-0 file:text-[10px] file:font-bold file:uppercase file:bg-deep file:text-gold hover:file:bg-gold hover:file:text-deep transition-all border border-deep/10 bg-white p-1" required>
                 </div>
 
-                <div class="flex justify-end gap-3">
-                    <button type="button" onclick="closeReplaceModal()" class="px-4 py-2 text-sm text-pale hover:bg-white/5 rounded-lg transition-colors border border-transparent hover:border-white/10">
+                <div class="flex justify-between gap-3 pt-4 border-t border-deep/10">
+                    <button type="button" onclick="closeReplaceModal()" class="px-4 py-2 text-[10px] uppercase font-bold text-deep/60 hover:text-deep hover:underline transition-colors">
                         Batal
                     </button>
-                    <button type="submit" class="bg-accent text-main font-bold py-2 px-6 rounded-lg text-sm hover:shadow-lg hover:shadow-accent/20 transition-all">
+                    <button type="submit" class="px-6 py-2 bg-deep text-gold text-[10px] uppercase font-bold hover:bg-gold hover:text-deep transition-all shadow-md">
                         Simpan
                     </button>
                 </div>
@@ -216,7 +255,31 @@
     </dialog>
 
     <script>
-        // --- 1. LOGIKA BULK DELETE ---
+        // --- 1. PREVIEW GAMBAR (UPLOAD BARU) ---
+        const inputUpload = document.getElementById('fotoPrestasi');
+        const previewContainer = document.getElementById('foto-preview-container');
+
+        if (inputUpload && previewContainer) {
+            inputUpload.addEventListener('change', function(event) {
+                previewContainer.innerHTML = '';
+                if (this.files) {
+                    Array.from(this.files).forEach(file => {
+                        if (file.type.startsWith('image/')) {
+                            const reader = new FileReader();
+                            reader.onload = function(e) {
+                                const img = document.createElement('img');
+                                img.src = e.target.result;
+                                img.className = 'w-full h-12 object-cover border border-deep/20 shadow-sm sepia-[0.2]';
+                                previewContainer.appendChild(img);
+                            }
+                            reader.readAsDataURL(file);
+                        }
+                    });
+                }
+            });
+        }
+
+        // --- 2. LOGIKA BULK DELETE ---
         const checkAll = document.getElementById('select-all-fotos');
         const bulkBtn = document.getElementById('btn-delete-bulk');
         const bulkForm = document.getElementById('bulk-foto-form');
@@ -235,41 +298,17 @@
             function toggleBulkButton() {
                 const count = document.querySelectorAll('.row-foto-checkbox:checked').length;
                 bulkBtn.disabled = count === 0;
-                bulkBtn.innerHTML = count > 0 
-                    ? `<span class="text-danger">Hapus (${count}) Foto</span>` 
-                    : `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg> Hapus Terpilih`;
+                bulkBtn.textContent = count > 0 
+                    ? `[ Hapus (${count}) Foto ]` 
+                    : `[ Hapus Terpilih ]`;
             }
 
             bulkForm.addEventListener('submit', function(e) {
                 const checkedBoxes = document.querySelectorAll('.row-foto-checkbox:checked').length;
                 if (checkedBoxes === 0) {
                     e.preventDefault();
-                } else if (!confirm(`Yakin hapus ${checkedBoxes} foto ini?`)) {
+                } else if (!confirm(`PERINGATAN ARSIP:\n\nApakah Anda yakin ingin menghapus ${checkedBoxes} dokumen bukti ini secara permanen?`)) {
                     e.preventDefault();
-                }
-            });
-        }
-
-        // --- 2. PREVIEW GAMBAR (UPLOAD BARU) ---
-        const inputUpload = document.getElementById('fotoPrestasi');
-        const previewContainer = document.getElementById('foto-preview-container');
-
-        if (inputUpload && previewContainer) {
-            inputUpload.addEventListener('change', function(event) {
-                previewContainer.innerHTML = '';
-                if (this.files) {
-                    Array.from(this.files).forEach(file => {
-                        if (file.type.startsWith('image/')) {
-                            const reader = new FileReader();
-                            reader.onload = function(e) {
-                                const img = document.createElement('img');
-                                img.src = e.target.result;
-                                img.className = 'w-full h-16 object-cover rounded border border-white/20';
-                                previewContainer.appendChild(img);
-                            }
-                            reader.readAsDataURL(file);
-                        }
-                    });
                 }
             });
         }
@@ -296,7 +335,7 @@
 
         // --- 4. LOGIKA SET THUMBNAIL ---
         function setThumbnail(prestasiId, fotoId) {
-            if (confirm('Jadikan foto ini sebagai Cover Utama?')) {
+            if (confirm('Jadikan foto ini sebagai Cover Utama untuk arsip prestasi ini?')) {
                 const form = document.createElement('form');
                 form.method = 'POST';
                 form.action = `/admin/prestasi/${prestasiId}/foto/${fotoId}/set-thumbnail`;

@@ -3,7 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard - Bausasran</title>
+    <title>Executive Dashboard - Bausasran Heritage</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Lato:wght@300;400;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
     
     <script src="https://cdn.tailwindcss.com"></script>
 
@@ -12,17 +16,21 @@
             theme: {
                 extend: {
                     colors: {
-                        main: '#003024',    // Background Gelap
-                        surface: '#004030', // Warna Kartu
-                        accent: '#83C540',  // Hijau Neon
-                        pale: '#F5FEF9',    // Teks Putih
-                        muted: '#A3C2B8',   // Teks Pudar
+                        paper: '#F9F7F2',       // Cream Background
+                        deep: '#0F1F18',        // Dark Green (Primary)
+                        gold: '#C5B388',        // Luxury Accent
+                        charcoal: '#4A4A4A',    // Text
+                        sand: '#E5E0D8',        // Border
+                        white: '#FFFFFF',
                     },
                     fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
+                        sans: ['Lato', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                        crest: ['Cinzel', 'serif'], 
                     },
                     boxShadow: {
-                        'neon': '0 0 10px rgba(131, 197, 64, 0.2)',
+                        'elegant': '0 10px 30px -10px rgba(15, 31, 24, 0.1)',
+                        'gold-glow': '0 0 15px rgba(197, 179, 136, 0.2)',
                     }
                 }
             }
@@ -32,259 +40,253 @@
     <style type="text/tailwindcss">
         @layer base {
             body {
-                @apply bg-main text-pale font-sans antialiased;
+                @apply bg-paper text-deep font-sans antialiased;
             }
         }
-        /* Scrollbar kustom untuk dashboard */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #003024; 
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #004030; 
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #83C540; 
+        /* Custom Scrollbar for Heritage Theme */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #F9F7F2; }
+        ::-webkit-scrollbar-thumb { background: #C5B388; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #0F1F18; }
+
+        .noise-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.04'/%3E%3C/svg%3E");
+            pointer-events: none; z-index: 0; mix-blend-mode: multiply;
         }
     </style>
 </head>
 
-<body class="flex h-screen overflow-hidden bg-main">
+<body class="flex h-screen overflow-hidden relative">
+
+    <div class="noise-overlay"></div>
 
     <%- include('../partials/admin_sidebar.ejs') %>
 
-    <main class="flex-1 overflow-y-auto overflow-x-hidden relative">
-        <div class="absolute top-0 left-0 w-full h-64 bg-gradient-to-b from-surface to-main -z-10"></div>
+    <main class="flex-1 overflow-y-auto overflow-x-hidden relative z-10 bg-paper">
+        
+        <div class="absolute top-0 left-0 w-full h-80 bg-gradient-to-b from-white to-transparent pointer-events-none"></div>
 
-        <div class="p-6 md:p-10 max-w-7xl mx-auto">
+        <div class="p-8 md:p-12 max-w-7xl mx-auto relative">
             <%- include('../partials/flash.ejs') %>
 
-            <div class="flex flex-col md:flex-row md:items-center justify-between mb-10">
+            <div class="flex flex-col md:flex-row md:items-end justify-between mb-12 border-b border-deep/10 pb-6">
                 <div>
-                    <h1 class="text-3xl font-bold text-pale mb-1">Dashboard Ikhtisar</h1>
-                    <p class="text-muted">
-                        Halo, <span class="font-bold text-accent"><%= currentUser.Nama %></span>! Berikut adalah ringkasan aktivitas sistem.
+                    <span class="text-[10px] font-bold uppercase tracking-[0.2em] text-gold mb-1 block">Panel Administrasi</span>
+                    <h1 class="text-3xl md:text-4xl font-crest font-bold text-deep leading-tight">
+                        Ikhtisar Wilayah
+                    </h1>
+                    <p class="font-serif italic text-charcoal/70 mt-2">
+                        Selamat bertugas, <span class="text-deep font-bold border-b border-gold"><%= currentUser.Nama %></span>.
                     </p>
                 </div>
-                <div class="mt-4 md:mt-0">
-                    <span class="px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-sm text-muted backdrop-blur-sm">
-                        <%= new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) %>
-                    </span>
+                <div class="mt-6 md:mt-0">
+                    <div class="px-5 py-2 bg-white border border-gold/30 shadow-sm flex items-center gap-3">
+                        <svg class="w-4 h-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                        <span class="text-xs font-bold uppercase tracking-widest text-deep">
+                            <%= new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) %>
+                        </span>
+                    </div>
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
                 
-                <div class="bg-surface p-6 rounded-2xl border border-white/5 hover:border-cyan-500/50 transition-all duration-300 group shadow-lg">
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <p class="text-sm font-medium text-muted uppercase tracking-wider">Total Pengguna</p>
-                            <h3 class="text-3xl font-bold text-pale mt-2"><%= stats.totalPengguna %></h3>
-                            <p class="text-xs text-cyan-400 mt-2 bg-cyan-900/30 inline-block px-2 py-1 rounded">
-                                <%= stats.totalAdmin %> Admin • <%= stats.totalUser %> User
-                            </p>
+                <div class="bg-white p-8 shadow-elegant border border-deep/5 relative overflow-hidden group hover:-translate-y-1 transition-all duration-500">
+                    <div class="absolute top-0 left-0 w-full h-1 bg-deep group-hover:bg-gold transition-colors duration-500"></div>
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="p-3 bg-paper border border-deep/10 rounded-sm text-deep group-hover:text-gold transition-colors">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
                         </div>
-                        <div class="p-3 bg-cyan-500/10 rounded-xl text-cyan-400 group-hover:bg-cyan-500 group-hover:text-main transition-colors">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
-                        </div>
+                        <span class="text-[10px] uppercase tracking-widest text-deep/40 font-bold">Warga</span>
                     </div>
-                    <a href="/admin/anggota" class="text-xs text-muted hover:text-cyan-400 mt-4 block transition-colors">Kelola Anggota →</a>
+                    <h3 class="text-4xl font-crest text-deep mb-1"><%= stats.totalPengguna %></h3>
+                    <p class="text-xs font-serif italic text-charcoal/60">
+                        <%= stats.totalAdmin %> Admin &bull; <%= stats.totalUser %> User
+                    </p>
+                    <a href="/admin/anggota" class="absolute bottom-0 right-0 p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <svg class="w-5 h-5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                    </a>
                 </div>
 
-                <div class="bg-surface p-6 rounded-2xl border border-white/5 hover:border-accent/50 transition-all duration-300 group shadow-lg">
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <p class="text-sm font-medium text-muted uppercase tracking-wider">Total Produk</p>
-                            <h3 class="text-3xl font-bold text-pale mt-2"><%= stats.totalProduk %></h3>
-                            <p class="text-xs text-accent mt-2">Item tersedia di katalog</p>
+                <div class="bg-white p-8 shadow-elegant border border-deep/5 relative overflow-hidden group hover:-translate-y-1 transition-all duration-500">
+                    <div class="absolute top-0 left-0 w-full h-1 bg-deep group-hover:bg-gold transition-colors duration-500"></div>
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="p-3 bg-paper border border-deep/10 rounded-sm text-deep group-hover:text-gold transition-colors">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
                         </div>
-                        <div class="p-3 bg-accent/10 rounded-xl text-accent group-hover:bg-accent group-hover:text-main transition-colors">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
-                        </div>
+                        <span class="text-[10px] uppercase tracking-widest text-deep/40 font-bold">UMKM</span>
                     </div>
-                    <a href="/admin/produk" class="text-xs text-muted hover:text-accent mt-4 block transition-colors">Kelola Produk →</a>
+                    <h3 class="text-4xl font-crest text-deep mb-1"><%= stats.totalProduk %></h3>
+                    <p class="text-xs font-serif italic text-charcoal/60">Item dalam katalog</p>
                 </div>
 
-                <div class="bg-surface p-6 rounded-2xl border border-white/5 hover:border-orange-500/50 transition-all duration-300 group shadow-lg">
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <p class="text-sm font-medium text-muted uppercase tracking-wider">Total Kegiatan</p>
-                            <h3 class="text-3xl font-bold text-pale mt-2"><%= stats.totalKegiatan %></h3>
-                            <p class="text-xs text-orange-400 mt-2 bg-orange-900/30 inline-block px-2 py-1 rounded">
-                                <%= stats.kegiatanUpcoming %> Upcoming • <%= stats.kegiatanPast %> Selesai
-                            </p>
+                <div class="bg-white p-8 shadow-elegant border border-deep/5 relative overflow-hidden group hover:-translate-y-1 transition-all duration-500">
+                    <div class="absolute top-0 left-0 w-full h-1 bg-deep group-hover:bg-gold transition-colors duration-500"></div>
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="p-3 bg-paper border border-deep/10 rounded-sm text-deep group-hover:text-gold transition-colors">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                         </div>
-                        <div class="p-3 bg-orange-500/10 rounded-xl text-orange-400 group-hover:bg-orange-500 group-hover:text-main transition-colors">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                        </div>
+                        <span class="text-[10px] uppercase tracking-widest text-deep/40 font-bold">Agenda</span>
                     </div>
-                    <a href="/admin/kegiatan" class="text-xs text-muted hover:text-orange-400 mt-4 block transition-colors">Kelola Kegiatan →</a>
+                    <h3 class="text-4xl font-crest text-deep mb-1"><%= stats.totalKegiatan %></h3>
+                    <p class="text-xs font-serif italic text-charcoal/60">
+                        <%= stats.kegiatanUpcoming %> Akan Datang &bull; <%= stats.kegiatanPast %> Selesai
+                    </p>
                 </div>
 
-                <div class="bg-surface p-6 rounded-2xl border border-white/5 hover:border-purple-500/50 transition-all duration-300 group shadow-lg">
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <p class="text-sm font-medium text-muted uppercase tracking-wider">Total Prestasi</p>
-                            <h3 class="text-3xl font-bold text-pale mt-2"><%= stats.totalPrestasi %></h3>
-                            <p class="text-xs text-purple-400 mt-2">Pencapaian tercatat</p>
+                <div class="bg-white p-8 shadow-elegant border border-deep/5 relative overflow-hidden group hover:-translate-y-1 transition-all duration-500">
+                    <div class="absolute top-0 left-0 w-full h-1 bg-deep/50 group-hover:bg-gold transition-colors duration-500"></div>
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="p-3 bg-paper border border-deep/10 rounded-sm text-deep group-hover:text-gold transition-colors">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path></svg>
                         </div>
-                        <div class="p-3 bg-purple-500/10 rounded-xl text-purple-400 group-hover:bg-purple-500 group-hover:text-main transition-colors">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path></svg>
-                        </div>
+                        <span class="text-[10px] uppercase tracking-widest text-deep/40 font-bold">Prestasi</span>
                     </div>
-                    <a href="/admin/prestasi" class="text-xs text-muted hover:text-purple-400 mt-4 block transition-colors">Kelola Prestasi →</a>
+                    <h3 class="text-4xl font-crest text-deep mb-1"><%= stats.totalPrestasi %></h3>
+                    <p class="text-xs font-serif italic text-charcoal/60">Penghargaan tercatat</p>
                 </div>
 
-                <div class="bg-surface p-6 rounded-2xl border border-white/5 hover:border-pink-500/50 transition-all duration-300 group shadow-lg">
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <p class="text-sm font-medium text-muted uppercase tracking-wider">Album Galeri</p>
-                            <h3 class="text-3xl font-bold text-pale mt-2"><%= stats.totalGaleri %></h3>
-                            <p class="text-xs text-pink-400 mt-2 bg-pink-900/30 inline-block px-2 py-1 rounded">
-                                <%= stats.totalFoto %> Foto Total
-                            </p>
+                <div class="bg-white p-8 shadow-elegant border border-deep/5 relative overflow-hidden group hover:-translate-y-1 transition-all duration-500">
+                    <div class="absolute top-0 left-0 w-full h-1 bg-deep/50 group-hover:bg-gold transition-colors duration-500"></div>
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="p-3 bg-paper border border-deep/10 rounded-sm text-deep group-hover:text-gold transition-colors">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                         </div>
-                        <div class="p-3 bg-pink-500/10 rounded-xl text-pink-400 group-hover:bg-pink-500 group-hover:text-main transition-colors">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                        </div>
+                        <span class="text-[10px] uppercase tracking-widest text-deep/40 font-bold">Arsip</span>
                     </div>
-                    <a href="/admin/galeri" class="text-xs text-muted hover:text-pink-400 mt-4 block transition-colors">Kelola Galeri →</a>
+                    <h3 class="text-4xl font-crest text-deep mb-1"><%= stats.totalGaleri %></h3>
+                    <p class="text-xs font-serif italic text-charcoal/60">Album &bull; <%= stats.totalFoto %> Foto</p>
                 </div>
 
-                <div class="bg-surface p-6 rounded-2xl border border-white/5 hover:border-red-500/50 transition-all duration-300 group shadow-lg">
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <p class="text-sm font-medium text-muted uppercase tracking-wider">Testimoni</p>
-                            <h3 class="text-3xl font-bold text-pale mt-2"><%= stats.totalReview %></h3>
-                            <p class="text-xs text-red-400 mt-2">Ulasan masuk</p>
+                <div class="bg-white p-8 shadow-elegant border border-deep/5 relative overflow-hidden group hover:-translate-y-1 transition-all duration-500">
+                    <div class="absolute top-0 left-0 w-full h-1 bg-deep/50 group-hover:bg-gold transition-colors duration-500"></div>
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="p-3 bg-paper border border-deep/10 rounded-sm text-deep group-hover:text-gold transition-colors">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path></svg>
                         </div>
-                        <div class="p-3 bg-red-500/10 rounded-xl text-red-400 group-hover:bg-red-500 group-hover:text-main transition-colors">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path></svg>
-                        </div>
+                        <span class="text-[10px] uppercase tracking-widest text-deep/40 font-bold">Ulasan</span>
                     </div>
-                    <a href="/admin/testimoni" class="text-xs text-muted hover:text-red-400 mt-4 block transition-colors">Kelola Testimoni →</a>
+                    <h3 class="text-4xl font-crest text-deep mb-1"><%= stats.totalReview %></h3>
+                    <p class="text-xs font-serif italic text-charcoal/60">Respon masyarakat</p>
                 </div>
+
             </div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
                 
-                <div class="bg-surface rounded-2xl border border-white/10 shadow-lg flex flex-col">
-                    <div class="p-6 border-b border-white/5 flex justify-between items-center">
-                        <h2 class="text-lg font-bold text-pale flex items-center">
-                            <span class="w-2 h-6 bg-orange-500 rounded-full mr-3"></span>
-                            Kegiatan Terbaru
+                <div class="bg-white border border-deep/5 shadow-elegant p-8 relative">
+                    <div class="flex justify-between items-center mb-6 pb-4 border-b border-deep/5">
+                        <h2 class="font-crest text-xl text-deep flex items-center gap-3">
+                            <span class="text-gold">✦</span> Agenda Terkini
                         </h2>
-                        <a href="/admin/kegiatan" class="text-xs text-muted hover:text-white transition-colors">Lihat Semua →</a>
+                        <a href="/admin/kegiatan" class="text-[10px] font-bold uppercase tracking-widest text-gold hover:text-deep transition-colors">Lihat Semua →</a>
                     </div>
                     
-                    <div class="p-6 flex-1">
+                    <div class="space-y-4">
                         <% if (kegiatanTerbaru && kegiatanTerbaru.length > 0) { %>
-                            <div class="space-y-4">
-                                <% kegiatanTerbaru.forEach(kegiatan => { %>
-                                    <div class="flex items-center justify-between p-4 rounded-xl bg-main border border-white/5 hover:border-orange-500/30 transition-colors">
-                                        <div class="flex-1 min-w-0 pr-4">
-                                            <p class="text-sm font-medium text-pale truncate">
-                                                <%= kegiatan.Judul %>
-                                            </p>
-                                            <p class="text-xs text-muted mt-1">
-                                                <%= new Date(kegiatan.Tanggal).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) %>
-                                                <% if (kegiatan.Kategori) { %> • <span class="text-orange-300"><%= kegiatan.Kategori %></span><% } %>
-                                            </p>
-                                        </div>
-                                        <span class="px-2.5 py-1 text-xs font-semibold rounded-full <%= kegiatan.Status === 'Upcoming' ? 'bg-accent/20 text-accent border border-accent/30' : 'bg-white/10 text-muted border border-white/10' %>">
-                                            <%= kegiatan.Status %>
-                                        </span>
+                            <% kegiatanTerbaru.forEach(kegiatan => { %>
+                                <div class="flex items-start justify-between p-4 bg-paper border border-deep/5 hover:border-gold/30 transition-all duration-300 group">
+                                    <div class="flex-1 min-w-0 pr-4">
+                                        <h4 class="font-serif font-bold text-deep group-hover:text-gold transition-colors truncate">
+                                            <%= kegiatan.Judul %>
+                                        </h4>
+                                        <p class="text-xs text-charcoal/60 mt-1 uppercase tracking-wider">
+                                            <%= new Date(kegiatan.Tanggal).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) %>
+                                            <% if (kegiatan.Kategori) { %> &bull; <%= kegiatan.Kategori %><% } %>
+                                        </p>
                                     </div>
-                                <% }) %>
-                            </div>
-                        <% } else { %>
-                            <div class="h-full flex items-center justify-center text-muted text-sm py-4">Belum ada kegiatan.</div>
-                        <% } %>
-                    </div>
-                </div>
-
-                <div class="bg-surface rounded-2xl border border-white/10 shadow-lg flex flex-col">
-                    <div class="p-6 border-b border-white/5 flex justify-between items-center">
-                        <h2 class="text-lg font-bold text-pale flex items-center">
-                            <span class="w-2 h-6 bg-accent rounded-full mr-3"></span>
-                            Produk Terbaru
-                        </h2>
-                        <a href="/admin/produk" class="text-xs text-muted hover:text-white transition-colors">Lihat Semua →</a>
-                    </div>
-                    
-                    <div class="p-6 flex-1">
-                        <% if (produkTerbaru && produkTerbaru.length > 0) { %>
-                            <div class="space-y-4">
-                                <% produkTerbaru.forEach(produk => { %>
-                                    <div class="flex items-center justify-between p-4 rounded-xl bg-main border border-white/5 hover:border-accent/30 transition-colors">
-                                        <div class="flex-1 min-w-0 pr-4">
-                                            <p class="text-sm font-medium text-pale truncate">
-                                                <%= produk.Nama %>
-                                            </p>
-                                            <p class="text-xs font-bold text-accent mt-1">
-                                                Rp <%= produk.Harga.toLocaleString('id-ID') %>
-                                            </p>
-                                        </div>
-                                        <% if (produk.Kategori) { %>
-                                            <span class="px-2.5 py-1 text-xs font-semibold rounded-full bg-cyan-500/10 text-cyan-300 border border-cyan-500/20">
-                                                <%= produk.Kategori %>
-                                            </span>
-                                        <% } %>
-                                    </div>
-                                <% }) %>
-                            </div>
-                        <% } else { %>
-                            <div class="h-full flex items-center justify-center text-muted text-sm py-4">Belum ada produk.</div>
-                        <% } %>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-surface rounded-2xl border border-white/10 shadow-lg mb-10">
-                <div class="p-6 border-b border-white/5 flex justify-between items-center">
-                    <h2 class="text-lg font-bold text-pale flex items-center">
-                        <span class="w-2 h-6 bg-red-500 rounded-full mr-3"></span>
-                        Testimoni Terbaru
-                    </h2>
-                    <a href="/admin/testimoni" class="text-xs text-muted hover:text-white transition-colors">Lihat Semua →</a>
-                </div>
-                
-                <div class="p-6">
-                    <% if (reviewTerbaru && reviewTerbaru.length > 0) { %>
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                            <% reviewTerbaru.forEach(review => { %>
-                                <div class="p-5 rounded-xl bg-main border border-white/5 flex flex-col h-full hover:border-red-500/30 transition-colors">
-                                    <div class="flex items-center justify-between mb-3">
-                                        <% const stars = '⭐'.repeat(review.Rating); %>
-                                        <span class="text-xs tracking-widest" title="<%= review.Rating %>/5"><%= stars %></span>
-                                        <span class="px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded border <%= review.Kategori === 'Product' ? 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20' : 'bg-accent/10 text-accent border-accent/20' %>">
-                                            <%= review.Kategori %>
-                                        </span>
-                                    </div>
-                                    
-                                    <p class="text-muted text-sm italic mb-4 flex-grow relative">
-                                        <span class="text-3xl text-white/5 absolute -top-2 -left-2">"</span>
-                                        <%= review.Ulasan && review.Ulasan.length > 80 ? review.Ulasan.substring(0, 80) + '...' : (review.Ulasan || 'Tidak ada ulasan') %>
-                                    </p>
-
-                                    <div class="flex items-center pt-3 border-t border-white/5">
-                                        <div class="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center text-xs font-bold text-pale mr-2">
-                                            <%= review.ID_Pengguna_pengguna ? review.ID_Pengguna_pengguna.Nama.charAt(0) : '?' %>
-                                        </div>
-                                        <span class="text-xs text-pale font-medium">
-                                            <%= review.ID_Pengguna_pengguna ? review.ID_Pengguna_pengguna.Nama : 'Anonim' %>
-                                        </span>
-                                    </div>
+                                    <span class="px-3 py-1 text-[9px] font-bold uppercase tracking-widest border <%= kegiatan.Status === 'Upcoming' ? 'bg-deep text-paper border-deep' : 'bg-transparent text-charcoal/50 border-charcoal/20' %>">
+                                        <%= kegiatan.Status %>
+                                    </span>
                                 </div>
                             <% }) %>
-                        </div>
-                    <% } else { %>
-                        <p class="text-muted text-center py-4">Belum ada testimoni.</p>
-                    <% } %>
+                        <% } else { %>
+                            <div class="text-center py-8 text-charcoal/40 font-serif italic text-sm">Belum ada agenda tercatat.</div>
+                        <% } %>
+                    </div>
                 </div>
+
+                <div class="bg-white border border-deep/5 shadow-elegant p-8 relative">
+                    <div class="flex justify-between items-center mb-6 pb-4 border-b border-deep/5">
+                        <h2 class="font-crest text-xl text-deep flex items-center gap-3">
+                            <span class="text-gold">✦</span> Katalog Terbaru
+                        </h2>
+                        <a href="/admin/produk" class="text-[10px] font-bold uppercase tracking-widest text-gold hover:text-deep transition-colors">Lihat Semua →</a>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <% if (produkTerbaru && produkTerbaru.length > 0) { %>
+                            <% produkTerbaru.forEach(produk => { %>
+                                <div class="flex items-center justify-between p-4 bg-paper border border-deep/5 hover:border-gold/30 transition-all duration-300 group">
+                                    <div class="flex-1 min-w-0 pr-4">
+                                        <h4 class="font-serif font-bold text-deep group-hover:text-gold transition-colors truncate">
+                                            <%= produk.Nama %>
+                                        </h4>
+                                        <p class="text-xs text-charcoal/60 mt-1 font-bold">
+                                            Rp <%= produk.Harga.toLocaleString('id-ID') %>
+                                        </p>
+                                    </div>
+                                    <% if (produk.Kategori) { %>
+                                        <span class="px-3 py-1 text-[9px] font-bold uppercase tracking-widest bg-gold/10 text-deep/70 border border-gold/20">
+                                            <%= produk.Kategori %>
+                                        </span>
+                                    <% } %>
+                                </div>
+                            <% }) %>
+                        <% } else { %>
+                            <div class="text-center py-8 text-charcoal/40 font-serif italic text-sm">Belum ada produk tercatat.</div>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white border border-deep/5 shadow-elegant p-8 relative mb-12">
+                <div class="absolute top-0 left-0 w-full h-1 bg-gold"></div>
+                <div class="flex justify-between items-center mb-8">
+                    <h2 class="font-crest text-xl text-deep flex items-center gap-3">
+                        Suara Warga
+                    </h2>
+                    <a href="/admin/testimoni" class="text-[10px] font-bold uppercase tracking-widest text-gold hover:text-deep transition-colors">Lihat Semua →</a>
+                </div>
+                
+                <% if (reviewTerbaru && reviewTerbaru.length > 0) { %>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <% reviewTerbaru.forEach(review => { %>
+                            <div class="p-6 bg-paper border border-deep/5 relative group hover:shadow-lg transition-all duration-300">
+                                <div class="absolute top-4 right-4 text-6xl font-serif text-gold/10 leading-none group-hover:text-gold/20 transition-colors">”</div>
+                                
+                                <div class="flex items-center justify-between mb-4 relative z-10">
+                                    <div class="flex text-gold text-xs">
+                                        <% for(let i=0; i<review.Rating; i++) { %>★<% } %>
+                                        <% for(let i=review.Rating; i<5; i++) { %><span class="text-deep/10">★</span><% } %>
+                                    </div>
+                                    <span class="text-[9px] font-bold uppercase tracking-widest text-deep/40">
+                                        <%= review.Kategori %>
+                                    </span>
+                                </div>
+                                
+                                <p class="text-deep/80 text-sm font-serif italic mb-6 relative z-10 leading-relaxed">
+                                    "<%= review.Ulasan && review.Ulasan.length > 80 ? review.Ulasan.substring(0, 80) + '...' : (review.Ulasan || 'Tidak ada ulasan') %>"
+                                </p>
+
+                                <div class="flex items-center pt-4 border-t border-deep/5">
+                                    <div class="w-8 h-8 rounded-full bg-deep text-gold flex items-center justify-center text-xs font-bold font-crest mr-3 shadow-sm">
+                                        <%= review.ID_Pengguna_pengguna ? review.ID_Pengguna_pengguna.Nama.charAt(0) : '?' %>
+                                    </div>
+                                    <div>
+                                        <span class="text-xs font-bold text-deep block uppercase tracking-wide">
+                                            <%= review.ID_Pengguna_pengguna ? review.ID_Pengguna_pengguna.Nama : 'Anonim' %>
+                                        </span>
+                                        <span class="text-[9px] text-charcoal/50">Warga Terverifikasi</span>
+                                    </div>
+                                </div>
+                            </div>
+                        <% }) %>
+                    </div>
+                <% } else { %>
+                    <p class="text-center py-8 text-charcoal/40 font-serif italic text-sm">Belum ada testimoni.</p>
+                <% } %>
             </div>
 
         </div>

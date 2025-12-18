@@ -3,7 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tambah Review Baru - Admin Bausasran</title>
+    <title>Tambah Review - Executive Console</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Lato:wght@300;400;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
     
     <script src="https://cdn.tailwindcss.com"></script>
 
@@ -12,15 +16,22 @@
             theme: {
                 extend: {
                     colors: {
-                        main: '#003024',    // Background Gelap
-                        surface: '#004030', // Warna Kartu
-                        accent: '#83C540',  // Hijau Neon
-                        pale: '#F5FEF9',    // Teks Putih
-                        muted: '#A3C2B8',   // Teks Pudar
-                        darker: '#00251a',  // Background Input
+                        paper: '#F9F7F2',       /* Latar Belakang Kertas Tua */
+                        deep: '#0F1F18',        /* Tinta Hijau Gelap */
+                        gold: '#C5B388',        /* Emas Antik */
+                        charcoal: '#4A4A4A',    /* Abu Arang */
+                        linen: '#EBE9E4',       /* Abu Linen */
+                        white: '#FFFFFF',
+                        danger: '#8B3A3A',      /* Merah Bata Elegan */
                     },
                     fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
+                        sans: ['Lato', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                        crest: ['Cinzel', 'serif'], 
+                    },
+                    boxShadow: {
+                        'elegant': '0 20px 50px -12px rgba(15, 31, 24, 0.08)',
+                        'gold-glow': '0 0 15px rgba(197, 179, 136, 0.2)',
                     }
                 }
             }
@@ -29,69 +40,132 @@
 
     <style type="text/tailwindcss">
         @layer base {
-            body { @apply bg-main text-pale font-sans antialiased; }
+            body { @apply bg-paper text-deep font-sans antialiased; }
         }
-        
-        /* Custom Scrollbar */
-        .custom-scroll::-webkit-scrollbar { width: 6px; }
-        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
-        .custom-scroll::-webkit-scrollbar-thumb { background: #004030; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); }
-        .custom-scroll::-webkit-scrollbar-thumb:hover { background: #83C540; }
 
-        /* Input Styles */
-        .form-input {
-            @apply w-full bg-darker border border-white/10 rounded-xl px-4 py-3 text-sm text-pale focus:border-accent focus:ring-1 focus:ring-accent outline-none transition-all placeholder-white/20 appearance-none;
+        /* TEXTURE: Film Grain Overlay */
+        .noise-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E");
+            pointer-events: none; z-index: 50; mix-blend-mode: multiply;
         }
-        .form-label {
-            @apply block text-sm font-bold text-muted mb-2 uppercase tracking-wider;
+
+        /* COMPONENTS */
+        .input-label { 
+            @apply block text-[10px] uppercase tracking-[0.15em] font-bold text-deep/60 mb-2 font-sans; 
         }
         
-        /* Select Dropdown Arrow Customization */
+        .required-mark { 
+            @apply text-danger ml-0.5 text-xs align-top; 
+        }
+
+        .input-luxury {
+            @apply w-full bg-white border border-deep/10 px-4 py-3 text-sm text-deep placeholder-deep/20 focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold/50 transition-all duration-300 font-sans shadow-sm rounded-sm appearance-none;
+        }
+
+        /* Custom Dropdown Arrow */
         .select-wrapper {
-            @apply relative;
+            position: relative;
         }
         .select-wrapper::after {
             content: '';
-            @apply absolute right-4 top-1/2 -translate-y-1/2 w-2 h-2 border-r-2 border-b-2 border-muted pointer-events-none rotate-45;
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%) rotate(45deg);
+            width: 6px;
+            height: 6px;
+            border-right: 2px solid #C5B388;
+            border-bottom: 2px solid #C5B388;
+            pointer-events: none;
         }
+
+        /* Custom Scrollbar */
+        .custom-scroll::-webkit-scrollbar { width: 6px; }
+        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #C5B388; border-radius: 3px; }
+        .custom-scroll::-webkit-scrollbar-thumb:hover { background: #0F1F18; }
     </style>
 </head>
 
-<body class="flex h-screen overflow-hidden w-full">
+<body class="flex h-screen overflow-hidden relative">
+
+    <div class="noise-overlay"></div>
 
     <%- include('../../partials/admin_sidebar.ejs') %>
 
-    <main class="flex-1 h-full overflow-y-auto overflow-x-hidden custom-scroll relative">
+    <main class="flex-1 h-full overflow-y-auto overflow-x-hidden custom-scroll relative z-10 p-6 md:p-12">
         <%- include('../../partials/flash.ejs') %>
 
-        <form action="/admin/testimoni" method="POST" class="min-h-full p-6 md:p-8 flex flex-col">
+        <form action="/admin/testimoni" method="POST" id="review-form" class="max-w-6xl mx-auto flex flex-col min-h-full">
             
-            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 shrink-0">
+            <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10 border-b border-deep/10 pb-6 animate-enter">
                 <div>
-                    <h1 class="text-3xl font-bold text-pale tracking-tight">Tambah Review</h1>
-                    <p class="text-muted text-sm mt-1">Input manual testimoni warga atau pelanggan.</p>
+                    <span class="font-sans text-[10px] uppercase tracking-widest text-gold mb-2 block">Suara Warga & Pengunjung</span>
+                    <h1 class="font-crest text-3xl md:text-4xl text-deep leading-tight">Arsip Testimoni</h1>
+                    <p class="font-serif italic text-charcoal/60 text-sm mt-2">Pencatatan manual ulasan untuk produk UMKM dan kegiatan desa.</p>
                 </div>
-                <div class="md:hidden flex gap-2">
-                    <button type="submit" class="flex-1 bg-accent text-main font-bold py-2 px-4 rounded-lg text-sm">Simpan</button>
-                    <a href="/admin/testimoni" class="bg-surface text-pale py-2 px-4 rounded-lg text-sm border border-white/10">Batal</a>
+                <div class="flex gap-4">
+                    <a href="/admin/testimoni" class="px-6 py-3 border border-deep/10 text-deep/60 text-[10px] uppercase tracking-widest font-bold hover:bg-white hover:text-deep transition-all flex items-center justify-center">
+                        Batal
+                    </a>
+                    <button type="submit" id="btn-submit" class="px-8 py-3 bg-deep text-gold text-[10px] uppercase tracking-[0.2em] font-bold border border-deep hover:bg-gold hover:text-deep hover:border-gold transition-all shadow-lg hover:shadow-gold-glow flex items-center gap-2 group">
+                        <span>Publikasikan</span>
+                        <svg class="w-3 h-3 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                    </button>
                 </div>
             </div>
 
-            <div class="flex flex-col lg:flex-row gap-6 items-stretch flex-1">
+            <div class="flex flex-col lg:flex-row gap-8 lg:gap-12 items-start">
                 
-                <div class="w-full lg:flex-1 min-w-0 flex flex-col">
+                <div class="w-full lg:flex-1 space-y-8">
                     
-                    <div class="bg-surface rounded-2xl p-6 md:p-8 shadow-xl border border-white/5 flex-1 flex flex-col h-full">
+                    <div class="bg-white p-8 border border-deep/5 shadow-elegant relative group h-full">
+                        <div class="absolute top-0 left-0 w-1 h-full bg-gold/50 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                         
                         <div class="mb-6">
-                            <label for="ID_Pengguna" class="form-label">Pengguna (Pemberi Review)</label>
+                            <label for="Rating" class="input-label text-gold">Tingkat Kepuasan <span class="required-mark">*</span></label>
                             <div class="select-wrapper">
-                                <select id="ID_Pengguna" name="ID_Pengguna" class="form-input cursor-pointer" required>
-                                    <option value="" disabled selected>-- Pilih Warga / User --</option>
+                                <select id="Rating" name="Rating" class="w-full bg-transparent border-b-2 border-deep/10 px-2 py-3 -mx-2 text-2xl font-serif font-bold text-deep focus:outline-none focus:border-gold focus:bg-white/40 transition-all duration-300 cursor-pointer appearance-none" required>
+                                    <option value="" disabled selected class="text-gray-300">-- Beri Bintang --</option>
+                                    <option value="5" class="text-gold">★★★★★ (5) - Sangat Memuaskan</option>
+                                    <option value="4" class="text-gold">★★★★☆ (4) - Memuaskan</option>
+                                    <option value="3" class="text-gold">★★★☆☆ (3) - Cukup Baik</option>
+                                    <option value="2" class="text-gold">★★☆☆☆ (2) - Kurang</option>
+                                    <option value="1" class="text-gold">★☆☆☆☆ (1) - Mengecewakan</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col h-full">
+                            <label for="Ulasan" class="input-label">Isi Testimoni / Ulasan</label>
+                            <textarea id="Ulasan" name="Ulasan" rows="10"
+                                class="w-full bg-paper/50 border border-deep/10 p-6 text-sm text-deep/80 leading-loose font-serif italic focus:outline-none focus:border-gold resize-none placeholder-deep/20 focus:bg-white transition-all rounded-sm shadow-inner" 
+                                placeholder="Tuliskan pengalaman, kritik, atau saran yang disampaikan..."></textarea>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="w-full lg:w-[380px] shrink-0 flex flex-col gap-6">
+                    
+                    <div class="bg-deep/5 p-6 border border-deep/5 rounded-sm relative overflow-hidden">
+                        <div class="absolute inset-0 opacity-[0.03]" style="background-image: url('data:image/svg+xml,%3Csvg width=\'20\' height=\'20\' viewBox=\'0 0 20 20\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'%230F1F18\' fill-opacity=\'1\' fill-rule=\'evenodd\'%3E%3Ccircle cx=\'3\' cy=\'3\' r=\'3\'/%3E%3Ccircle cx=\'13\' cy=\'13\' r=\'3\'/%3E%3C/g%3E%3C/svg%3E');"></div>
+                        
+                        <h3 class="font-crest text-sm text-deep mb-5 flex items-center gap-2 relative z-10 border-b border-deep/10 pb-3">
+                            <svg class="w-4 h-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                            Identitas Penilai
+                        </h3>
+
+                        <div class="relative z-10">
+                            <label for="ID_Pengguna" class="input-label">Pilih Pengguna <span class="required-mark">*</span></label>
+                            <div class="select-wrapper">
+                                <select id="ID_Pengguna" name="ID_Pengguna" class="input-luxury cursor-pointer" required>
+                                    <option value="" disabled selected>-- Cari Nama Warga --</option>
                                     <% if(typeof penggunaList !== 'undefined' && penggunaList.length > 0) { %>
                                         <% for(let pengguna of penggunaList) { %>
                                             <option value="<%= pengguna.ID_Pengguna %>">
-                                                <%= pengguna.Nama %> (<%= pengguna.Role %>)
+                                                <%= pengguna.Nama %> &mdash; <%= pengguna.Role %>
                                             </option>
                                         <% } %>
                                     <% } else { %>
@@ -100,154 +174,113 @@
                                 </select>
                             </div>
                         </div>
+                    </div>
 
-                        <div class="mb-6">
-                            <label for="Rating" class="form-label">Berikan Rating</label>
-                            <div class="select-wrapper">
-                                <select id="Rating" name="Rating" class="form-input cursor-pointer text-yellow-400 font-bold" required>
-                                    <option value="" disabled selected class="text-gray-400">-- Pilih Bintang --</option>
-                                    <option value="5">⭐⭐⭐⭐⭐ (5) - Sangat Puas</option>
-                                    <option value="4">⭐⭐⭐⭐ (4) - Puas</option>
-                                    <option value="3">⭐⭐⭐ (3) - Cukup</option>
-                                    <option value="2">⭐⭐ (2) - Kurang</option>
-                                    <option value="1">⭐ (1) - Kecewa</option>
-                                </select>
+                    <div class="bg-white p-6 border border-deep/5 shadow-elegant">
+                        <h3 class="font-crest text-sm text-deep mb-5 flex items-center gap-2 relative z-10 border-b border-deep/10 pb-3">
+                            <svg class="w-4 h-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
+                            Objek Ulasan
+                        </h3>
+
+                        <div class="space-y-5">
+                            <div>
+                                <label for="Kategori" class="input-label">Kategori Objek</label>
+                                <div class="select-wrapper">
+                                    <select id="Kategori" name="Kategori" class="input-luxury cursor-pointer" required onchange="toggleKategori(this.value)">
+                                        <option value="" disabled selected>-- Tentukan Tipe --</option>
+                                        <option value="Product">Produk / UMKM</option>
+                                        <option value="Kegiatan">Kegiatan / Agenda</option>
+                                    </select>
+                                </div>
                             </div>
-                        </div>
 
-                        <div class="flex-1 flex flex-col min-h-[200px]">
-                            <label for="Ulasan" class="form-label text-xs mb-3 shrink-0">Komentar / Ulasan</label>
-                            <textarea id="Ulasan" name="Ulasan" 
-                                class="w-full h-full bg-darker/50 border border-white/10 rounded-xl p-5 text-base text-pale leading-relaxed focus:border-accent outline-none transition-all resize-none placeholder-white/20" 
-                                placeholder="Tuliskan detail pengalaman, saran, atau kritik membangun..."></textarea>
+                            <div class="relative min-h-[80px] border-t border-deep/5 pt-4">
+                                <p id="placeholder-text" class="text-[10px] text-deep/40 italic text-center py-4 font-serif">
+                                    Silakan pilih kategori di atas untuk menampilkan daftar objek.
+                                </p>
+
+                                <div id="produk-section" class="hidden transition-all duration-300">
+                                    <label for="ID_Product" class="input-label text-gold">Nama Produk</label>
+                                    <div class="select-wrapper">
+                                        <select id="ID_Product" name="ID_Product" class="input-luxury cursor-pointer">
+                                            <option value="">-- Pilih Produk --</option>
+                                            <% if(typeof produkList !== 'undefined' && produkList.length > 0) { %>
+                                                <% for(let produk of produkList) { %>
+                                                    <option value="<%= produk.ID_Product %>"><%= produk.Nama %></option>
+                                                <% } %>
+                                            <% } %>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div id="kegiatan-section" class="hidden transition-all duration-300">
+                                    <label for="ID_Kegiatan" class="input-label text-gold">Nama Kegiatan</label>
+                                    <div class="select-wrapper">
+                                        <select id="ID_Kegiatan" name="ID_Kegiatan" class="input-luxury cursor-pointer">
+                                            <option value="">-- Pilih Kegiatan --</option>
+                                            <% if(typeof kegiatanList !== 'undefined' && kegiatanList.length > 0) { %>
+                                                <% for(let kegiatan of kegiatanList) { %>
+                                                    <option value="<%= kegiatan.ID_Kegiatan %>"><%= kegiatan.Judul %></option>
+                                                <% } %>
+                                            <% } %>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
                 </div>
-
-                <div class="w-full lg:w-[350px] shrink-0 flex flex-col gap-6">
-                    
-                    <div class="bg-surface rounded-2xl p-6 shadow-xl border border-white/5 h-full flex flex-col">
-                        <h3 class="text-lg font-bold text-pale mb-4 flex items-center gap-2">
-                            <svg class="w-5 h-5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path></svg>
-                            Target Review
-                        </h3>
-                        
-                        <div class="space-y-6 flex-1">
-                            
-                            <div>
-                                <label for="Kategori" class="form-label">Tipe Objek</label>
-                                <div class="select-wrapper">
-                                    <select id="Kategori" name="Kategori" class="form-input cursor-pointer" required onchange="toggleKategori(this.value)">
-                                        <option value="" disabled selected>-- Pilih Tipe --</option>
-                                        <option value="Product">🛒 Produk UMKM</option>
-                                        <option value="Kegiatan">🗓️ Kegiatan / Acara</option>
-                                    </select>
-                                </div>
-                                <p class="text-[10px] text-muted mt-2 leading-relaxed">Pilih apakah review ini ditujukan untuk barang jualan (Produk) atau acara desa (Kegiatan).</p>
-                            </div>
-
-                            <hr class="border-white/10">
-
-                            <div id="produk-section" class="hidden animate-fade-in">
-                                <label for="ID_Product" class="form-label text-accent">Pilih Produk</label>
-                                <div class="select-wrapper">
-                                    <select id="ID_Product" name="ID_Product" class="form-input cursor-pointer bg-darker/80 border-accent/30 focus:border-accent">
-                                        <option value="">-- Cari Produk --</option>
-                                        <% if(typeof produkList !== 'undefined' && produkList.length > 0) { %>
-                                            <% for(let produk of produkList) { %>
-                                                <option value="<%= produk.ID_Product %>"><%= produk.Nama %></option>
-                                            <% } %>
-                                        <% } else { %>
-                                            <option value="" disabled>Data produk kosong</option>
-                                        <% } %>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div id="kegiatan-section" class="hidden animate-fade-in">
-                                <label for="ID_Kegiatan" class="form-label text-accent">Pilih Kegiatan</label>
-                                <div class="select-wrapper">
-                                    <select id="ID_Kegiatan" name="ID_Kegiatan" class="form-input cursor-pointer bg-darker/80 border-accent/30 focus:border-accent">
-                                        <option value="">-- Cari Kegiatan --</option>
-                                        <% if(typeof kegiatanList !== 'undefined' && kegiatanList.length > 0) { %>
-                                            <% for(let kegiatan of kegiatanList) { %>
-                                                <option value="<%= kegiatan.ID_Kegiatan %>"><%= kegiatan.Judul %></option>
-                                            <% } %>
-                                        <% } else { %>
-                                            <option value="" disabled>Data kegiatan kosong</option>
-                                        <% } %>
-                                    </select>
-                                </div>
-                            </div>
-
-                        </div>
-
-                        <div class="hidden md:flex flex-col gap-3 mt-8 pt-6 border-t border-white/10">
-                            <button type="submit" class="w-full bg-accent hover:bg-white text-main font-bold py-3 px-6 rounded-xl transition-all shadow-lg hover:shadow-accent/20 flex justify-center items-center gap-2">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                                Simpan Review
-                            </button>
-                            <a href="/admin/testimoni" class="w-full text-center py-2 text-sm text-muted hover:text-white transition-colors">
-                                Batalkan
-                            </a>
-                        </div>
-                    </div>
-
-                </div> </div> </form>
+            </div>
+        </form>
     </main>
 
     <script>
+        // --- 1. Dynamic Kategori Logic ---
         function toggleKategori(kategori) {
             const produkSection = document.getElementById('produk-section');
             const kegiatanSection = document.getElementById('kegiatan-section');
+            const placeholder = document.getElementById('placeholder-text');
+            
             const produkSelect = document.getElementById('ID_Product');
             const kegiatanSelect = document.getElementById('ID_Kegiatan');
 
-            // Reset Animation Classes
-            produkSection.classList.remove('hidden');
-            kegiatanSection.classList.remove('hidden');
+            // Reset UI
+            placeholder.style.display = 'none';
+            produkSection.classList.add('hidden');
+            kegiatanSection.classList.add('hidden');
+            
+            // Reset Values to avoid backend errors
+            produkSelect.required = false;
+            kegiatanSelect.required = false;
 
             if (kategori === 'Product') {
-                // Show Produk
-                produkSection.style.display = 'block';
-                kegiatanSection.style.display = 'none'; // Gunakan style display agar tidak bentrok dgn class transition
-                produkSection.classList.add('block');
-                kegiatanSection.classList.add('hidden');
-                
-                // Set Requirement
+                produkSection.classList.remove('hidden');
                 produkSelect.required = true;
-                kegiatanSelect.required = false;
-                kegiatanSelect.value = ''; 
-
-            } else if (kategori === 'Kegiatan') {
-                // Show Kegiatan
-                produkSection.style.display = 'none';
-                kegiatanSection.style.display = 'block';
-                produkSection.classList.add('hidden');
-                kegiatanSection.classList.add('block');
-
-                // Set Requirement
-                produkSelect.required = false;
-                kegiatanSelect.required = true;
                 produkSelect.value = '';
-
+            } else if (kategori === 'Kegiatan') {
+                kegiatanSection.classList.remove('hidden');
+                kegiatanSelect.required = true;
+                kegiatanSelect.value = '';
             } else {
-                // Hide All
-                produkSection.classList.add('hidden');
-                kegiatanSection.classList.add('hidden');
-                produkSection.style.display = 'none';
-                kegiatanSection.style.display = 'none';
-                
-                produkSelect.required = false;
-                kegiatanSelect.required = false;
+                placeholder.style.display = 'block';
             }
         }
 
-        // Initialize state on load (in case browser caches selection)
+        // Initialize (in case of browser back button)
         document.addEventListener('DOMContentLoaded', () => {
             const currentVal = document.getElementById('Kategori').value;
             if(currentVal) toggleKategori(currentVal);
+        });
+
+        // --- 2. Submit Loading State ---
+        document.getElementById('review-form').addEventListener('submit', function(e) {
+            const btn = document.getElementById('btn-submit');
+            btn.style.width = `${btn.offsetWidth}px`;
+            btn.disabled = true;
+            btn.innerHTML = `<svg class="animate-spin h-4 w-4 text-deep mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>`;
+            btn.classList.add('opacity-75', 'cursor-not-allowed', 'bg-gold', 'text-deep', 'border-gold');
+            btn.classList.remove('bg-deep', 'text-gold');
         });
     </script>
 </body>

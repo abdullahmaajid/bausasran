@@ -4,121 +4,194 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tambah Testimoni</title>
-    <link rel="stylesheet" href="/css/style.css">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        main: '#003024',    // Background Gelap
+                        surface: '#004030', // Warna Kartu
+                        accent: '#83C540',  // Hijau Neon
+                        pale: '#F5FEF9',    // Teks Putih
+                        muted: '#A3C2B8',   // Teks Pudar
+                        danger: '#EF4444',  // Merah Error
+                    },
+                    fontFamily: { sans: ['Inter', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer base { 
+            body { @apply bg-main text-pale font-sans antialiased; } 
+            
+            /* Custom Form Styles */
+            .form-input {
+                @apply w-full px-4 py-3 bg-black/20 border border-white/10 rounded-xl focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all text-pale placeholder-white/30;
+            }
+            
+            .form-label {
+                @apply block text-sm font-bold text-muted mb-2 uppercase tracking-wider;
+            }
+
+            /* Rating Logic Styles */
+            .rating-box {
+                @apply flex flex-col items-center justify-center p-6 border border-white/10 rounded-xl cursor-pointer transition-all duration-300 hover:border-accent/50 hover:bg-white/5 h-full;
+            }
+            .rating-input:checked + .rating-box {
+                @apply border-accent bg-accent/20 shadow-[0_0_15px_rgba(131,197,64,0.3)];
+            }
+            .rating-input:checked + .rating-box svg {
+                @apply text-accent fill-accent;
+            }
+            .rating-input:checked + .rating-box span {
+                @apply text-accent font-bold;
+            }
+        }
+    </style>
 </head>
-<body class="flex bg-gray-100">
+<body class="flex h-screen overflow-hidden">
 
     <%- include('../../partials/user_sidebar.ejs') %>
 
-    <main class="flex-1 p-10">
+    <main class="flex-1 overflow-y-auto custom-scroll p-6 md:p-10 relative">
+        
+        <div class="fixed top-0 right-0 w-[500px] h-[500px] bg-accent/5 rounded-full blur-[100px] pointer-events-none -z-10"></div>
+
         <%- include('../../partials/flash.ejs') %>
 
-        <div class="max-w-2xl mx-auto">
-            <div class="mb-6">
-                <a href="/user/testimoni" class="text-blue-500 hover:text-blue-700 font-semibold">
-                    ← Kembali ke Testimoni Saya
+        <div class="max-w-6xl mx-auto">
+            
+            <div class="mb-8">
+                <a href="/user/testimoni" class="flex items-center w-full p-6 bg-surface border border-white/5 rounded-2xl hover:border-accent/50 hover:bg-white/5 transition-all duration-300 group shadow-lg">
+                    <div class="w-14 h-14 rounded-xl bg-black/20 flex items-center justify-center mr-6 group-hover:bg-accent group-hover:text-main transition-all border border-white/5 group-hover:scale-110">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                        </svg>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-sm text-muted uppercase tracking-wider mb-1">Navigasi</p>
+                        <h3 class="text-xl font-bold text-pale group-hover:text-accent transition-colors">Kembali ke Daftar Testimoni</h3>
+                    </div>
+                    <div class="text-white/10 group-hover:text-accent transform translate-x-0 group-hover:translate-x-1 transition-all">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                    </div>
                 </a>
             </div>
 
-            <div class="bg-white p-8 rounded-lg shadow-lg">
-                <h1 class="text-3xl font-bold text-gray-800 mb-6">Tambah Testimoni Baru</h1>
+            <div class="bg-surface border border-white/5 rounded-t-3xl p-10 relative overflow-hidden">
+                <div class="absolute top-0 right-0 p-8 opacity-5 pointer-events-none">
+                    <svg class="w-48 h-48 text-accent" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg>
+                </div>
+                <h1 class="text-4xl font-bold text-pale relative z-10">Tulis Pengalaman Anda</h1>
+                <p class="text-lg text-muted mt-2 relative z-10">Bagikan ulasan jujur mengenai produk atau kegiatan kami.</p>
+            </div>
+
+            <div class="bg-black/20 border-x border-b border-white/5 rounded-b-3xl p-8 md:p-12 backdrop-blur-sm">
                 
-                <form action="/user/testimoni/tambah" method="POST">
-                    <!-- Kategori -->
-                    <div class="mb-6">
-                        <label for="kategori" class="block text-gray-700 font-semibold mb-2">
-                            Kategori <span class="text-red-500">*</span>
-                        </label>
-                        <select 
-                            name="Kategori" 
-                            id="kategori" 
-                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            required
-                            onchange="toggleKategori()">
-                            <option value="">-- Pilih Kategori --</option>
-                            <option value="Product">Produk</option>
-                            <option value="Kegiatan">Kegiatan</option>
-                        </select>
+                <form action="/user/testimoni/tambah" method="POST" class="space-y-10">
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        
+                        <div class="md:col-span-2">
+                            <label for="kategori" class="form-label">
+                                Kategori Testimoni <span class="text-danger">*</span>
+                            </label>
+                            <div class="relative">
+                                <select name="Kategori" id="kategori" class="form-input appearance-none cursor-pointer" required onchange="toggleKategori()">
+                                    <option value="" class="bg-main text-muted">-- Pilih Kategori --</option>
+                                    <option value="Product" class="bg-main text-pale">📦 Produk</option>
+                                    <option value="Kegiatan" class="bg-main text-pale">📅 Kegiatan</option>
+                                </select>
+                                <div class="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-muted">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="produkSection" class="md:col-span-2 hidden animate-fade-in-down">
+                            <label for="produk" class="form-label">
+                                Pilih Produk <span class="text-danger">*</span>
+                            </label>
+                            <div class="relative">
+                                <select name="ID_Product" id="produk" class="form-input appearance-none cursor-pointer">
+                                    <option value="" class="bg-main text-muted">-- Pilih Produk yang Diulas --</option>
+                                    <% if (produkList && produkList.length > 0) { %>
+                                        <% for(let produk of produkList) { %>
+                                            <option value="<%= produk.ID_Product %>" class="bg-main text-pale"><%= produk.Nama %></option>
+                                        <% } %>
+                                    <% } %>
+                                </select>
+                                <div class="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-muted">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="kegiatanSection" class="md:col-span-2 hidden animate-fade-in-down">
+                            <label for="kegiatan" class="form-label">
+                                Pilih Kegiatan <span class="text-danger">*</span>
+                            </label>
+                            <div class="relative">
+                                <select name="ID_Kegiatan" id="kegiatan" class="form-input appearance-none cursor-pointer">
+                                    <option value="" class="bg-main text-muted">-- Pilih Kegiatan yang Diikuti --</option>
+                                    <% if (kegiatanList && kegiatanList.length > 0) { %>
+                                        <% for(let kegiatan of kegiatanList) { %>
+                                            <option value="<%= kegiatan.ID_Kegiatan %>" class="bg-main text-pale"><%= kegiatan.Judul %></option>
+                                        <% } %>
+                                    <% } %>
+                                </select>
+                                <div class="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-muted">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
-                    <!-- Dropdown Produk (hidden by default) -->
-                    <div id="produkSection" class="mb-6 hidden">
-                        <label for="produk" class="block text-gray-700 font-semibold mb-2">
-                            Pilih Produk <span class="text-red-500">*</span>
+                    <div>
+                        <label class="form-label mb-4">
+                            Rating Kepuasan <span class="text-danger">*</span>
                         </label>
-                        <select 
-                            name="ID_Product" 
-                            id="produk"
-                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            <option value="">-- Pilih Produk --</option>
-                            <% if (produkList && produkList.length > 0) { %>
-                                <% for(let produk of produkList) { %>
-                                    <option value="<%= produk.ID_Product %>"><%= produk.Nama %></option>
-                                <% } %>
-                            <% } %>
-                        </select>
-                    </div>
-
-                    <!-- Dropdown Kegiatan (hidden by default) -->
-                    <div id="kegiatanSection" class="mb-6 hidden">
-                        <label for="kegiatan" class="block text-gray-700 font-semibold mb-2">
-                            Pilih Kegiatan <span class="text-red-500">*</span>
-                        </label>
-                        <select 
-                            name="ID_Kegiatan" 
-                            id="kegiatan"
-                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            <option value="">-- Pilih Kegiatan --</option>
-                            <% if (kegiatanList && kegiatanList.length > 0) { %>
-                                <% for(let kegiatan of kegiatanList) { %>
-                                    <option value="<%= kegiatan.ID_Kegiatan %>"><%= kegiatan.Judul %></option>
-                                <% } %>
-                            <% } %>
-                        </select>
-                    </div>
-
-                    <!-- Rating -->
-                    <div class="mb-6">
-                        <label class="block text-gray-700 font-semibold mb-2">
-                            Rating <span class="text-red-500">*</span>
-                        </label>
-                        <div class="flex space-x-2">
+                        <div class="grid grid-cols-5 gap-4 md:gap-6">
                             <% for(let i = 1; i <= 5; i++) { %>
-                                <label class="flex flex-col items-center justify-center cursor-pointer p-3 border-2 border-gray-300 rounded-lg hover:border-yellow-400 transition-colors rating-label">
+                                <label class="relative group h-24 md:h-32">
                                     <input type="radio" name="Rating" value="<%= i %>" required class="hidden rating-input">
-                                    <span class="text-3xl rating-star text-gray-300">★</span>
-                                    <span class="text-xs font-semibold text-gray-600 mt-1"><%= i %></span>
+                                    <div class="rating-box">
+                                        <svg class="w-10 h-10 md:w-12 md:h-12 mb-3 text-muted transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path>
+                                        </svg>
+                                        <span class="text-sm md:text-base text-muted transition-colors"><%= i %></span>
+                                    </div>
                                 </label>
                             <% } %>
                         </div>
-                        <p class="text-sm text-gray-500 mt-2">Pilih rating dari 1 (sangat buruk) sampai 5 (sangat baik)</p>
                     </div>
 
-                    <!-- Ulasan -->
-                    <div class="mb-6">
-                        <label for="ulasan" class="block text-gray-700 font-semibold mb-2">
-                            Ulasan <span class="text-red-500">*</span>
+                    <div>
+                        <label for="ulasan" class="form-label">
+                            Ulasan Lengkap <span class="text-danger">*</span>
                         </label>
                         <textarea 
                             name="Ulasan" 
                             id="ulasan" 
                             rows="6"
-                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            placeholder="Tulis testimoni Anda di sini..."
+                            class="form-input resize-y text-lg"
+                            placeholder="Ceritakan detail pengalaman Anda disini..."
                             required></textarea>
-                        <p class="text-sm text-gray-500 mt-2">Minimal 10 karakter</p>
+                        <div class="flex justify-between mt-2">
+                            <p class="text-sm text-muted">Minimal 10 karakter</p>
+                            <p class="text-sm text-muted italic">Ulasan yang jujur sangat kami hargai</p>
+                        </div>
                     </div>
 
-                    <!-- Buttons -->
-                    <div class="flex space-x-4">
-                        <button 
-                            type="submit" 
-                            class="flex-1 bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg transition-colors">
-                            Simpan Testimoni
+                    <div class="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-6 pt-8 border-t border-white/5">
+                        <button type="submit" class="flex-1 bg-accent hover:bg-accent/90 text-main font-bold py-4 px-8 rounded-xl transition-all transform hover:scale-[1.01] shadow-[0_0_20px_rgba(131,197,64,0.3)] flex items-center justify-center text-lg">
+                            <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            Kirim Testimoni
                         </button>
-                        <a 
-                            href="/user/testimoni" 
-                            class="flex-1 text-center bg-gray-500 hover:bg-gray-600 text-white font-bold py-3 px-6 rounded-lg transition-colors">
+                        <a href="/user/testimoni" class="flex-1 text-center bg-transparent border border-white/10 hover:bg-white/5 text-muted hover:text-white font-semibold py-4 px-8 rounded-xl transition-all text-lg flex items-center justify-center">
                             Batal
                         </a>
                     </div>
@@ -126,18 +199,6 @@
             </div>
         </div>
     </main>
-
-    <%- include('../../partials/footer.ejs') %>
-
-    <style>
-        .rating-label input[type="radio"]:checked ~ .rating-star {
-            color: #FBBF24;
-        }
-        .rating-label:has(input[type="radio"]:checked) {
-            border-color: #FBBF24;
-            background-color: #FEF3C7;
-        }
-    </style>
 
     <script>
         function toggleKategori() {
@@ -147,32 +208,38 @@
             const produkSelect = document.getElementById('produk');
             const kegiatanSelect = document.getElementById('kegiatan');
             
+            // Reset dulu semuanya
+            produkSection.classList.add('hidden');
+            kegiatanSection.classList.add('hidden');
+            produkSelect.required = false;
+            kegiatanSelect.required = false;
+
+            // Logika Tampil
             if (kategori === 'Product') {
                 produkSection.classList.remove('hidden');
-                kegiatanSection.classList.add('hidden');
                 produkSelect.required = true;
-                kegiatanSelect.required = false;
-                kegiatanSelect.value = '';
             } else if (kategori === 'Kegiatan') {
                 kegiatanSection.classList.remove('hidden');
-                produkSection.classList.add('hidden');
                 kegiatanSelect.required = true;
-                produkSelect.required = false;
-                produkSelect.value = '';
             } else {
-                produkSection.classList.add('hidden');
-                kegiatanSection.classList.add('hidden');
-                produkSelect.required = false;
-                kegiatanSelect.required = false;
                 produkSelect.value = '';
                 kegiatanSelect.value = '';
             }
         }
 
-        // Initialize on page load
         document.addEventListener('DOMContentLoaded', function() {
             toggleKategori();
         });
     </script>
+    
+    <style>
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in-down {
+            animation: fadeInDown 0.3s ease-out forwards;
+        }
+    </style>
 </body>
 </html>

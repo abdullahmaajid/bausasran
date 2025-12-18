@@ -8,8 +8,8 @@ const config = require('./config/config.json')['development'];
 
 // --- KONFIGURASI ADMIN ---
 const NAMA_ADMIN = "Administrator";
-const USERNAME_ADMIN = "admin123";
-const PASSWORD_PLAIN = "admin123"; // Ganti ini jika mau
+const USERNAME_ADMIN = "admin";
+const PASSWORD_PLAIN = "123"; // Ganti ini jika mau
 const ROLE_ADMIN = "Admin";
 // -------------------------
 

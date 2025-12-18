@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><%= prestasi.Judul %> - Prestasi Bausasran</title>
     
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Lato:wght@300;400;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.jsdelivr.net/gh/studio-freight/lenis@1.0.29/bundled/lenis.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
 
     <script>
@@ -12,19 +17,25 @@
             theme: {
                 extend: {
                     colors: {
-                        main: '#003024',    // Background Gelap
-                        surface: '#004030', // Warna Kartu
-                        accent: '#83C540',  // Hijau Neon
-                        pale: '#F5FEF9',    // Teks Putih
-                        muted: '#A3C2B8',   // Teks Pudar
-                        gold: '#FACC15',    // Warna Piala
+                        paper: '#F9F7F2',       // Cream Background
+                        deep: '#0F1F18',        // Dark Green (Primary)
+                        gold: '#C5B388',        // Luxury Accent
+                        charcoal: '#4A4A4A',    // Text
+                        sand: '#E5E0D8',        // Border/Secondary
+                        white: '#FFFFFF',
                     },
                     fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
+                        sans: ['Lato', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                        crest: ['Cinzel', 'serif'], 
+                    },
+                    letterSpacing: {
+                        'luxury': '0.2em',
+                        'widest': '0.3em',
                     },
                     boxShadow: {
-                        'neon': '0 0 15px rgba(131, 197, 64, 0.3)',
-                        'gold': '0 0 20px rgba(250, 204, 21, 0.3)',
+                        'elegant': '0 10px 40px -10px rgba(15, 31, 24, 0.05)',
+                        'sharp': '5px 5px 0px 0px rgba(197, 179, 136, 0.3)',
                     }
                 }
             }
@@ -34,171 +45,189 @@
     <style type="text/tailwindcss">
         @layer base {
             body {
-                @apply bg-main text-pale font-sans antialiased;
+                @apply bg-paper text-deep font-sans antialiased selection:bg-deep selection:text-paper;
+                overscroll-behavior: none; 
             }
+            h1, h2, h3, h4 {
+                @apply font-crest text-deep;
+            }
+            p {
+                @apply font-serif text-charcoal/80 leading-relaxed;
+            }
+        }
+        
+        /* TEXTURE OVERLAY */
+        .noise-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.04'/%3E%3C/svg%3E");
+            pointer-events: none; z-index: 9999; mix-blend-mode: multiply;
         }
     </style>
 </head>
 
-<body class="flex flex-col min-h-screen">
+<body class="flex flex-col min-h-screen relative">
+
+    <div class="noise-overlay"></div>
 
     <%- include('../partials/navbar.ejs') %>
 
-    <main class="container mx-auto px-4 py-8 md:py-12 flex-grow">
+    <main class="flex-grow pt-40 pb-24 px-4 md:px-8 relative z-10">
         <%- include('../partials/flash.ejs') %>
 
-        <nav class="flex mb-8 text-sm font-medium" aria-label="Breadcrumb">
-            <ol class="inline-flex items-center space-x-1 md:space-x-3">
-                <li class="inline-flex items-center">
-                    <a href="/" class="text-muted hover:text-accent transition-colors">Home</a>
-                </li>
-                <li>
-                    <div class="flex items-center">
-                        <svg class="w-3 h-3 text-muted mx-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
-                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/>
-                        </svg>
-                        <a href="/prestasi" class="text-muted hover:text-accent transition-colors">Prestasi</a>
-                    </div>
-                </li>
-                <li aria-current="page">
-                    <div class="flex items-center">
-                        <svg class="w-3 h-3 text-muted mx-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
-                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/>
-                        </svg>
-                        <span class="text-accent truncate max-w-[150px] md:max-w-xs"><%= prestasi.Judul %></span>
-                    </div>
-                </li>
-            </ol>
-        </nav>
-
-        <div class="max-w-5xl mx-auto">
+        <div class="max-w-7xl mx-auto">
             
-            <div class="bg-surface rounded-3xl overflow-hidden shadow-lg border border-white/10 relative mb-8">
-                <div class="absolute top-0 left-1/2 transform -translate-x-1/2 w-full h-32 bg-accent/10 blur-3xl pointer-events-none"></div>
+            <nav class="flex mb-8 animate-[fadeIn_1s]" aria-label="Breadcrumb">
+                <ol class="inline-flex items-center space-x-2 md:space-x-3 font-sans text-[10px] uppercase tracking-widest">
+                    <li class="inline-flex items-center">
+                        <a href="/" class="text-deep/40 hover:text-gold transition-colors">Home</a>
+                    </li>
+                    <li><span class="text-deep/20">/</span></li>
+                    <li>
+                        <a href="/prestasi" class="text-deep/40 hover:text-gold transition-colors">Prestasi</a>
+                    </li>
+                    <li><span class="text-deep/20">/</span></li>
+                    <li aria-current="page">
+                        <span class="text-deep font-bold truncate max-w-[200px]"><%= prestasi.Judul %></span>
+                    </li>
+                </ol>
+            </nav>
 
-                <div class="p-8 md:p-12 text-center relative z-10">
-                    <div class="inline-flex items-center justify-center w-24 h-24 mb-6 rounded-full bg-main/50 border border-gold/30 shadow-gold relative group">
-                        <div class="absolute inset-0 bg-gold/20 rounded-full blur-xl opacity-50 group-hover:opacity-80 transition-opacity"></div>
-                        <svg class="w-12 h-12 text-gold relative z-10" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                        </svg>
-                    </div>
-
-                    <h1 class="text-3xl md:text-5xl font-bold text-pale mb-4 leading-tight">
-                        <%= prestasi.Judul %>
-                    </h1>
-
-                    <div class="flex flex-wrap justify-center items-center gap-4 text-sm md:text-base">
-                        <span class="flex items-center text-accent bg-accent/10 px-4 py-1.5 rounded-full border border-accent/20">
-                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                            <%= new Date(prestasi.Tanggal).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' }) %>
+            <header class="mb-12 animate-[fadeIn_1.2s]">
+                <div class="flex flex-wrap items-center gap-4 mb-4">
+                    <span class="inline-block px-3 py-1 text-[9px] font-bold uppercase tracking-widest border bg-gold text-paper border-gold">
+                        Penghargaan
+                    </span>
+                    <% if (prestasi.Kategori) { %>
+                        <span class="inline-block px-3 py-1 text-[9px] font-bold uppercase tracking-widest border border-deep/20 text-deep/60">
+                            <%= prestasi.Kategori %>
                         </span>
-                        
-                        <% if (prestasi.Kategori) { %>
-                            <span class="flex items-center text-gold bg-gold/10 px-4 py-1.5 rounded-full border border-gold/20">
-                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path></svg>
-                                <%= prestasi.Kategori %>
-                            </span>
-                        <% } %>
-                    </div>
+                    <% } %>
                 </div>
-            </div>
+                <h1 class="text-4xl md:text-6xl text-deep leading-tight mb-2"><%= prestasi.Judul %></h1>
+            </header>
 
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
                 
-                <div class="lg:col-span-2">
-                    <div class="bg-surface rounded-2xl p-6 border border-white/10 h-full">
-                        <h2 class="text-xl font-bold text-pale mb-6 flex items-center">
-                            <svg class="w-6 h-6 mr-2 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                            Dokumentasi
-                        </h2>
-
-                        <% if (fotoFiles && fotoFiles.length > 0) { %>
-                            <div class="grid grid-cols-2 gap-4">
-                                <% fotoFiles.forEach((foto, idx) => { %>
-                                    <div class="group relative aspect-[4/3] rounded-xl overflow-hidden bg-main border border-white/5 cursor-pointer">
-                                        <img src="/images/galeri/<%= foto %>" 
-                                             alt="Foto Prestasi <%= idx + 1 %>" 
-                                             class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                                             loading="lazy"
-                                             onerror="this.src='https://via.placeholder.com/400x300?text=No+Image'">
-                                        
-                                        <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"></path></svg>
-                                        </div>
-                                    </div>
-                                <% }) %>
-                            </div>
-                        <% } else { %>
-                            <div class="flex flex-col items-center justify-center py-12 border-2 border-dashed border-white/10 rounded-xl bg-white/5">
-                                <svg class="w-12 h-12 text-muted mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                                <p class="text-muted text-sm">Belum ada dokumentasi foto.</p>
-                            </div>
-                        <% } %>
-                    </div>
-                </div>
-
-                <div class="lg:col-span-1">
-                    <div class="bg-surface rounded-2xl p-6 border border-white/10 sticky top-24">
-                        <h3 class="text-lg font-bold text-pale mb-6 pb-4 border-b border-white/10">
-                            Detail Informasi
-                        </h3>
-                        
-                        <div class="space-y-6">
-                            <div class="flex items-start">
-                                <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-main flex items-center justify-center text-accent mr-4 border border-white/5">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                                </div>
-                                <div>
-                                    <p class="text-xs text-muted uppercase tracking-wider mb-1">Tanggal Raihan</p>
-                                    <p class="text-pale font-medium">
-                                        <%= new Date(prestasi.Tanggal).toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) %>
-                                    </p>
-                                </div>
-                            </div>
-
-                            <% if (prestasi.Kategori) { %>
-                                <div class="flex items-start">
-                                    <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-main flex items-center justify-center text-accent mr-4 border border-white/5">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
-                                    </div>
-                                    <div>
-                                        <p class="text-xs text-muted uppercase tracking-wider mb-1">Tingkat / Kategori</p>
-                                        <p class="text-pale font-medium"><%= prestasi.Kategori %></p>
-                                    </div>
+                <div class="lg:col-span-8 space-y-12 animate-[fadeIn_1.5s]">
+                    
+                    <div class="relative w-full aspect-video bg-sand/20 p-2 border border-deep/5">
+                        <div class="w-full h-full relative overflow-hidden group">
+                            <% if (fotoFiles && fotoFiles.length > 0) { %>
+                                <img src="/images/<%= folder || 'prestasi' %>/<%= fotoFiles[0] %>" 
+                                     alt="<%= prestasi.Judul %>" 
+                                     class="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105 filter grayscale contrast-[1.1] group-hover:grayscale-0 transition-all"
+                                     onerror="this.onerror=null;this.src='https://via.placeholder.com/800x600?text=Bausasran+Heritage'">
+                            <% } else { %>
+                                <div class="w-full h-full flex items-center justify-center bg-sand/10 text-deep/20">
+                                    <span class="font-crest text-4xl">✦</span>
                                 </div>
                             <% } %>
-
-                            <% if (groupFoto) { %>
-                                <div class="flex items-start">
-                                    <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-main flex items-center justify-center text-accent mr-4 border border-white/5">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path></svg>
-                                    </div>
-                                    <div>
-                                        <p class="text-xs text-muted uppercase tracking-wider mb-1">Album Terkait</p>
-                                        <a href="/galeri" class="text-accent hover:text-white hover:underline transition-colors font-medium">
-                                            <%= groupFoto.Nama %>
-                                        </a>
-                                    </div>
-                                </div>
-                            <% } %>
+                            <div class="absolute inset-0 bg-gradient-to-t from-deep/20 to-transparent opacity-60"></div>
                         </div>
                     </div>
+
+                    <div class="prose prose-lg max-w-none text-charcoal/80">
+                        <h3 class="text-2xl mb-4 pb-4 border-b border-deep/10 relative inline-block">
+                            Tentang Pencapaian
+                            <span class="absolute bottom-0 left-0 w-1/3 h-[2px] bg-gold"></span>
+                        </h3>
+                        <div class="font-serif leading-loose whitespace-pre-line text-lg">
+                            <%= prestasi.Deskripsi || 'Pencapaian ini merupakan bukti dedikasi warga Bausasran dalam menjaga dan mengembangkan potensi wilayah.' %>
+                        </div>
+                    </div>
+
+                    <% if (fotoFiles && fotoFiles.length > 1) { %>
+                        <div>
+                            <h3 class="text-2xl mb-6 flex items-center gap-3">
+                                <span class="text-gold">✦</span> Dokumentasi Lainnya
+                            </h3>
+                            <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                                <% fotoFiles.forEach((foto, index) => { %>
+                                    <% if (index > 0) { %> 
+                                        <div class="relative aspect-square overflow-hidden cursor-pointer group border border-deep/5 bg-white p-1 shadow-sm hover:shadow-elegant transition-all">
+                                            <div class="w-full h-full overflow-hidden relative">
+                                                <img src="/images/<%= folder || 'prestasi' %>/<%= foto %>" 
+                                                     alt="Galeri <%= index %>" 
+                                                     class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 filter grayscale group-hover:grayscale-0 transition-all">
+                                                <div class="absolute inset-0 bg-deep/0 group-hover:bg-deep/10 transition-colors duration-500"></div>
+                                            </div>
+                                        </div>
+                                    <% } %>
+                                <% }) %>
+                            </div>
+                        </div>
+                    <% } %>
+
+                </div>
+
+                <div class="lg:col-span-4 animate-[fadeIn_1.8s]">
+                    <div class="sticky top-32 space-y-6">
+                        
+                        <div class="bg-white border border-deep/10 p-8 shadow-elegant relative overflow-hidden">
+                            <div class="absolute top-0 left-0 w-full h-1 bg-gold"></div>
+                            
+                            <h3 class="text-xl mb-6">Detail Informasi</h3>
+                            
+                            <ul class="space-y-6">
+                                <li class="flex items-start gap-4">
+                                    <div class="w-8 h-8 flex items-center justify-center text-deep/40 border border-deep/10 rounded-full shrink-0">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                    </div>
+                                    <div>
+                                        <span class="block text-[9px] uppercase tracking-widest text-deep/40 mb-1">Tanggal Raihan</span>
+                                        <span class="font-serif text-deep text-lg leading-tight block">
+                                            <%= new Date(prestasi.Tanggal).toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) %>
+                                        </span>
+                                    </div>
+                                </li>
+
+                                <% if (prestasi.Kategori) { %>
+                                    <li class="flex items-start gap-4">
+                                        <div class="w-8 h-8 flex items-center justify-center text-deep/40 border border-deep/10 rounded-full shrink-0">
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg>
+                                        </div>
+                                        <div>
+                                            <span class="block text-[9px] uppercase tracking-widest text-deep/40 mb-1">Tingkat / Kategori</span>
+                                            <span class="font-serif text-deep text-lg leading-tight block">
+                                                <%= prestasi.Kategori %>
+                                            </span>
+                                        </div>
+                                    </li>
+                                <% } %>
+
+                                <% if (groupFoto) { %>
+                                    <li class="flex items-start gap-4">
+                                        <div class="w-8 h-8 flex items-center justify-center text-deep/40 border border-deep/10 rounded-full shrink-0">
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                        </div>
+                                        <div>
+                                            <span class="block text-[9px] uppercase tracking-widest text-deep/40 mb-1">Album Terkait</span>
+                                            <a href="/galeri" class="font-serif text-deep hover:text-gold transition-colors text-lg leading-tight block underline decoration-deep/30 underline-offset-4">
+                                                <%= groupFoto.Nama %>
+                                            </a>
+                                        </div>
+                                    </li>
+                                <% } %>
+                            </ul>
+                        </div>
+
+                        <a href="/prestasi" class="block w-full py-4 text-center text-[10px] uppercase tracking-widest text-deep/40 border border-deep/10 hover:border-deep hover:text-deep transition-all duration-300 bg-white shadow-sm hover:shadow-sharp">
+                            ← Kembali ke Daftar Prestasi
+                        </a>
+
+                    </div>
                 </div>
 
             </div>
-
-            <div class="mt-12 text-center">
-                <a href="/prestasi" class="inline-flex items-center px-6 py-3 border border-white/10 text-muted hover:text-white hover:bg-white/5 rounded-xl transition-all duration-300">
-                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
-                    Kembali ke Daftar Prestasi
-                </a>
-            </div>
-
         </div>
     </main>
 
     <%- include('../partials/footer.ejs') %>
 
+    <script>
+        const lenis = new Lenis({ duration: 1.2, easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), direction: 'vertical', smooth: true });
+        function raf(time) { lenis.raf(time); requestAnimationFrame(raf); }
+        requestAnimationFrame(raf);
+    </script>
 </body>
 </html>

@@ -18,6 +18,16 @@ module.exports.renderKegiatan = async (req, res) => {
                         as: 'fotos',
                         attributes: ['ID_Foto', 'Foto']
                     }
+                },
+                {
+                    model: db.groupsection,
+                    as: 'ID_GroupSection_groupsection',
+                    include: {
+                        model: db.detailsection,
+                        as: 'detailsections',
+                        where: { Urutan: 1 },
+                        required: false 
+                    }
                 }
             ],
             order: [['Tanggal', 'DESC']]
@@ -28,6 +38,15 @@ module.exports.renderKegiatan = async (req, res) => {
             if (kJson.ID_GroupFoto_groupfoto && kJson.ID_GroupFoto_groupfoto.fotos) {
                 kJson.photos = kJson.ID_GroupFoto_groupfoto.fotos;
             }
+            
+            // Ambil Deskripsi
+            kJson.Deskripsi = '';
+            if (kJson.ID_GroupSection_groupsection && 
+                kJson.ID_GroupSection_groupsection.detailsections && 
+                kJson.ID_GroupSection_groupsection.detailsections.length > 0) {
+                kJson.Deskripsi = kJson.ID_GroupSection_groupsection.detailsections[0].Deskripsi;
+            }
+            
             return kJson;
         });
 
@@ -49,11 +68,33 @@ module.exports.renderKegiatanDetail = async (req, res) => {
         const { id } = req.params;
 
         // Ambil detail kegiatan
-        const kegiatan = await db.kegiatan.findByPk(id);
+        let kegiatan = await db.kegiatan.findByPk(id, {
+            include: [{
+                model: db.groupsection,
+                as: 'ID_GroupSection_groupsection',
+                include: {
+                    model: db.detailsection,
+                    as: 'detailsections',
+                    where: { Urutan: 1 },
+                    required: false
+                }
+            }]
+        });
 
         if (!kegiatan) {
             req.flash('error', 'Kegiatan tidak ditemukan.');
             return res.redirect('/kegiatan');
+        }
+
+        // Convert to Plain JSON for easier property modification
+        kegiatan = kegiatan.toJSON();
+
+        // Attach Deskripsi
+        kegiatan.Deskripsi = '';
+        if (kegiatan.ID_GroupSection_groupsection && 
+            kegiatan.ID_GroupSection_groupsection.detailsections && 
+            kegiatan.ID_GroupSection_groupsection.detailsections.length > 0) {
+            kegiatan.Deskripsi = kegiatan.ID_GroupSection_groupsection.detailsections[0].Deskripsi;
         }
 
         // Ambil foto-foto kegiatan
@@ -296,15 +337,41 @@ module.exports.renderPrestasiDetail = async (req, res) => {
             fotoFiles = fotoList.map(f => f.Foto);
         }
 
+        // Ambil galeri info
         let groupFoto = null;
+        let folder = 'prestasi'; // Default
+
         if (prestasi.ID_GroupFoto) {
-            groupFoto = await db.groupfoto.findByPk(prestasi.ID_GroupFoto);
+             groupFoto = await db.groupfoto.findByPk(prestasi.ID_GroupFoto, {
+                include: [
+                    { model: db.product, as: 'products', attributes: ['ID_Product'] },
+                    { model: db.kegiatan, as: 'kegiatans', attributes: ['ID_Kegiatan'] },
+                    { model: db.prestasi, as: 'prestasis', attributes: ['ID_Prestasi'] }
+                ]
+            });
+
+            // Logic determineFolder
+            if (groupFoto) {
+                if (groupFoto.products && groupFoto.products.length > 0) folder = 'produk';
+                else if (groupFoto.kegiatans && groupFoto.kegiatans.length > 0) folder = 'kegiatan';
+                else if (groupFoto.prestasis && groupFoto.prestasis.length > 0) folder = 'prestasi';
+                else {
+                     // Fallback nama
+                     const lowerName = (groupFoto.Nama || '').toLowerCase();
+                     if (lowerName.includes('kegiatan')) folder = 'kegiatan';
+                     else if (lowerName.includes('produk') || lowerName.includes('spek')) folder = 'produk';
+                     else if (lowerName.includes('prestasi')) folder = 'prestasi';
+                     else if (lowerName.includes('anggota')) folder = 'anggota';
+                     else folder = 'galeri';
+                }
+            }
         }
 
         res.render('public/prestasi_detail', {
             prestasi,
             fotoFiles,
-            groupFoto
+            groupFoto,
+            folder // Kirim folder ke view
         });
     } catch (error) {
         console.error('Error di renderPrestasiDetail:', error);
@@ -380,22 +447,63 @@ module.exports.renderAnggotaDetail = async (req, res) => {
 // ==================================================================
 // 9. Halaman Galeri
 // ==================================================================
+// ==================================================================
+// 9. Halaman Galeri
+// ==================================================================
 module.exports.renderGaleri = async (req, res) => {
     try {
+        // Helper determinasi folder (sama dengan admin/galeriController.js)
+        const determineFolder = (group) => {
+            // 1. Cek Relasi Database
+            if (group.products && group.products.length > 0) return 'produk';
+            if (group.kegiatans && group.kegiatans.length > 0) return 'kegiatan';
+            if (group.prestasis && group.prestasis.length > 0) return 'prestasi';
+            
+            // 2. Fallback: Cek Nama
+            const groupName = group.Nama || '';
+            const lowerName = groupName.toLowerCase();
+            if (lowerName.includes('kegiatan')) return 'kegiatan';
+            if (lowerName.includes('produk') || lowerName.includes('spek')) return 'produk';
+            if (lowerName.includes('prestasi')) return 'prestasi';
+            if (lowerName.includes('anggota')) return 'anggota';
+            
+            return 'galeri';
+        };
+
         // Ambil semua foto
         const fotoList = await db.foto.findAll({
             order: [['ID_Foto', 'DESC']]
         });
 
-        // Ambil group foto untuk filtering
+        // Ambil group foto BESERTA relasinya untuk deteksi folder yang akurat
         const groupFotoList = await db.groupfoto.findAll({
+            include: [
+                { model: db.product, as: 'products', attributes: ['ID_Product'] },
+                { model: db.kegiatan, as: 'kegiatans', attributes: ['ID_Kegiatan'] },
+                { model: db.prestasi, as: 'prestasis', attributes: ['ID_Prestasi'] }
+            ],
             order: [['Nama', 'ASC']]
         });
 
-        // Attach kategori name to foto
-        const groupFotoMap = new Map(groupFotoList.map(g => [g.ID_GroupFoto, g.Nama]));
+        // Map Group ID -> { Nama, Folder }
+        const groupInfoMap = new Map();
+        groupFotoList.forEach(g => {
+            groupInfoMap.set(g.ID_GroupFoto, {
+                nama: g.Nama,
+                folder: determineFolder(g)
+            });
+        });
+
+        // Attach info to photo objects
         fotoList.forEach(foto => {
-            foto.dataValues.kategoriName = groupFotoMap.get(foto.ID_GroupFoto) || 'Umum';
+            const info = groupInfoMap.get(foto.ID_GroupFoto);
+            if (info) {
+                foto.dataValues.kategoriName = info.nama;
+                foto.dataValues.folder = info.folder;
+            } else {
+                foto.dataValues.kategoriName = 'Umum';
+                foto.dataValues.folder = 'galeri';
+            }
         });
 
         res.render('public/galeri', {
@@ -428,15 +536,46 @@ module.exports.renderTestimoni = async (req, res) => {
             });
         }
 
-        // Ambil foto pengguna
+        // Ambil foto pengguna dengan info folder
         const fotoIds = [...new Set(penggunaList.map(p => p.ID_Foto).filter(Boolean))];
         let fotoList = [];
         if (fotoIds.length > 0) {
             fotoList = await db.foto.findAll({
-                where: { ID_Foto: fotoIds }
+                where: { ID_Foto: fotoIds },
+                include: [{
+                    model: db.groupfoto,
+                    as: 'ID_GroupFoto_groupfoto',
+                    include: [
+                        { model: db.product, as: 'products', attributes: ['ID_Product'] },
+                        { model: db.kegiatan, as: 'kegiatans', attributes: ['ID_Kegiatan'] },
+                        { model: db.prestasi, as: 'prestasis', attributes: ['ID_Prestasi'] }
+                    ]
+                }]
             });
         }
-        const fotoMap = new Map(fotoList.map(f => [f.ID_Foto, f.Foto]));
+
+        // Helper Folder
+        const determineFolder = (group) => {
+            if (!group) return 'galeri';
+            if (group.products && group.products.length > 0) return 'produk';
+            if (group.kegiatans && group.kegiatans.length > 0) return 'kegiatan';
+            if (group.prestasis && group.prestasis.length > 0) return 'prestasi';
+            
+            const groupName = group.Nama || '';
+            const lowerName = groupName.toLowerCase();
+            if (lowerName.includes('kegiatan')) return 'kegiatan';
+            if (lowerName.includes('produk') || lowerName.includes('spek')) return 'produk';
+            if (lowerName.includes('prestasi')) return 'prestasi';
+            if (lowerName.includes('anggota')) return 'anggota';
+            
+            return 'galeri';
+        };
+
+        const fotoMap = new Map(fotoList.map(f => {
+            const group = f.ID_GroupFoto_groupfoto;
+            const folder = determineFolder(group);
+            return [f.ID_Foto, { filename: f.Foto, folder: folder }];
+        }));
 
         // Create pengguna map
         const penggunaMap = new Map(penggunaList.map(p => [p.ID_Pengguna, p]));
@@ -468,7 +607,14 @@ module.exports.renderTestimoni = async (req, res) => {
             const pengguna = penggunaMap.get(testimoni.ID_Pengguna);
             if (pengguna) {
                 testimoni.dataValues.penggunaName = pengguna.Nama;
-                testimoni.dataValues.penggunaFoto = fotoMap.get(pengguna.ID_Foto);
+                const fotoInfo = fotoMap.get(pengguna.ID_Foto);
+                if (fotoInfo) {
+                    testimoni.dataValues.penggunaFoto = fotoInfo.filename;
+                    testimoni.dataValues.penggunaFolder = fotoInfo.folder;
+                } else {
+                    testimoni.dataValues.penggunaFoto = null;
+                    testimoni.dataValues.penggunaFolder = 'anggota';
+                }
             }
 
             if (testimoni.Kategori === 'Product') {
@@ -488,3 +634,4 @@ module.exports.renderTestimoni = async (req, res) => {
         res.redirect('/');
     }
 };
+    
