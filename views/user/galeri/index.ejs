@@ -3,110 +3,142 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Galeri Foto - Bausasran</title>
+    <title>Galeri Foto - Bausasran Heritage</title>
     
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Lato:wght@300;400;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        main: '#003024',    // Background Gelap
-                        surface: '#004030', // Warna Kartu
-                        accent: '#83C540',  // Hijau Neon
-                        pale: '#F5FEF9',    // Teks Putih
-                        muted: '#A3C2B8',   // Teks Pudar
+                        paper: '#F9F7F2',       // Background Utama
+                        deep: '#0F1F18',        // Teks Utama / Aksen Gelap
+                        gold: '#C5B388',        // Aksen Emas
+                        charcoal: '#4A4A4A',    // Teks Sekunder
+                        linen: '#EBE9E4',       // Background Kartu
                     },
-                    fontFamily: { sans: ['Inter', 'sans-serif'] }
+                    fontFamily: {
+                        sans: ['Lato', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                        crest: ['Cinzel', 'serif'],
+                    },
+                    letterSpacing: {
+                        'luxury': '0.2em',
+                    }
                 }
             }
         }
     </script>
     <style type="text/tailwindcss">
         @layer base { 
-            body { @apply bg-main text-pale font-sans antialiased; } 
-            .custom-scroll::-webkit-scrollbar { width: 8px; }
-            .custom-scroll::-webkit-scrollbar-track { @apply bg-main; }
-            .custom-scroll::-webkit-scrollbar-thumb { @apply bg-surface border border-white/10 rounded-full; }
+            body { 
+                @apply bg-paper text-deep font-sans antialiased; 
+            } 
+            .custom-scroll::-webkit-scrollbar { width: 6px; }
+            .custom-scroll::-webkit-scrollbar-track { @apply bg-paper; }
+            .custom-scroll::-webkit-scrollbar-thumb { @apply bg-deep/20 hover:bg-gold rounded-full transition-colors; }
+        }
+
+        /* Texture Grain Overlay */
+        .noise-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.04'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 0;
+            mix-blend-mode: multiply;
         }
     </style>
 </head>
-<body class="flex h-screen overflow-hidden">
+<body class="flex h-screen overflow-hidden relative">
+
+    <div class="noise-overlay"></div>
 
     <%- include('../../partials/user_sidebar.ejs') %>
 
-    <main class="flex-1 overflow-y-auto custom-scroll p-6 md:p-10 relative">
+    <main class="flex-1 overflow-y-auto custom-scroll p-8 md:p-12 relative z-10">
         
-        <div class="fixed top-0 right-0 w-[500px] h-[500px] bg-accent/5 rounded-full blur-[100px] pointer-events-none -z-10"></div>
-
         <%- include('../../partials/flash.ejs') %>
 
-        <div class="mb-10 border-b border-white/10 pb-6">
-            <h1 class="text-3xl md:text-4xl font-bold text-pale mb-2">
-                Galeri & <span class="text-accent">Dokumentasi</span>
+        <div class="mb-12 border-b border-deep/10 pb-8">
+            <span class="text-[10px] uppercase tracking-luxury text-gold font-bold mb-2 block">Arsip Visual</span>
+            <h1 class="text-3xl md:text-5xl font-crest text-deep mb-3">
+                Galeri & <span class="font-serif italic text-gold">Dokumentasi</span>
             </h1>
-            <p class="text-muted text-lg">Koleksi momen terbaik dan dokumentasi kegiatan Kelompok Tani.</p>
+            <p class="text-charcoal font-serif italic text-lg max-w-2xl">
+                Koleksi momen abadi dan rekam jejak kegiatan di Kampung Wisata.
+            </p>
         </div>
 
         <div class="pb-10">
             <% if (galeriList && galeriList.length > 0) { %>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
                     <% for(let galeri of galeriList) { %>
-                        <div class="group relative bg-surface border border-white/5 rounded-2xl overflow-hidden hover:border-accent/50 hover:shadow-[0_0_25px_rgba(131,197,64,0.15)] transition-all duration-300 flex flex-col">
+                        <div class="group relative bg-white p-3 md:p-4 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.1)] hover:shadow-[0_10px_30px_-10px_rgba(0,0,0,0.2)] transition-all duration-500 hover:-translate-y-2 border border-deep/5 rotate-0 hover:rotate-1">
                             
-                            <div class="aspect-[4/3] w-full overflow-hidden relative bg-black/20">
+                            <div class="aspect-[4/3] w-full overflow-hidden relative bg-linen border border-deep/5">
                                 <% if (galeri.dataValues.thumbnailFile) { %>
-                                    <img src="/images/galeri/<%= galeri.dataValues.thumbnailFile %>" 
+                                    <img src="/images/<%= galeri.dataValues.folder %>/<%= galeri.dataValues.thumbnailFile %>" 
                                          alt="<%= galeri.Nama || 'Album' %>"
-                                         class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700">
-                                    <div class="absolute inset-0 bg-gradient-to-t from-surface via-transparent to-transparent opacity-90"></div>
+                                         class="w-full h-full object-cover filter grayscale group-hover:grayscale-0 transition-all duration-1000 transform group-hover:scale-110">
                                 <% } else { %>
-                                    <div class="w-full h-full flex items-center justify-center bg-surface border-b border-white/5">
-                                        <svg class="w-20 h-20 text-white/5 group-hover:text-accent/20 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                    <div class="w-full h-full flex items-center justify-center bg-linen text-deep/10">
+                                        <svg class="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                                         </svg>
                                     </div>
                                 <% } %>
 
-                                <div class="absolute top-4 right-4">
-                                    <div class="flex items-center space-x-2 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10 group-hover:border-accent/50 transition-colors">
-                                        <svg class="w-4 h-4 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                                        <span class="text-xs font-bold text-white"><%= galeri.dataValues.fotoCount %> Foto</span>
+                                <div class="absolute bottom-3 right-3">
+                                    <div class="flex items-center space-x-2 bg-paper/90 backdrop-blur-sm px-3 py-1 border border-deep/20 shadow-sm">
+                                        <svg class="w-3 h-3 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                        <span class="text-[9px] font-bold uppercase tracking-widest text-deep">
+                                            <%= galeri.dataValues.fotoCount %> Foto
+                                        </span>
                                     </div>
                                 </div>
                             </div>
 
-                            <div class="p-6 relative -mt-10 z-10 flex flex-col items-center text-center">
-                                <h3 class="text-xl font-bold text-pale mb-2 group-hover:text-accent transition-colors drop-shadow-md">
+                            <div class="pt-6 pb-2 text-center flex flex-col items-center">
+                                <h3 class="text-xl font-crest text-deep mb-2 group-hover:text-gold transition-colors duration-300">
                                     <%= galeri.Nama || 'Album Tanpa Nama' %>
                                 </h3>
                                 
-                                <div class="w-12 h-1 bg-accent/50 rounded-full mb-4 group-hover:w-20 transition-all duration-300"></div>
+                                <div class="w-8 h-[1px] bg-gold/50 mb-4"></div>
 
                                 <a href="/user/galeri/<%= galeri.ID_GroupFoto %>" 
-                                   class="inline-flex items-center justify-center px-6 py-2.5 text-sm font-semibold text-pale bg-white/5 border border-white/10 rounded-full hover:bg-accent hover:text-main hover:border-transparent transition-all duration-300 group-hover:shadow-lg">
-                                    <span>Buka Album</span>
-                                    <svg class="w-4 h-4 ml-2 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                                   class="text-[10px] font-bold uppercase tracking-luxury text-charcoal/60 hover:text-deep border-b border-transparent hover:border-deep transition-all duration-300 pb-0.5">
+                                    Buka Album
                                 </a>
                             </div>
+
+                            <div class="absolute -top-3 left-1/2 transform -translate-x-1/2 w-24 h-6 bg-yellow-100/30 border-l border-r border-white/20 backdrop-blur-[1px] rotate-2 shadow-sm pointer-events-none"></div>
                         </div>
                     <% } %>
                 </div>
             <% } else { %>
-                <div class="flex flex-col items-center justify-center py-20 border-2 border-dashed border-white/5 rounded-3xl bg-surface/30">
-                    <div class="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mb-4">
-                        <svg class="w-10 h-10 text-muted/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                <div class="flex flex-col items-center justify-center py-24 border border-dashed border-deep/10 bg-linen/20">
+                    <div class="w-16 h-16 rounded-full bg-paper border border-deep/10 flex items-center justify-center mb-6 shadow-sm">
+                        <svg class="w-8 h-8 text-deep/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                         </svg>
                     </div>
-                    <h3 class="text-xl font-bold text-pale mb-2">Galeri Kosong</h3>
-                    <p class="text-muted text-sm text-center">Belum ada album atau foto yang diunggah.</p>
+                    <h3 class="text-xl font-crest text-deep mb-2">Album Kosong</h3>
+                    <p class="font-serif italic text-charcoal/60 max-w-md text-center">
+                        Belum ada dokumentasi foto yang tersimpan di dalam arsip.
+                    </p>
                 </div>
             <% } %>
         </div>
 
-        <div class="mt-4 border-t border-white/5 pt-6 text-center text-xs text-muted/30">
-            &copy; <%= new Date().getFullYear() %> Kampung Wisata Bausasran.
+        <div class="mt-8 pt-6 border-t border-deep/5 text-center">
+            <p class="text-[9px] uppercase tracking-luxury text-charcoal/40">
+                &copy; <%= new Date().getFullYear() %> Bausasran Heritage Estate.
+            </p>
         </div>
     </main>
 

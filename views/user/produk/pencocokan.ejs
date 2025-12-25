@@ -3,199 +3,376 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pencocokan Produk</title>
-    <link rel="stylesheet" href="/css/style.css">
+    <title>Analisis Lahan Cerdas - Bausasran</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Lato:wght@300;400;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        paper: '#F9F7F2',       /* Cream Background */
+                        deep: '#0F1F18',        /* Dark Emerald Green */
+                        gold: '#C5B388',        /* Antique Gold */
+                        charcoal: '#4A4A4A',    /* Soft Black */
+                        linen: '#EBE9E4',       /* Light Gray/Beige */
+                        white: '#FFFFFF',
+                        danger: '#8B3A3A',      /* Elegant Red */
+                    },
+                    fontFamily: {
+                        sans: ['Lato', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                        crest: ['Cinzel', 'serif'], 
+                    },
+                    boxShadow: {
+                        'elegant': '0 10px 40px -10px rgba(15, 31, 24, 0.1)',
+                        'gold-glow': '0 0 20px rgba(197, 179, 136, 0.3)',
+                    },
+                    letterSpacing: {
+                        'luxury': '0.2em',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style type="text/tailwindcss">
+        @layer base {
+            body { @apply bg-paper text-deep font-sans antialiased; }
+        }
+        
+        /* TEXTURE: Film Grain Overlay */
+        .noise-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E");
+            pointer-events: none; z-index: 0; mix-blend-mode: multiply;
+        }
+
+        /* Map Customization for Heritage Look */
+        #map { z-index: 1; background: #EBE9E4; }
+        .leaflet-tile { filter: sepia(10%) grayscale(20%) contrast(95%); } /* Vintage Map Effect */
+
+        /* Range Slider Styling */
+        input[type=range] { @apply h-1 bg-deep/10 rounded-lg appearance-none cursor-pointer; }
+        input[type=range]::-webkit-slider-thumb { @apply appearance-none w-4 h-4 bg-deep border border-gold rounded-full shadow hover:scale-125 transition-transform; }
+
+        /* Custom Scrollbar */
+        .custom-scroll::-webkit-scrollbar { width: 6px; }
+        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+        .custom-scroll::-webkit-scrollbar-thumb { @apply bg-gold/50 hover:bg-deep rounded-full transition-colors; }
+
+        /* Form Elements */
+        .input-luxury {
+            @apply w-full bg-transparent border-b border-deep/20 px-2 py-2 text-sm text-deep placeholder-charcoal/30 focus:outline-none focus:border-gold transition-all duration-300 font-serif italic;
+        }
+        
+        .select-luxury {
+            @apply bg-transparent border-b border-deep/20 py-2 text-xs text-deep font-bold uppercase tracking-widest focus:outline-none focus:border-gold cursor-pointer;
+        }
+    </style>
 </head>
-<body class="flex bg-gray-100">
+
+<body class="flex h-screen overflow-hidden relative">
+
+    <div class="noise-overlay"></div>
 
     <%- include('../../partials/user_sidebar.ejs') %>
 
-    <main class="flex-1 p-10">
+    <main class="flex-1 flex flex-col h-screen overflow-hidden relative z-10">
+        
         <%- include('../../partials/flash.ejs') %>
 
-        <div class="mb-6">
-            <a href="/user/produk" class="text-blue-500 hover:text-blue-700 font-semibold">
-                ← Kembali ke Daftar Produk
-            </a>
-        </div>
-
-        <div class="max-w-4xl mx-auto">
-            <div class="bg-white rounded-lg shadow-lg p-8 mb-6">
-                <div class="text-center mb-8">
-                    <h1 class="text-4xl font-bold text-blue-600 mb-4">🔍 Pencocokan Produk</h1>
-                    <p class="text-gray-600">Temukan produk yang sesuai dengan kebutuhan lahan Anda</p>
+        <div class="flex-1 overflow-y-auto custom-scroll p-6 md:p-10 lg:p-12">
+            
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-10 border-b border-deep/10 pb-6 gap-6">
+                <div>
+                    <span class="font-sans text-[10px] uppercase tracking-luxury text-gold mb-2 block font-bold">Sistem Cerdas Bausasran</span>
+                    <h1 class="font-crest text-3xl md:text-5xl text-deep leading-tight">Analisis <span class="text-gold font-serif italic normal-case">Lahan</span> & Produk</h1>
+                    <p class="font-serif italic text-charcoal/60 text-lg mt-2 max-w-2xl">Pilih lokasi lahan Anda pada peta untuk mendapatkan rekomendasi tanaman yang paling sesuai.</p>
                 </div>
-
-                <!-- Form Pencocokan -->
-                <form id="pencocokanForm" class="space-y-6">
-                    <!-- Luas Lahan -->
-                    <div>
-                        <label for="luas_lahan" class="block text-gray-700 font-semibold mb-2">
-                            Luas Lahan (m²) <span class="text-red-500">*</span>
-                        </label>
-                        <input 
-                            type="number" 
-                            id="luas_lahan" 
-                            name="luas_lahan"
-                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                            placeholder="Contoh: 1000"
-                            required>
-                    </div>
-
-                    <!-- Jenis Tanah -->
-                    <div>
-                        <label for="jenis_tanah" class="block text-gray-700 font-semibold mb-2">
-                            Jenis Tanah <span class="text-red-500">*</span>
-                        </label>
-                        <select 
-                            id="jenis_tanah" 
-                            name="jenis_tanah"
-                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                            required>
-                            <option value="">-- Pilih Jenis Tanah --</option>
-                            <option value="Liat">Tanah Liat</option>
-                            <option value="Berpasir">Tanah Berpasir</option>
-                            <option value="Lempung">Tanah Lempung</option>
-                            <option value="Humus">Tanah Humus</option>
-                            <option value="Gambut">Tanah Gambut</option>
-                            <option value="Kapur">Tanah Kapur</option>
-                        </select>
-                    </div>
-
-                    <!-- Kebutuhan -->
-                    <div>
-                        <label for="kebutuhan" class="block text-gray-700 font-semibold mb-2">
-                            Kebutuhan/Tujuan <span class="text-red-500">*</span>
-                        </label>
-                        <select 
-                            id="kebutuhan" 
-                            name="kebutuhan"
-                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                            required>
-                            <option value="">-- Pilih Kebutuhan --</option>
-                            <option value="Konsumsi">Untuk Konsumsi Sendiri</option>
-                            <option value="Komersial">Untuk Dijual (Komersial)</option>
-                            <option value="Subsisten">Pertanian Subsisten</option>
-                            <option value="Organik">Pertanian Organik</option>
-                        </select>
-                    </div>
-
-                    <!-- Lokasi -->
-                    <div>
-                        <label for="lokasi" class="block text-gray-700 font-semibold mb-2">
-                            Lokasi (Opsional)
-                        </label>
-                        <input 
-                            type="text" 
-                            id="lokasi" 
-                            name="lokasi"
-                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                            placeholder="Contoh: Desa Bausasran, Kecamatan...">
-                    </div>
-
-                    <!-- Submit Button -->
-                    <button 
-                        type="submit" 
-                        class="w-full bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-4 px-6 rounded-lg transition-colors text-lg">
-                        🔍 Cari Produk yang Cocok
-                    </button>
-                </form>
             </div>
 
-            <!-- Hasil Pencocokan -->
-            <div id="hasilPencocokan" class="hidden">
-                <div class="bg-white rounded-lg shadow-lg p-8">
-                    <h2 class="text-2xl font-bold text-gray-800 mb-6">Hasil Pencocokan</h2>
-                    <div id="hasilContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <!-- Hasil akan ditampilkan di sini via JavaScript -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12 h-[550px]">
+                
+                <div class="lg:col-span-2 relative bg-white p-2 border border-deep/10 shadow-elegant group">
+                    <div id="map" class="h-full w-full relative z-10"></div>
+                    
+                    <div id="map-loading" class="absolute inset-0 bg-paper/90 backdrop-blur-sm z-50 flex flex-col items-center justify-center hidden">
+                        <div class="w-12 h-12 border-2 border-deep/10 border-t-gold rounded-full animate-spin mb-4"></div>
+                        <span class="font-crest text-deep text-xs uppercase tracking-luxury animate-pulse">Sinkronisasi Satelit...</span>
+                    </div>
+
+                    <div class="absolute top-6 left-6 bg-white/95 backdrop-blur px-4 py-2 border border-deep/10 shadow-lg z-20 flex items-center gap-3">
+                        <div class="relative w-3 h-3">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-danger opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-3 w-3 bg-danger"></span>
+                        </div>
+                        <span class="text-[10px] uppercase tracking-widest font-bold text-deep">Klik Peta</span>
+                    </div>
+                </div>
+
+                <div class="flex flex-col gap-6 h-full">
+                    <div class="bg-white p-6 border-l-4 border-gold shadow-sm flex-shrink-0 relative overflow-hidden">
+                        <h3 class="font-crest text-xs font-bold text-deep uppercase tracking-luxury mb-1">Status Lokasi</h3>
+                        <p class="font-serif italic text-charcoal/70 text-sm" id="location-status">Menunggu koordinat...</p>
+                    </div>
+
+                    <div id="live-weather-placeholder" class="flex-1 bg-white border border-dashed border-deep/10 p-6 flex flex-col items-center justify-center text-center space-y-4">
+                        <div class="w-20 h-20 rounded-full bg-linen/50 flex items-center justify-center mb-2">
+                            <svg class="w-10 h-10 text-deep/30" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                        </div>
+                        <h4 class="font-crest text-deep text-sm">Data Lingkungan</h4>
+                        <p class="font-sans text-xs text-charcoal/50 max-w-[200px]">Data cuaca dan tanah akan muncul otomatis setelah Anda memilih lokasi.</p>
+                    </div>
+
+                    <div id="live-weather-cards" class="flex-1 grid grid-cols-2 gap-4 hidden">
+                        <div class="bg-white p-4 border border-deep/5 flex flex-col justify-center items-center relative group hover:border-gold transition-colors">
+                            <span class="text-[9px] text-charcoal/50 uppercase tracking-widest mb-2">Temperatur</span>
+                            <span id="live-temp" class="font-serif text-3xl font-bold text-deep">-</span>
+                        </div>
+                        <div class="bg-white p-4 border border-deep/5 flex flex-col justify-center items-center relative group hover:border-gold transition-colors">
+                            <span class="text-[9px] text-charcoal/50 uppercase tracking-widest mb-2">Kelembapan</span>
+                            <span id="live-humidity" class="font-serif text-3xl font-bold text-deep">-</span>
+                        </div>
+                        <div class="bg-white p-4 border border-deep/5 flex flex-col justify-center items-center relative group hover:border-gold transition-colors">
+                            <span class="text-[9px] text-charcoal/50 uppercase tracking-widest mb-2">Curah Hujan</span>
+                            <span id="live-precip" class="font-serif text-3xl font-bold text-deep">-</span>
+                        </div>
+                        <div class="bg-deep p-4 border border-deep flex flex-col justify-center items-center shadow-gold-glow">
+                            <span class="text-[9px] text-gold uppercase tracking-widest mb-2">Produk Cocok</span>
+                            <span id="live-cocok" class="font-serif text-4xl font-bold text-white">-</span>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Loading Indicator -->
-            <div id="loadingIndicator" class="hidden text-center py-8">
-                <div class="inline-block animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-indigo-500"></div>
-                <p class="mt-4 text-gray-600">Mencari produk yang cocok...</p>
+            <div class="sticky top-0 z-40 bg-paper/95 backdrop-blur-md py-4 border-b border-deep/10 mb-10 shadow-sm">
+                <div class="flex flex-col md:flex-row gap-6 items-center justify-between">
+                    
+                    <div class="relative w-full md:w-1/3 group">
+                        <input type="text" id="filter-search" placeholder="Cari tanaman atau produk..." class="input-luxury pl-8">
+                        <svg class="w-4 h-4 text-deep/40 absolute left-0 top-2.5 group-focus-within:text-gold transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    </div>
+
+                    <div class="flex flex-wrap items-center justify-end gap-6 w-full md:w-2/3">
+                        
+                        <div class="flex items-center gap-4 bg-white px-4 py-2 border border-deep/5">
+                            <label class="text-[9px] text-deep/60 uppercase font-bold tracking-widest whitespace-nowrap">Min. Skor:</label>
+                            <input type="range" id="filter-grade" min="0" max="100" value="0" step="10" class="w-24 accent-deep">
+                            <span id="filter-grade-value" class="text-xs font-bold text-deep w-8 text-right font-serif">0%</span>
+                        </div>
+
+                        <select id="filter-category" class="select-luxury">
+                            <option value="Semua">Semua Kategori</option>
+                            <% categories.forEach(cat => { %>
+                                <option value="<%= cat %>"><%= cat %></option>
+                            <% }) %>
+                        </select>
+
+                        <select id="filter-sort" class="select-luxury">
+                            <option value="cocok">Kecocokan Tertinggi</option>
+                            <option value="nama">Nama (A-Z)</option>
+                        </select>
+                    </div>
+                </div>
             </div>
+
+            <div id="results-list" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-8 pb-12">
+                <div id="initial-message" class="col-span-full py-24 flex flex-col items-center justify-center text-deep/20 border border-dashed border-deep/10 bg-linen/20">
+                    <div class="w-16 h-16 rounded-full bg-paper border border-deep/10 flex items-center justify-center mb-6">
+                        <svg class="w-8 h-8 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" /></svg>
+                    </div>
+                    <h3 class="font-crest text-xl text-deep/60">Menunggu Input Geografis</h3>
+                    <p class="font-serif italic text-sm mt-2 text-charcoal/50">Silakan klik area pada peta di atas untuk memulai analisis kecocokan.</p>
+                </div>
+            </div>
+
         </div>
     </main>
 
-    <%- include('../../partials/footer.ejs') %>
+    <script>
+        const allProductsData = JSON.parse(decodeURIComponent('<%- encodeURIComponent(JSON.stringify(productsWithParams)) %>'));
+    </script>
+    
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <script src="/js/koncoTaniAdmin.js"></script>
 
     <script>
-        document.getElementById('pencocokanForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
+        // DOM Elements
+        const els = {
+            loading: document.getElementById('map-loading'),
+            resultsList: document.getElementById('results-list'),
+            locStatus: document.getElementById('location-status'),
+            liveCards: document.getElementById('live-weather-cards'),
+            livePlaceholder: document.getElementById('live-weather-placeholder'),
+            liveTemp: document.getElementById('live-temp'),
+            liveHumidity: document.getElementById('live-humidity'),
+            livePrecip: document.getElementById('live-precip'),
+            liveCocok: document.getElementById('live-cocok'),
+            search: document.getElementById('filter-search'),
+            grade: document.getElementById('filter-grade'),
+            gradeVal: document.getElementById('filter-grade-value'),
+            category: document.getElementById('filter-category'),
+            sort: document.getElementById('filter-sort')
+        };
 
-            const form = e.target;
-            const formData = new FormData(form);
-            const data = Object.fromEntries(formData);
-
-            // Show loading
-            document.getElementById('loadingIndicator').classList.remove('hidden');
-            document.getElementById('hasilPencocokan').classList.add('hidden');
-
-            try {
-                const response = await fetch('/user/produk/pencocokan', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(data)
-                });
-
-                const result = await response.json();
-
-                // Hide loading
-                document.getElementById('loadingIndicator').classList.add('hidden');
-
-                if (result.success && result.data.length > 0) {
-                    displayHasil(result.data);
-                } else {
-                    displayNoResult();
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                document.getElementById('loadingIndicator').classList.add('hidden');
-                alert('Terjadi kesalahan saat memproses pencocokan.');
+        // --- UI Builder: User Product Card ---
+        function createCardHTML_UI(product) {
+            const passingGrade = parseInt(els.grade.value, 10);
+            let isCocok = false;
+            let scoreColor = 'bg-danger';
+            
+            if (product.paramCount > 0 && currentApiData) {
+                isCocok = product.scorePercent >= passingGrade;
+                scoreColor = product.scorePercent >= 80 ? 'bg-deep' : (product.scorePercent >= 50 ? 'bg-gold' : 'bg-danger');
             }
-        });
 
-        function displayHasil(produkList) {
-            const container = document.getElementById('hasilContainer');
-            container.innerHTML = '';
+            // Image Handler
+            const imgUrl = (product.photos && product.photos.length > 0) 
+                ? `/images/produk/${product.photos[0].Foto}` 
+                : null;
+            
+            const imgHTML = imgUrl 
+                ? `<img src="${imgUrl}" class="w-full h-full object-cover grayscale-[30%] group-hover:grayscale-0 transition-all duration-1000 transform group-hover:scale-110">`
+                : `<div class="w-full h-full bg-linen flex items-center justify-center text-deep/20 font-serif italic text-xs">Foto Tidak Tersedia</div>`;
 
-            produkList.forEach(produk => {
-                const card = `
-                    <div class="border-2 border-gray-200 rounded-lg p-4 hover:shadow-lg transition-shadow">
-                        <h3 class="text-lg font-bold text-gray-800 mb-2">${produk.Nama}</h3>
-                        ${produk.Harga ? `<p class="text-green-600 font-bold mb-2">Rp ${Number(produk.Harga).toLocaleString('id-ID')}</p>` : ''}
-                        ${produk.Kategori ? `<p class="text-sm text-gray-600 mb-3">Kategori: ${produk.Kategori}</p>` : ''}
-                        <a href="/user/produk/${produk.ID_Product}" class="block w-full text-center bg-indigo-500 hover:bg-indigo-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors">
-                            Lihat Detail
+            // Badge Logic
+            const badge = isCocok 
+                ? `<div class="absolute top-0 right-0 bg-deep text-gold px-4 py-1.5 text-[9px] font-bold uppercase tracking-widest z-20 shadow-md">Sangat Cocok</div>`
+                : (currentApiData && product.paramCount > 0 ? `<div class="absolute top-0 right-0 bg-white/90 text-charcoal px-3 py-1 text-[9px] font-bold uppercase tracking-widest z-20 border-b border-l border-deep/10">Kurang Cocok</div>` : '');
+
+            // Parameters Breakdown
+            let paramsHTML = '';
+            if (product.paramDetails && currentApiData) {
+                paramsHTML = product.paramDetails.filter(p => parameterApiMapping && parameterApiMapping[p.Nama]).map(p => {
+                    const icon = p.isCocok ? `<span class="text-deep text-xs">●</span>` : `<span class="text-danger text-xs">✕</span>`;
+                    const colorClass = p.isCocok ? 'text-deep' : 'text-danger/70';
+                    return `
+                        <div class="flex justify-between items-center py-2 border-b border-deep/5 last:border-0 text-xs group/item">
+                            <span class="text-charcoal/70 font-sans tracking-wide">${p.Nama}</span>
+                            <div class="flex items-center gap-3">
+                                <span class="font-serif font-bold ${colorClass}">${p.actualValue}</span>
+                                ${icon}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            const price = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(product.Harga || 0);
+
+            return `
+                <div class="group relative bg-white border border-deep/5 shadow-sm hover:shadow-elegant transition-all duration-500 hover:-translate-y-1 overflow-hidden flex flex-col h-full">
+                    
+                    <div class="relative h-56 overflow-hidden border-b border-deep/5 bg-linen">
+                        ${badge}
+                        ${imgHTML}
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-60 group-hover:opacity-40 transition-opacity duration-500"></div>
+                        
+                        <div class="absolute bottom-4 left-4 right-4 text-paper z-20">
+                            <h3 class="font-crest text-lg leading-tight mb-1 drop-shadow-md text-white">${product.Nama}</h3>
+                            <span class="text-[9px] uppercase tracking-luxury opacity-80">${product.Kategori || 'Umum'}</span>
+                        </div>
+                    </div>
+
+                    <div class="p-5 flex flex-col flex-grow bg-white relative">
+                        <div class="absolute inset-2 border border-deep/5 pointer-events-none z-0"></div>
+                        
+                        <div class="relative z-10 mb-6 mt-1">
+                            <div class="flex justify-between text-[9px] mb-1.5 uppercase tracking-widest font-bold">
+                                <span class="text-charcoal/50">Skor Kecocokan</span>
+                                <span class="text-deep">${product.scorePercent ? product.scorePercent.toFixed(0) : 0}%</span>
+                            </div>
+                            <div class="w-full bg-linen h-0.5 relative">
+                                <div class="absolute top-0 left-0 h-full ${scoreColor} transition-all duration-1000" style="width: ${product.scorePercent || 0}%"></div>
+                            </div>
+                        </div>
+
+                        <div class="relative z-10 flex-grow">
+                            <details class="group/details">
+                                <summary class="list-none cursor-pointer flex items-center justify-between text-[9px] uppercase tracking-widest font-bold text-deep/60 hover:text-deep py-2 border-b border-deep/10 transition-colors">
+                                    <span>Analisis Parameter</span>
+                                    <svg class="w-3 h-3 text-gold transition-transform duration-300 group-open/details:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                </summary>
+                                <div class="mt-2 bg-paper/50 p-2 max-h-32 overflow-y-auto custom-scroll">
+                                    ${paramsHTML || '<div class="text-[10px] text-center italic text-charcoal/30 font-serif py-2">Data belum tersedia...</div>'}
+                                </div>
+                            </details>
+                        </div>
+                    </div>
+                    
+                    <div class="px-5 py-4 bg-paper border-t border-deep/5 flex justify-between items-center relative z-10">
+                        <span class="text-sm font-bold text-deep font-sans">${price}</span>
+                        <a href="/user/produk/${product.ID_Product}" class="text-[9px] font-bold uppercase tracking-luxury text-gold hover:text-deep transition-colors flex items-center group/link">
+                            Detail
+                            <svg class="w-3 h-3 ml-1 transform group-hover/link:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
                         </a>
                     </div>
-                `;
-                container.innerHTML += card;
-            });
-
-            document.getElementById('hasilPencocokan').classList.remove('hidden');
-            document.getElementById('hasilPencocokan').scrollIntoView({ behavior: 'smooth' });
-        }
-
-        function displayNoResult() {
-            const container = document.getElementById('hasilContainer');
-            container.innerHTML = `
-                <div class="col-span-2 text-center py-12">
-                    <svg class="mx-auto h-16 w-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
-                    <p class="mt-4 text-gray-500 text-lg">Maaf, tidak ada produk yang cocok dengan kriteria Anda.</p>
-                    <p class="mt-2 text-gray-400">Coba sesuaikan kriteria pencarian Anda.</p>
                 </div>
             `;
-            document.getElementById('hasilPencocokan').classList.remove('hidden');
-            document.getElementById('hasilPencocokan').scrollIntoView({ behavior: 'smooth' });
         }
+
+        // --- Controller Interface (Overrides Admin Logic) ---
+        const uiFunctions = {
+            showLoadingState: () => {
+                els.loading.classList.remove('hidden'); els.loading.classList.add('flex');
+                els.liveCards.classList.add('hidden'); els.livePlaceholder.classList.remove('hidden');
+                els.locStatus.textContent = "Mengambil data satelit...";
+            },
+            hideLoadingState: () => {
+                els.loading.classList.add('hidden'); els.loading.classList.remove('flex');
+            },
+            updateLiveCards: (current, units) => {
+                els.livePlaceholder.classList.add('hidden');
+                els.liveCards.classList.remove('hidden'); els.liveCards.classList.add('grid');
+                els.liveTemp.textContent = `${current.temperature_2m ?? '-'}${units?.temperature_2m || '°C'}`;
+                els.liveHumidity.textContent = `${current.relative_humidity_2m ?? '-'}${units?.relative_humidity_2m || '%'}`;
+                els.livePrecip.textContent = `${current.precipitation ?? '-'}${units?.precipitation || 'mm'}`;
+                els.locStatus.textContent = "Data cuaca terkini berhasil disinkronisasi.";
+            },
+            displayResults: (calculatedProducts, passingGrade, totalProducts) => {
+                const visible = calculatedProducts.filter(p => p.isVisible);
+                const cocokCount = visible.filter(p => p.paramCount > 0 && p.scorePercent >= passingGrade).length;
+                els.liveCocok.textContent = cocokCount;
+                
+                els.resultsList.innerHTML = '';
+                if(visible.length === 0) {
+                    els.resultsList.innerHTML = `<div class="col-span-full py-16 text-center text-charcoal/50 border border-dashed border-deep/10 bg-paper/50 font-serif italic">Tidak ada produk ditemukan yang memenuhi kriteria pencarian.</div>`;
+                } else {
+                    visible.forEach(p => els.resultsList.innerHTML += createCardHTML_UI(p));
+                }
+            },
+            displayInitialState: (msg) => {
+                els.resultsList.innerHTML = '';
+                const div = document.createElement('div');
+                div.className = 'col-span-full py-24 flex flex-col items-center justify-center text-deep/20 border border-dashed border-deep/10 bg-linen/20';
+                div.innerHTML = `<div class="w-16 h-16 rounded-full bg-paper border border-deep/10 flex items-center justify-center mb-6"><svg class="w-8 h-8 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg></div><h3 class="font-crest text-xl text-deep/60">Area Belum Dipilih</h3><p class="font-serif italic text-sm mt-2 text-charcoal/50">${msg || 'Klik peta untuk memulai analisis.'}</p>`;
+                els.resultsList.appendChild(div);
+            },
+            displayError: (msg) => {
+                els.resultsList.innerHTML = `<div class="col-span-full text-danger text-center py-6 bg-paper border border-danger/20 font-serif italic shadow-sm">${msg}</div>`;
+            },
+            updateFilterGradeValue: (val) => { els.gradeVal.textContent = `${val}%`; },
+            getFilterValues: () => ({
+                search: els.search.value.toLowerCase(),
+                category: els.category.value,
+                sort: els.sort.value,
+                grade: parseInt(els.grade.value, 10)
+            }),
+            addMapMarker: () => {} // Handled internally by admin script, stub here
+        };
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+             if (typeof initKoncoTani === 'function') initKoncoTani(uiFunctions);
+        });
     </script>
 </body>
 </html>

@@ -3,98 +3,122 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= produk.Nama %> - Detail Produk</title>
+    <title><%= produk.Nama %> - Katalog Bausasran</title>
     
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Lato:wght@300;400;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        main: '#003024',    // Background Gelap
-                        surface: '#004030', // Warna Kartu
-                        accent: '#83C540',  // Hijau Neon
-                        pale: '#F5FEF9',    // Teks Putih
-                        muted: '#A3C2B8',   // Teks Pudar
-                        gold: '#FFD700',    // Bintang Rating
+                        paper: '#F9F7F2',       /* Cream Background */
+                        deep: '#0F1F18',        /* Dark Emerald Green */
+                        gold: '#C5B388',        /* Antique Gold */
+                        charcoal: '#4A4A4A',    /* Soft Black */
+                        linen: '#EBE9E4',       /* Light Gray/Beige */
+                        white: '#FFFFFF',
+                        danger: '#8B3A3A',
                     },
-                    fontFamily: { sans: ['Inter', 'sans-serif'] }
+                    fontFamily: {
+                        sans: ['Lato', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                        crest: ['Cinzel', 'serif'], 
+                    },
+                    boxShadow: {
+                        'elegant': '0 20px 50px -12px rgba(15, 31, 24, 0.1)',
+                        'paper': '2px 2px 10px rgba(0,0,0,0.05)',
+                    }
                 }
             }
         }
     </script>
     <style type="text/tailwindcss">
         @layer base { 
-            body { @apply bg-main text-pale font-sans antialiased; } 
+            body { @apply bg-paper text-deep font-sans antialiased; } 
             .custom-scroll::-webkit-scrollbar { width: 6px; }
-            .custom-scroll::-webkit-scrollbar-track { @apply bg-main/50; }
-            .custom-scroll::-webkit-scrollbar-thumb { @apply bg-white/10 hover:bg-accent/50 rounded-full; }
+            .custom-scroll::-webkit-scrollbar-track { @apply bg-transparent; }
+            .custom-scroll::-webkit-scrollbar-thumb { @apply bg-gold/50 hover:bg-deep rounded-full transition-colors; }
+        }
+
+        /* Texture Overlay */
+        .noise-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.04'/%3E%3C/svg%3E");
+            pointer-events: none; z-index: 0; mix-blend-mode: multiply;
         }
     </style>
 </head>
-<body class="flex h-screen overflow-hidden">
+<body class="flex h-screen overflow-hidden relative">
+
+    <div class="noise-overlay"></div>
 
     <%- include('../../partials/user_sidebar.ejs') %>
 
-    <main class="flex-1 overflow-y-auto custom-scroll p-6 md:p-10 relative">
+    <main class="flex-1 overflow-y-auto custom-scroll p-6 md:p-10 relative z-10">
         
-        <div class="fixed top-0 right-0 w-[500px] h-[500px] bg-accent/5 rounded-full blur-[100px] pointer-events-none -z-10"></div>
-
         <%- include('../../partials/flash.ejs') %>
 
-        <div class="mb-8">
-            <a href="/user/produk" class="inline-flex items-center text-muted hover:text-accent transition-colors duration-300 group">
-                <div class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center mr-3 group-hover:bg-accent group-hover:text-main transition-all">
-                    <svg class="w-4 h-4 transform group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
-                    </svg>
-                </div>
-                <span class="font-semibold text-sm">Kembali ke Daftar Produk</span>
+        <div class="mb-8 border-b border-deep/10 pb-4">
+            <a href="/user/produk" class="inline-flex items-center text-[10px] uppercase tracking-widest font-bold text-deep/60 hover:text-gold transition-colors duration-300 group">
+                <svg class="w-3 h-3 mr-2 transform group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                </svg>
+                Kembali ke Katalog
             </a>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
             
-            <div class="lg:col-span-2 space-y-6">
+            <div class="lg:col-span-2 space-y-10">
                 
-                <div class="bg-surface border border-white/5 rounded-3xl p-8 shadow-xl relative overflow-hidden">
-                    <div class="absolute top-0 right-0 w-32 h-32 bg-accent/5 rounded-full blur-2xl -mr-10 -mt-10 pointer-events-none"></div>
+                <div class="bg-white border border-deep/10 shadow-elegant relative p-8 md:p-12">
+                    <div class="absolute top-0 right-0 w-24 h-24 bg-linen/30 rounded-bl-full -mr-4 -mt-4 border-b border-l border-deep/5"></div>
 
-                    <div class="flex flex-wrap items-center gap-3 mb-4">
+                    <div class="flex flex-wrap items-center gap-4 mb-6 relative z-10">
                         <% if (produk.Kategori) { %>
-                            <span class="px-3 py-1 rounded-full text-xs font-bold bg-white/5 text-muted border border-white/10 uppercase tracking-wider">
+                            <span class="text-[9px] uppercase tracking-[0.2em] font-bold text-charcoal/50 border-b border-gold pb-1">
                                 <%= produk.Kategori %>
                             </span>
                         <% } %>
                         
                         <% if (produk.Stok > 0) { %>
-                            <span class="px-3 py-1 rounded-full text-xs font-bold bg-accent/20 text-accent border border-accent/20 flex items-center">
-                                <span class="w-2 h-2 rounded-full bg-accent mr-2 animate-pulse"></span>
-                                Stok: <%= produk.Stok %> Unit
+                            <span class="flex items-center text-[9px] uppercase tracking-widest text-deep font-bold">
+                                <span class="w-1.5 h-1.5 rounded-full bg-deep mr-2"></span>
+                                Tersedia: <%= produk.Stok %> Unit
                             </span>
                         <% } else { %>
-                            <span class="px-3 py-1 rounded-full text-xs font-bold bg-red-500/20 text-red-400 border border-red-500/20">
+                            <span class="flex items-center text-[9px] uppercase tracking-widest text-danger font-bold">
+                                <span class="w-1.5 h-1.5 rounded-full bg-danger mr-2"></span>
                                 Stok Habis
                             </span>
                         <% } %>
                     </div>
 
-                    <h1 class="text-3xl md:text-4xl font-bold text-pale mb-2"><%= produk.Nama %></h1>
+                    <h1 class="font-crest text-3xl md:text-5xl text-deep mb-4 leading-tight"><%= produk.Nama %></h1>
+                    
                     <% if (produk.Harga) { %>
-                        <p class="text-3xl font-bold text-accent mb-6 font-mono">
-                            Rp <%= Number(produk.Harga).toLocaleString('id-ID') %>
-                        </p>
+                        <div class="flex items-baseline gap-2 mb-8">
+                            <span class="font-serif text-3xl md:text-4xl text-deep font-bold italic">
+                                Rp <%= Number(produk.Harga).toLocaleString('id-ID') %>
+                            </span>
+                            <span class="text-xs text-charcoal/40 font-sans">/ unit</span>
+                        </div>
                     <% } %>
 
-                    <div class="h-px w-full bg-white/10 mb-6"></div>
+                    <div class="w-full h-px bg-deep/10 mb-8 flex items-center justify-center">
+                        <div class="bg-white px-4">
+                            <svg class="w-4 h-4 text-gold" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg>
+                        </div>
+                    </div>
 
                     <% if (produk.Deskripsi) { %>
-                        <div class="prose prose-invert max-w-none">
-                            <h3 class="text-lg font-semibold text-pale mb-3 flex items-center">
-                                <svg class="w-5 h-5 mr-2 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"></path></svg>
-                                Deskripsi Produk
-                            </h3>
-                            <div class="text-muted/80 leading-relaxed whitespace-pre-line text-sm md:text-base">
+                        <div class="prose prose-stone max-w-none">
+                            <h3 class="font-crest text-sm font-bold text-deep uppercase tracking-widest mb-4">Keterangan Produk</h3>
+                            <div class="font-serif text-charcoal/80 leading-loose text-lg text-justify">
                                 <%= produk.Deskripsi %>
                             </div>
                         </div>
@@ -102,22 +126,25 @@
                 </div>
 
                 <% if (produk.dataValues.fotoFiles && produk.dataValues.fotoFiles.length > 0) { %>
-                    <div class="bg-surface border border-white/5 rounded-3xl p-8 shadow-lg">
-                        <h3 class="text-lg font-bold text-pale mb-4 flex items-center">
-                            <svg class="w-5 h-5 mr-2 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                            Galeri Produk (<%= produk.dataValues.fotoFiles.length %>)
-                        </h3>
-                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div>
+                        <div class="flex items-center gap-4 mb-6">
+                            <h3 class="font-crest text-xl text-deep">Arsip Visual</h3>
+                            <div class="h-px flex-1 bg-deep/10"></div>
+                        </div>
+
+                        <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
                             <% for(let foto of produk.dataValues.fotoFiles) { %>
-                                <div class="relative group cursor-pointer aspect-square rounded-xl overflow-hidden border border-white/5 bg-black/30" onclick="openLightbox('<%= foto %>')">
-                                    <img src="/images/produk/<%= foto %>" 
-                                         alt="Foto Produk"
-                                         class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500">
-                                    
-                                    <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                                        <svg class="w-8 h-8 text-white scale-50 group-hover:scale-100 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"></path>
-                                        </svg>
+                                <div class="group cursor-pointer relative bg-white p-2 shadow-paper hover:shadow-elegant transition-all duration-500 hover:-translate-y-1 border border-deep/5" onclick="openLightbox('<%= foto %>')">
+                                    <div class="aspect-square overflow-hidden relative">
+                                        <img src="/images/produk/<%= foto %>" 
+                                             alt="Foto Produk"
+                                             class="w-full h-full object-cover filter grayscale-[20%] group-hover:grayscale-0 transition-all duration-700">
+                                        
+                                        <div class="absolute inset-0 bg-deep/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center">
+                                            <div class="bg-white/90 p-2 rounded-full backdrop-blur-sm">
+                                                <svg class="w-5 h-5 text-deep" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"></path></svg>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             <% } %>
@@ -127,54 +154,54 @@
             </div>
 
             <div class="lg:col-span-1">
-                <div class="sticky top-6 space-y-6">
+                <div class="sticky top-6">
                     
-                    <div class="bg-surface border border-white/5 rounded-3xl shadow-xl flex flex-col max-h-[600px]">
+                    <div class="bg-paper border border-deep/10 shadow-elegant flex flex-col max-h-[calc(100vh-100px)] relative">
+                        <div class="absolute inset-0 opacity-50 bg-[url('https://www.transparenttextures.com/patterns/lined-paper.png')] pointer-events-none"></div>
                         
-                        <div class="p-6 border-b border-white/5 bg-white/5 rounded-t-3xl">
-                            <h2 class="text-xl font-bold text-pale flex items-center justify-between">
-                                <span>Ulasan Pengguna</span>
-                                <span class="text-sm font-normal text-muted bg-black/20 px-2 py-1 rounded-lg">
-                                    <%= reviewList ? reviewList.length : 0 %> Ulasan
+                        <div class="p-6 border-b border-deep/10 bg-white/50 backdrop-blur-sm z-10">
+                            <h2 class="font-crest text-lg text-deep flex items-center justify-between">
+                                <span>Buku Testimoni</span>
+                                <span class="font-serif italic text-xs text-charcoal/60">
+                                    (<%= reviewList ? reviewList.length : 0 %> Catatan)
                                 </span>
                             </h2>
                         </div>
 
-                        <div class="p-6 overflow-y-auto custom-scroll flex-1">
+                        <div class="p-6 overflow-y-auto custom-scroll flex-1 space-y-6 z-10">
                             <% if (reviewList && reviewList.length > 0) { %>
-                                <div class="space-y-4">
-                                    <% for(let review of reviewList) { %>
-                                        <div class="bg-black/20 p-4 rounded-xl border border-white/5 hover:border-white/10 transition-colors">
-                                            <div class="flex items-center mb-2">
-                                                <% for(let i = 1; i <= 5; i++) { %>
-                                                    <svg class="w-3 h-3 <%= i <= review.Rating ? 'text-gold fill-current' : 'text-gray-600' %>" viewBox="0 0 20 20">
-                                                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
-                                                    </svg>
-                                                <% } %>
-                                            </div>
-                                            
-                                            <% if (review.Ulasan) { %>
-                                                <p class="text-sm text-pale/90 italic mb-3">"<%= review.Ulasan %>"</p>
+                                <% for(let review of reviewList) { %>
+                                    <div class="relative pb-6 border-b border-dashed border-deep/20 last:border-0 last:pb-0">
+                                        <div class="flex items-center mb-2">
+                                            <% for(let i = 1; i <= 5; i++) { %>
+                                                <svg class="w-3 h-3 <%= i <= review.Rating ? 'text-gold fill-current' : 'text-deep/10' %>" viewBox="0 0 20 20">
+                                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                                                </svg>
                                             <% } %>
-
-                                            <div class="flex items-center justify-between border-t border-white/5 pt-2">
-                                                <p class="text-xs font-bold text-accent"><%= review.dataValues.namaPengguna %></p>
-                                                <p class="text-[10px] text-muted"><%= new Date(review.createdAt).toLocaleDateString('id-ID') %></p>
-                                            </div>
                                         </div>
-                                    <% } %>
-                                </div>
+                                        
+                                        <% if (review.Ulasan) { %>
+                                            <p class="font-serif italic text-charcoal text-sm mb-3 leading-relaxed">
+                                                "<%= review.Ulasan %>"
+                                            </p>
+                                        <% } %>
+
+                                        <div class="flex items-center justify-between">
+                                            <p class="font-crest text-[10px] uppercase tracking-wider text-deep font-bold"><%= review.dataValues.namaPengguna %></p>
+                                            <p class="font-serif text-[10px] text-charcoal/40 italic"><%= new Date(review.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) %></p>
+                                        </div>
+                                    </div>
+                                <% } %>
                             <% } else { %>
-                                <div class="text-center py-8">
-                                    <svg class="w-12 h-12 text-white/5 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
-                                    <p class="text-muted text-sm">Belum ada testimoni.</p>
+                                <div class="text-center py-12 border border-dashed border-deep/10 bg-white/30">
+                                    <p class="font-serif italic text-charcoal/50 text-sm">Belum ada catatan pengunjung.</p>
                                 </div>
                             <% } %>
                         </div>
 
-                        <div class="p-6 border-t border-white/5 bg-black/10 rounded-b-3xl">
-                            <a href="/user/testimoni/tambah" class="block w-full text-center bg-accent hover:bg-white text-main font-bold py-3 px-4 rounded-xl transition-all duration-300 shadow-[0_0_15px_rgba(131,197,64,0.3)] hover:shadow-[0_0_20px_rgba(131,197,64,0.6)]">
-                                + Tulis Pengalaman Anda
+                        <div class="p-6 border-t border-deep/10 bg-white/80 z-10">
+                            <a href="/user/testimoni/tambah" class="block w-full text-center bg-deep text-gold font-bold text-xs uppercase tracking-[0.2em] py-4 border border-deep hover:bg-gold hover:text-deep hover:border-gold transition-all duration-500 shadow-lg">
+                                Tulis Pengalaman
                             </a>
                         </div>
                     </div>
@@ -185,41 +212,45 @@
         </div>
     </main>
 
-    <div id="lightbox" class="fixed inset-0 bg-black/95 z-[9999] hidden flex items-center justify-center p-4 backdrop-blur-sm opacity-0 transition-opacity duration-300" onclick="closeLightbox()">
+    <div id="lightbox" class="fixed inset-0 bg-deep/95 z-[9999] hidden flex items-center justify-center p-4 backdrop-blur-md opacity-0 transition-opacity duration-300" onclick="closeLightbox()">
         <div class="relative max-w-5xl w-full flex flex-col items-center">
             
-            <button onclick="closeLightbox()" class="absolute -top-12 right-0 md:right-0 text-white/70 hover:text-accent transition-colors">
-                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            <button onclick="closeLightbox()" class="absolute -top-12 right-0 md:right-0 text-white/50 hover:text-gold transition-colors">
+                <span class="text-xs uppercase tracking-widest mr-2">Tutup</span>
+                <svg class="w-6 h-6 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M6 18L18 6M6 6l12 12"></path></svg>
             </button>
             
-            <img id="lightbox-img" src="" alt="Preview" class="max-w-full max-h-[85vh] rounded-lg shadow-2xl border border-white/10 transform scale-95 transition-transform duration-300" onclick="event.stopPropagation()">
+            <div class="bg-white p-2 md:p-4 shadow-2xl transform scale-95 transition-transform duration-500" id="lightbox-container">
+                <img id="lightbox-img" src="" alt="Preview" class="max-w-full max-h-[80vh] object-contain" onclick="event.stopPropagation()">
+            </div>
         </div>
     </div>
 
     <script>
         const lightbox = document.getElementById('lightbox');
         const img = document.getElementById('lightbox-img');
+        const container = document.getElementById('lightbox-container');
 
         function openLightbox(foto) {
             img.src = '/images/produk/' + foto;
             lightbox.classList.remove('hidden');
-            // Sedikit delay untuk animasi fade-in
+            // Delay for transition
             setTimeout(() => {
                 lightbox.classList.remove('opacity-0');
-                img.classList.remove('scale-95');
-                img.classList.add('scale-100');
+                container.classList.remove('scale-95');
+                container.classList.add('scale-100');
             }, 10);
         }
 
         function closeLightbox() {
             lightbox.classList.add('opacity-0');
-            img.classList.remove('scale-100');
-            img.classList.add('scale-95');
+            container.classList.remove('scale-100');
+            container.classList.add('scale-95');
             
             setTimeout(() => {
                 lightbox.classList.add('hidden');
                 img.src = '';
-            }, 300); // Sesuaikan dengan duration-300
+            }, 300); 
         }
 
         document.addEventListener('keydown', function(e) {

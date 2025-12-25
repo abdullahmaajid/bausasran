@@ -3,136 +3,210 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profil <%= anggota.Nama %> - Bausasran</title>
+    <title>Profil <%= anggota.Nama %> - Arsip Anggota</title>
     
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Lato:wght@300;400;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        main: '#003024',    // Background Gelap
-                        surface: '#004030', // Warna Kartu
-                        accent: '#83C540',  // Hijau Neon
-                        pale: '#F5FEF9',    // Teks Putih
-                        muted: '#A3C2B8',   // Teks Pudar
+                        paper: '#F9F7F2',       /* Cream Background */
+                        deep: '#0F1F18',        /* Dark Emerald Green */
+                        gold: '#C5B388',        /* Antique Gold */
+                        charcoal: '#4A4A4A',    /* Soft Black */
+                        linen: '#EBE9E4',       /* Light Gray/Beige */
+                        burgundy: '#5D1818',    /* Accent for Admin */
                     },
-                    fontFamily: { sans: ['Inter', 'sans-serif'] }
+                    fontFamily: {
+                        sans: ['Lato', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                        crest: ['Cinzel', 'serif'],
+                    },
+                    letterSpacing: {
+                        'luxury': '0.2em',
+                    },
+                    boxShadow: {
+                        'elegant': '0 20px 50px -12px rgba(15, 31, 24, 0.15)',
+                        'inner-light': 'inset 0 2px 4px 0 rgba(0, 0, 0, 0.06)',
+                    }
                 }
             }
         }
     </script>
     <style type="text/tailwindcss">
         @layer base { 
-            body { @apply bg-main text-pale font-sans antialiased; } 
-            .custom-scroll::-webkit-scrollbar { width: 8px; }
-            .custom-scroll::-webkit-scrollbar-track { @apply bg-main; }
-            .custom-scroll::-webkit-scrollbar-thumb { @apply bg-surface border border-white/10 rounded-full; }
+            body { 
+                @apply bg-paper text-deep font-sans antialiased; 
+            } 
+            .custom-scroll::-webkit-scrollbar { width: 6px; }
+            .custom-scroll::-webkit-scrollbar-track { @apply bg-transparent; }
+            .custom-scroll::-webkit-scrollbar-thumb { @apply bg-gold/50 rounded-full hover:bg-deep transition-colors; }
+        }
+
+        /* Texture Grain Overlay */
+        .noise-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.04'/%3E%3C/svg%3E");
+            pointer-events: none; z-index: 0; mix-blend-mode: multiply;
         }
     </style>
 </head>
-<body class="flex h-screen overflow-hidden">
+<body class="flex h-screen overflow-hidden relative">
+
+    <div class="noise-overlay"></div>
 
     <%- include('../../partials/user_sidebar.ejs') %>
 
-    <main class="flex-1 overflow-y-auto custom-scroll p-6 md:p-10 relative">
+    <main class="flex-1 overflow-y-auto custom-scroll p-8 md:p-12 relative z-10">
         
-        <div class="fixed top-0 right-0 w-[500px] h-[500px] bg-accent/5 rounded-full blur-[100px] pointer-events-none -z-10"></div>
-
         <%- include('../../partials/flash.ejs') %>
 
-        <div class="mb-8">
-            <a href="/user/anggota" class="inline-flex items-center text-muted hover:text-accent transition-colors duration-300 group">
-                <div class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center mr-3 group-hover:bg-accent group-hover:text-main transition-all">
-                    <svg class="w-4 h-4 transform group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
-                    </svg>
-                </div>
-                <span class="font-semibold text-sm">Kembali ke Daftar Anggota</span>
+        <div class="mb-10 border-b border-deep/10 pb-4">
+            <a href="/user/anggota" class="inline-flex items-center text-[10px] uppercase tracking-luxury font-bold text-deep/60 hover:text-gold transition-colors duration-300 group">
+                <svg class="w-3 h-3 mr-2 transform group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                </svg>
+                Kembali ke Direktori Anggota
             </a>
         </div>
 
-        <div class="bg-surface border border-white/5 rounded-3xl overflow-hidden shadow-2xl flex flex-col md:flex-row min-h-[500px]">
+        <div class="max-w-6xl mx-auto bg-white shadow-elegant border border-deep/5 flex flex-col md:flex-row relative overflow-hidden">
             
-            <div class="md:w-5/12 lg:w-4/12 relative bg-black/20 group">
-                <% if (anggota.dataValues.fotoFile) { %>
-                    <img src="/images/anggota/<%= anggota.dataValues.fotoFile %>" 
-                         alt="<%= anggota.Nama %>"
-                         class="w-full h-full object-cover object-center absolute inset-0 transition-transform duration-700 group-hover:scale-105">
-                    
-                    <div class="absolute inset-0 bg-gradient-to-t from-surface via-transparent to-transparent md:bg-gradient-to-r md:from-transparent md:to-surface opacity-90 md:opacity-100"></div>
-                <% } else { %>
-                    <div class="w-full h-full min-h-[300px] flex items-center justify-center bg-gradient-to-br from-surface to-main relative overflow-hidden">
-                        <div class="absolute top-0 right-0 w-32 h-32 bg-accent/10 rounded-full blur-2xl"></div>
-                        
-                        <div class="text-center z-10">
-                            <div class="w-24 h-24 mx-auto bg-white/5 rounded-full flex items-center justify-center mb-4 border border-white/10">
-                                <span class="text-4xl font-bold text-accent">
-                                    <%= anggota.Nama.charAt(0).toUpperCase() %>
-                                </span>
-                            </div>
-                            <p class="text-muted text-sm">Tidak ada foto</p>
-                        </div>
-                    </div>
-                <% } %>
+            <div class="absolute top-10 right-10 opacity-[0.03] pointer-events-none transform rotate-12">
+                <svg class="w-64 h-64 text-deep" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path></svg>
             </div>
 
-            <div class="md:w-7/12 lg:w-8/12 p-8 md:p-12 flex flex-col justify-center relative">
+            <div class="md:w-5/12 lg:w-4/12 bg-linen/50 border-r border-deep/10 p-8 flex flex-col items-center">
                 
-                <svg class="absolute top-8 right-8 w-20 h-20 text-white/5 rotate-12" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path>
-                </svg>
+                <div class="relative w-full max-w-sm aspect-[3/4] p-3 bg-white border border-deep/10 shadow-lg group">
+                    <div class="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-gold z-10"></div>
+                    <div class="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-gold z-10"></div>
+                    <div class="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-gold z-10"></div>
+                    <div class="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-gold z-10"></div>
 
-                <div class="mb-2">
-                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold tracking-wider uppercase 
-                        <%= anggota.Role === 'Admin' ? 'bg-red-500/20 text-red-400 border border-red-500/20' : 'bg-accent/20 text-accent border border-accent/20' %>">
-                        <%= anggota.Role || 'Anggota' %>
-                    </span>
+                    <div class="w-full h-full relative overflow-hidden bg-linen">
+                        <% if (anggota.dataValues.fotoFile) { %>
+                            <img src="/images/anggota/<%= anggota.dataValues.fotoFile %>" 
+                                 alt="<%= anggota.Nama %>"
+                                 class="w-full h-full object-cover object-top filter sepia-[30%] grayscale-[30%] contrast-110 group-hover:sepia-0 group-hover:grayscale-0 transition-all duration-1000">
+                        <% } else { %>
+                            <div class="w-full h-full flex flex-col items-center justify-center bg-paper relative">
+                                <svg class="w-20 h-20 text-deep/10 mb-2" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                                <span class="font-crest text-4xl text-deep/20"><%= anggota.Nama.charAt(0).toUpperCase() %></span>
+                            </div>
+                        <% } %>
+                    </div>
                 </div>
 
-                <h1 class="text-4xl md:text-5xl font-bold text-pale mb-1"><%= anggota.Nama %></h1>
-                
-                <% if (anggota.Jabatan) { %>
-                    <p class="text-xl text-accent font-medium mb-8 flex items-center">
-                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
-                        <%= anggota.Jabatan %>
-                    </p>
-                <% } else { %>
-                    <div class="mb-8"></div>
-                <% } %>
+                <div class="mt-6 text-center w-full">
+                    <div class="inline-block border-y border-deep/10 py-2 px-6">
+                        <p class="text-[9px] uppercase tracking-luxury text-charcoal/60 mb-1">Nomor Registrasi</p>
+                        <p class="font-mono text-lg text-deep tracking-widest">
+                            #<%= anggota.ID_User ? anggota.ID_User.toString().padStart(4, '0') : '0000' %>
+                        </p>
+                    </div>
+                </div>
+            </div>
 
-                <div class="grid grid-cols-1 gap-6 border-t border-white/10 pt-8">
-                    
-                    <div class="flex items-start">
-                        <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center mr-4">
-                            <svg class="w-5 h-5 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
-                        </div>
+            <div class="md:w-7/12 lg:w-8/12 p-8 md:p-12 relative z-10 flex flex-col justify-between">
+                
+                <div>
+                    <div class="flex items-start justify-between mb-8">
                         <div>
-                            <p class="text-sm text-muted font-medium">Username</p>
-                            <p class="text-lg text-pale mt-0.5"><%= anggota.username || '-' %></p>
+                            <span class="inline-block px-3 py-1 mb-3 text-[10px] font-bold uppercase tracking-luxury border <%= anggota.Role === 'Admin' ? 'border-burgundy text-burgundy bg-burgundy/5' : 'border-gold text-deep bg-gold/10' %>">
+                                <%= anggota.Role || 'Anggota' %>
+                            </span>
+                            <h1 class="text-4xl md:text-5xl font-crest text-deep leading-tight">
+                                <%= anggota.Nama %>
+                            </h1>
+                            <% if (anggota.Jabatan) { %>
+                                <p class="text-xl text-gold font-serif italic mt-2 flex items-center">
+                                    <span class="w-12 h-[1px] bg-gold mr-3"></span>
+                                    <%= anggota.Jabatan %>
+                                </p>
+                            <% } %>
                         </div>
+                        
+                        <div class="hidden md:block transform rotate-12 border-2 border-deep/20 rounded-sm p-2 opacity-50">
+                            <span class="block border border-deep/20 px-2 py-1 text-[10px] font-bold uppercase tracking-widest text-deep">
+                                Terverifikasi
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-y-8 gap-x-12 mt-10">
+                        
+                        <div class="group">
+                            <p class="text-[9px] uppercase tracking-luxury text-charcoal/50 font-bold mb-2 group-hover:text-gold transition-colors">
+                                Nama Pengguna
+                            </p>
+                            <p class="text-lg font-serif text-deep border-b border-deep/10 pb-2">
+                                @<%= anggota.username || '-' %>
+                            </p>
+                        </div>
+
+                        <% if (anggota.Email) { %>
+                        <div class="group">
+                            <p class="text-[9px] uppercase tracking-luxury text-charcoal/50 font-bold mb-2 group-hover:text-gold transition-colors">
+                                Alamat Surel
+                            </p>
+                            <p class="text-lg font-serif text-deep border-b border-deep/10 pb-2 truncate">
+                                <%= anggota.Email %>
+                            </p>
+                        </div>
+                        <% } %>
+
+                        <% if (anggota.No_HP) { %>
+                        <div class="group">
+                            <p class="text-[9px] uppercase tracking-luxury text-charcoal/50 font-bold mb-2 group-hover:text-gold transition-colors">
+                                Kontak
+                            </p>
+                            <p class="text-lg font-serif text-deep border-b border-deep/10 pb-2">
+                                <%= anggota.No_HP %>
+                            </p>
+                        </div>
+                        <% } %>
+
+                        <% if (anggota.createdAt) { %>
+                        <div class="group">
+                            <p class="text-[9px] uppercase tracking-luxury text-charcoal/50 font-bold mb-2 group-hover:text-gold transition-colors">
+                                Tanggal Bergabung
+                            </p>
+                            <p class="text-lg font-serif text-deep border-b border-deep/10 pb-2">
+                                <%= new Date(anggota.createdAt).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' }) %>
+                            </p>
+                        </div>
+                        <% } %>
                     </div>
 
                     <% if (anggota.Deskripsi) { %>
-                        <div class="flex items-start">
-                            <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center mr-4">
-                                <svg class="w-5 h-5 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                            </div>
-                            <div>
-                                <p class="text-sm text-muted font-medium">Tentang Anggota</p>
-                                <p class="text-base text-pale/80 mt-1 leading-relaxed italic">
-                                    "<%= anggota.Deskripsi %>"
-                                </p>
-                            </div>
+                        <div class="mt-10 bg-paper/50 p-6 border-l-2 border-gold">
+                            <p class="text-[9px] uppercase tracking-luxury text-charcoal/50 font-bold mb-2">Tentang / Biografi</p>
+                            <p class="text-deep/80 leading-loose font-serif italic">
+                                "<%= anggota.Deskripsi %>"
+                            </p>
                         </div>
                     <% } %>
+                </div>
 
+                <div class="mt-12 pt-6 border-t border-deep/5 flex items-end justify-between">
+                    <div>
+                        <p class="font-crest text-xs text-deep tracking-widest">BAUSASRAN</p>
+                        <p class="text-[9px] text-charcoal/40 uppercase tracking-widest mt-1">Heritage Estate System</p>
                     </div>
-
-                <div class="mt-auto pt-8">
-                    <p class="text-xs text-muted/30">
-                        Terdaftar di sistem Kampung Wisata Bausasran.
-                    </p>
+                    
+                    <div class="text-right">
+                         <div class="font-serif italic text-2xl text-deep/30 pr-4" style="font-family: 'Playfair Display', cursive;">
+                            <%= anggota.Nama.split(' ').slice(0,2).join(' ') %>
+                        </div>
+                        <div class="w-32 h-px bg-deep/20 mt-1"></div>
+                        <p class="text-[8px] text-charcoal/30 uppercase mt-1">Tanda Tangan Digital</p>
+                    </div>
                 </div>
 
             </div>

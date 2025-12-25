@@ -37,6 +37,7 @@ app.use(express.urlencoded({ extended: true }));
 // 4. KONFIGURASI MIDDLEWARE DASAR
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static('public'));
 
 // 5. KONFIGURASI SESSION
 const sessionConfig = {

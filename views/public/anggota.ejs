@@ -17,107 +17,187 @@
             theme: {
                 extend: {
                     colors: {
-                        paper: '#F9F7F2', deep: '#0F1F18', gold: '#C5B388', 
-                        charcoal: '#4A4A4A', sand: '#E5E0D8', white: '#FFFFFF',
+                        paper: '#F9F7F2',       /* Cream Background */
+                        deep: '#0F1F18',        /* Dark Green (Primary) */
+                        gold: '#C5B388',        /* Luxury Accent */
+                        charcoal: '#4A4A4A',    /* Text */
+                        sand: '#E5E0D8',        /* Border/Secondary */
+                        white: '#FFFFFF',
                     },
                     fontFamily: {
-                        sans: ['Lato', 'sans-serif'], serif: ['Playfair Display', 'serif'], crest: ['Cinzel', 'serif'], 
+                        sans: ['Lato', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                        crest: ['Cinzel', 'serif'], 
+                    },
+                    letterSpacing: {
+                        'luxury': '0.2em',
+                        'widest': '0.3em',
                     },
                     boxShadow: {
-                        'pop': '0 20px 40px -5px rgba(0, 0, 0, 0.4)', // Shadow lebih soft
+                        'elegant': '0 10px 40px -10px rgba(15, 31, 24, 0.15)',
+                        'pop': '0 25px 50px -12px rgba(15, 31, 24, 0.5)', 
                     },
                     transitionTimingFunction: {
-                        'elastic': 'cubic-bezier(0.22, 1, 0.36, 1)', // Kunci smooth animation
+                        'elastic': 'cubic-bezier(0.22, 1, 0.36, 1)',
                     }
                 }
             }
         }
     </script>
     <style type="text/tailwindcss">
-        @layer base { body { @apply bg-paper text-deep font-sans antialiased; overscroll-behavior: none; } }
-        .noise-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999; opacity: 0.04; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E"); }
+        @layer base { 
+            body { 
+                @apply bg-paper text-deep font-sans antialiased selection:bg-deep selection:text-paper;
+                overscroll-behavior: none; 
+            } 
+        }
+        
+        /* Texture Overlay */
+        .noise-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.04'/%3E%3C/svg%3E");
+            pointer-events: none; z-index: 9999; mix-blend-mode: multiply;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: #E5E0D8; }
+        ::-webkit-scrollbar-thumb { background: #0F1F18; }
     </style>
 </head>
 
 <body class="flex flex-col min-h-screen relative">
+
     <div class="noise-overlay"></div>
+
     <%- include('../partials/navbar.ejs') %>
 
-    <main class="flex-grow pt-32 pb-20 px-4 relative z-10">
+    <main class="flex-grow pt-40 pb-24 px-6 relative z-10">
+        
         <%- include('../partials/flash.ejs') %>
 
-        <div class="max-w-4xl mx-auto text-center mb-10 animate-[fadeIn_1s]">
-            <span class="font-sans text-[10px] uppercase tracking-widest text-gold mb-2 block">The People Behind</span>
-            <h1 class="font-crest text-4xl md:text-5xl text-deep mb-4">Struktur Organisasi</h1>
-            <p class="font-serif italic text-sm md:text-base text-charcoal/70 max-w-2xl mx-auto">
+        <div class="max-w-6xl mx-auto text-center mb-16 animate-[fadeIn_1.5s]">
+            
+            <span class="font-sans text-[10px] uppercase tracking-widest text-gold mb-4 block">
+                The People Behind
+            </span>
+            
+            <h1 class="font-crest text-4xl md:text-6xl text-deep mb-6 leading-none">
+                Struktur Organisasi
+            </h1>
+            
+            <p class="font-serif italic text-lg md:text-xl text-charcoal/70 max-w-2xl mx-auto leading-relaxed">
                 "Mengenal para penggerak yang mendedikasikan waktu dan tenaga untuk menjaga warisan serta memajukan Kampung Wisata."
             </p>
+
+            <div class="w-[1px] h-16 bg-deep/10 mx-auto mt-10"></div>
         </div>
 
-        <div class="flex justify-center mb-8 sticky top-20 z-40 pointer-events-none">
-            <div class="inline-flex bg-white/90 backdrop-blur border border-deep/10 shadow-sm p-1 rounded-sm gap-1 pointer-events-auto">
-                <button onclick="filterAnggota('all')" id="btn-all" class="filter-btn px-4 py-1.5 text-[9px] uppercase tracking-widest font-bold bg-deep text-paper border border-deep transition-all">Semua</button>
-                <button onclick="filterAnggota('Admin')" id="btn-Admin" class="filter-btn px-4 py-1.5 text-[9px] uppercase tracking-widest font-bold text-deep/50 hover:text-deep transition-all">Pengurus Inti</button>
-                <button onclick="filterAnggota('User')" id="btn-User" class="filter-btn px-4 py-1.5 text-[9px] uppercase tracking-widest font-bold text-deep/50 hover:text-deep transition-all">Anggota</button>
+        <div class="flex justify-center mb-16 sticky top-24 z-40 pointer-events-none">
+            <div class="inline-flex bg-white/90 backdrop-blur-md border border-deep/10 shadow-elegant p-1.5 rounded-sm gap-1 pointer-events-auto transition-all duration-300 hover:shadow-pop">
+                <button onclick="filterAnggota('all')" id="btn-all" 
+                    class="filter-btn px-6 py-2 text-[10px] uppercase tracking-widest font-bold bg-deep text-paper border border-deep transition-all duration-300">
+                    Semua
+                </button>
+                <button onclick="filterAnggota('Admin')" id="btn-Admin" 
+                    class="filter-btn px-6 py-2 text-[10px] uppercase tracking-widest font-bold text-deep/50 hover:text-deep transition-all duration-300">
+                    Pengurus Inti
+                </button>
+                <button onclick="filterAnggota('User')" id="btn-User" 
+                    class="filter-btn px-6 py-2 text-[10px] uppercase tracking-widest font-bold text-deep/50 hover:text-deep transition-all duration-300">
+                    Anggota Warga
+                </button>
             </div>
         </div>
 
         <% if(anggotaList && anggotaList.length > 0) { %>
-            <div class="max-w-7xl mx-auto">
-                <div class="grid grid-cols-4 md:grid-cols-8 lg:grid-cols-12 gap-0.5" id="mosaic-grid">
+            <div class="max-w-[1400px] mx-auto">
+                <div class="grid grid-cols-4 md:grid-cols-8 lg:grid-cols-10 gap-0.5" id="mosaic-grid">
                     <% anggotaList.forEach(anggota => { 
                         const vals = anggota.dataValues || anggota;
-                        const foto = vals.Foto || vals.fotoFile;
+                        const foto = vals.Foto || vals.fotoFile; // Handle beda nama field
                         const nama = vals.Nama;
                         const jabatan = vals.Jabatan || 'Warga';
                         const role = vals.Role;
-                        const id = vals.ID_Pengguna;
+                        const id = vals.ID_Pengguna || vals.ID_User; // Adjust ID field name
                     %>
                         <div class="mosaic-item relative aspect-square group z-0 hover:z-50" data-role="<%= role === 'Admin' ? 'Admin' : 'User' %>">
                             
                             <div class="absolute inset-0 w-full h-full bg-deep/5 overflow-hidden cursor-pointer 
                                         transition-all duration-500 ease-elastic origin-center
-                                        group-hover:scale-[1.75] group-hover:shadow-pop group-hover:rounded-sm border border-transparent group-hover:border-gold/50">
+                                        group-hover:scale-[1.75] group-hover:shadow-pop group-hover:rounded-sm group-hover:border group-hover:border-gold/50">
                                 
                                 <% if (foto) { %>
-                                    <img src="/images/anggota/<%= foto %>" loading="lazy" class="w-full h-full object-cover filter grayscale sepia-[0.3] group-hover:grayscale-0 group-hover:sepia-0 transition-all duration-500">
+                                    <img src="/images/anggota/<%= foto %>" 
+                                         loading="lazy" 
+                                         alt="<%= nama %>"
+                                         class="w-full h-full object-cover object-top filter grayscale sepia-[0.2] contrast-110 group-hover:grayscale-0 group-hover:sepia-0 transition-all duration-500"
+                                         onerror="this.parentElement.innerHTML='<div class=\'w-full h-full flex items-center justify-center bg-sand/20 text-deep/30 group-hover:bg-deep group-hover:text-gold transition-colors duration-500\'><span class=\'font-crest text-[10px]\'><%= nama.charAt(0) %></span></div>'">
                                 <% } else { %>
                                     <div class="w-full h-full flex items-center justify-center bg-sand/20 text-deep/30 group-hover:bg-deep group-hover:text-gold transition-colors duration-500">
-                                        <span class="font-crest text-[10px]"><%= nama.charAt(0) %></span>
+                                        <span class="font-crest text-lg opacity-50"><%= nama.charAt(0) %></span>
                                     </div>
                                 <% } %>
 
-                                <div class="absolute inset-0 bg-gradient-to-t from-deep/90 via-deep/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-75 flex flex-col justify-end p-3">
-                                    <span class="text-[6px] uppercase tracking-widest text-gold mb-1 truncate"><%= role === 'Admin' ? '★ ' + jabatan : jabatan %></span>
-                                    <h3 class="font-serif text-[10px] text-paper leading-tight truncate"><%= nama %></h3>
+                                <div class="absolute inset-0 bg-gradient-to-t from-deep/95 via-deep/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-75 flex flex-col justify-end p-4">
+                                    <div class="transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300 delay-100">
+                                        <span class="text-[7px] uppercase tracking-widest text-gold mb-1 block truncate border-b border-gold/20 pb-1">
+                                            <%= role === 'Admin' ? '★ ' + jabatan : jabatan %>
+                                        </span>
+                                        <h3 class="font-serif text-[11px] text-paper leading-tight truncate">
+                                            <%= nama %>
+                                        </h3>
+                                    </div>
                                 </div>
                                 
-                                <a href="/anggota/<%= id %>" class="absolute inset-0"></a>
+                                <a href="/user/anggota/<%= id %>" class="absolute inset-0 z-20"></a>
                             </div>
                         </div>
                     <% }) %>
                 </div>
-                <div class="text-center mt-6 opacity-30 text-[9px] uppercase tracking-widest">Total: <%= anggotaList.length %> Warga</div>
+
+                <div class="text-center mt-12 opacity-40">
+                    <div class="w-12 h-[1px] bg-deep mx-auto mb-3"></div>
+                    <span class="text-[9px] uppercase tracking-widest font-crest text-deep">Total: <%= anggotaList.length %> Personil</span>
+                </div>
             </div>
         <% } else { %>
-            <div class="max-w-lg mx-auto text-center py-20 border border-dashed border-deep/10"><p class="text-deep/40 text-sm italic">Data belum tersedia.</p></div>
+            <div class="max-w-lg mx-auto text-center py-32 border border-dashed border-deep/10 bg-sand/5 rounded-sm">
+                <span class="font-crest text-4xl text-deep/20 mb-4 block">∅</span>
+                <p class="font-serif italic text-charcoal/60 text-sm">Data anggota belum tersedia.</p>
+            </div>
         <% } %>
+
     </main>
+
     <%- include('../partials/footer.ejs') %>
     
     <script>
-        const lenis = new Lenis({smooth: true});
+        // 1. Smooth Scroll
+        const lenis = new Lenis({ duration: 1.2, easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), smooth: true });
         function raf(time) { lenis.raf(time); requestAnimationFrame(raf); }
         requestAnimationFrame(raf);
 
+        // 2. Filter Logic
         function filterAnggota(role) {
             const items = document.querySelectorAll('.mosaic-item');
-            document.querySelectorAll('.filter-btn').forEach(b => b.className = 'filter-btn px-4 py-1.5 text-[9px] uppercase tracking-widest font-bold text-deep/50 hover:text-deep transition-all');
-            document.getElementById(`btn-${role}`).className = 'filter-btn px-4 py-1.5 text-[9px] uppercase tracking-widest font-bold bg-deep text-paper border border-deep transition-all';
             
+            // Reset Button Styles
+            document.querySelectorAll('.filter-btn').forEach(b => {
+                b.className = 'filter-btn px-6 py-2 text-[10px] uppercase tracking-widest font-bold text-deep/50 hover:text-deep transition-all duration-300';
+            });
+            
+            // Active Button Style
+            const activeBtn = document.getElementById(`btn-${role}`);
+            if(activeBtn) {
+                activeBtn.className = 'filter-btn px-6 py-2 text-[10px] uppercase tracking-widest font-bold bg-deep text-paper border border-deep transition-all duration-300 shadow-md';
+            }
+            
+            // Filter Items
             items.forEach(item => {
                 if(role === 'all' || item.dataset.role === role) {
                     item.style.display = 'block';
+                    // Optional: Add fade in animation here
                 } else {
                     item.style.display = 'none';
                 }

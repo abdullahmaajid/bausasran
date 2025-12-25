@@ -3,12 +3,37 @@
 
 const db = require('../../models');
 
+// Helper untuk menentukan folder berdasarkan relasi database, fallback ke nama
+const determineFolder = (group) => {
+    // 1. Cek Relasi Database (Pasti Akurat)
+    if (group.products && group.products.length > 0) return 'produk';
+    if (group.kegiatans && group.kegiatans.length > 0) return 'kegiatan';
+    if (group.prestasis && group.prestasis.length > 0) return 'prestasi';
+    
+    // 2. Fallback: Cek Nama (Untuk manual upload / legacy)
+    const groupName = group.Nama || '';
+    if (!groupName) return 'galeri';
+    
+    const lowerName = groupName.toLowerCase();
+    if (lowerName.includes('kegiatan')) return 'kegiatan';
+    if (lowerName.includes('produk') || lowerName.includes('spek')) return 'produk';
+    if (lowerName.includes('prestasi')) return 'prestasi';
+    if (lowerName.includes('anggota')) return 'anggota';
+    
+    return 'galeri';
+};
+
 // ==================================================================
 // 1. Menampilkan List Galeri (Group Foto)
 // ==================================================================
 module.exports.renderListGaleri = async (req, res) => {
     try {
         const groupFotoList = await db.groupfoto.findAll({
+            include: [
+                { model: db.product, as: 'products', attributes: ['ID_Product'] },
+                { model: db.kegiatan, as: 'kegiatans', attributes: ['ID_Kegiatan'] },
+                { model: db.prestasi, as: 'prestasis', attributes: ['ID_Prestasi'] }
+            ],
             order: [['ID_GroupFoto', 'DESC']]
         });
 
@@ -29,6 +54,8 @@ module.exports.renderListGaleri = async (req, res) => {
             gf.dataValues.fotoCount = fotos.length;
             gf.dataValues.thumbnailFile = fotos.length > 0 ? fotos[0].Foto : null;
             gf.dataValues.allFotos = fotos;
+            // Tentukan folder
+            gf.dataValues.folder = determineFolder(gf);
             return gf;
         });
 
@@ -50,7 +77,13 @@ module.exports.renderDetailGaleri = async (req, res) => {
     try {
         const { id } = req.params;
 
-        const groupFoto = await db.groupfoto.findByPk(id);
+        const groupFoto = await db.groupfoto.findByPk(id, {
+            include: [
+                { model: db.product, as: 'products', attributes: ['ID_Product'] },
+                { model: db.kegiatan, as: 'kegiatans', attributes: ['ID_Kegiatan'] },
+                { model: db.prestasi, as: 'prestasis', attributes: ['ID_Prestasi'] }
+            ]
+        });
 
         if (!groupFoto) {
             req.flash('error', 'Galeri tidak ditemukan.');
@@ -67,8 +100,12 @@ module.exports.renderDetailGaleri = async (req, res) => {
             Foto: f.Foto
         }));
 
+        // Tentukan folder
+        const folder = determineFolder(groupFoto);
+
         res.render('user/galeri/detail', {
-            groupFoto
+            groupFoto,
+            folder
         });
 
     } catch (error) {

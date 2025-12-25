@@ -77,7 +77,7 @@
                 <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                     <% for(let foto of groupFoto.dataValues.fotoFiles) { %>
                         <div class="relative group cursor-pointer rounded-2xl overflow-hidden border border-white/5 bg-surface aspect-square shadow-lg" onclick="openLightbox('<%= foto.Foto %>')">
-                            <img src="/images/galeri/<%= foto.Foto %>" 
+                            <img src="/images/<%= folder %>/<%= foto.Foto %>" 
                                  alt="Foto Galeri"
                                  class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700 ease-out">
                             
@@ -183,7 +183,7 @@
         }
 
         function updateLightboxImage() {
-            img.src = '/images/galeri/' + fotoList[currentIndex];
+            img.src = '/images/<%= folder %>/' + fotoList[currentIndex];
             document.getElementById('current-index').textContent = currentIndex + 1;
         }
 

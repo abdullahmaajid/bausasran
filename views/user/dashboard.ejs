@@ -3,283 +3,309 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard User - Bausasran</title>
+    <title>Dashboard User - Bausasran Heritage</title>
     
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Lato:wght@300;400;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        main: '#003024',    // Background Gelap
-                        surface: '#004030', // Warna Kartu
-                        accent: '#83C540',  // Hijau Neon
-                        pale: '#F5FEF9',    // Teks Putih
-                        muted: '#A3C2B8',   // Teks Pudar
+                        paper: '#F9F7F2',       // Background Utama
+                        deep: '#0F1F18',        // Teks Utama / Aksen Gelap
+                        gold: '#C5B388',        // Aksen Emas
+                        charcoal: '#4A4A4A',    // Teks Sekunder
+                        linen: '#EBE9E4',       // Background Kartu/Secondary
                     },
-                    fontFamily: { sans: ['Inter', 'sans-serif'] }
+                    fontFamily: {
+                        sans: ['Lato', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                        crest: ['Cinzel', 'serif'],
+                    },
+                    letterSpacing: {
+                        'luxury': '0.2em',
+                    }
                 }
             }
         }
     </script>
     <style type="text/tailwindcss">
         @layer base { 
-            body { @apply bg-main text-pale font-sans antialiased; } 
-            /* Custom Scrollbar untuk area konten */
-            .custom-scroll::-webkit-scrollbar { width: 8px; }
-            .custom-scroll::-webkit-scrollbar-track { @apply bg-main; }
-            .custom-scroll::-webkit-scrollbar-thumb { @apply bg-surface border border-white/10 rounded-full; }
+            body { 
+                @apply bg-paper text-deep font-sans antialiased; 
+            } 
+            
+            /* Custom Scrollbar Heritage Style */
+            .custom-scroll::-webkit-scrollbar { width: 6px; }
+            .custom-scroll::-webkit-scrollbar-track { @apply bg-paper; }
+            .custom-scroll::-webkit-scrollbar-thumb { @apply bg-deep/20 hover:bg-gold rounded-full transition-colors; }
+        }
+
+        /* Texture Grain Overlay */
+        .noise-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.04'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 0;
+            mix-blend-mode: multiply;
         }
     </style>
 </head>
 
-<body class="flex h-screen overflow-hidden">
+<body class="flex h-screen overflow-hidden relative">
+
+    <div class="noise-overlay"></div>
 
     <%- include('../partials/user_sidebar.ejs') %>
 
-    <main class="flex-1 overflow-y-auto custom-scroll p-6 md:p-10 relative">
+    <main class="flex-1 overflow-y-auto custom-scroll p-8 md:p-12 relative z-10">
         
-        <div class="fixed top-0 right-0 w-[500px] h-[500px] bg-accent/5 rounded-full blur-[100px] pointer-events-none -z-10"></div>
-
         <%- include('../partials/flash.ejs') %>
 
-        <div class="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div class="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-deep/10 pb-8">
             <div>
-                <h1 class="text-3xl md:text-4xl font-bold text-pale mb-2">
-                    Dashboard <span class="text-accent">Overview</span>
+                <span class="text-[10px] uppercase tracking-luxury text-gold font-bold mb-2 block">Panel Warga</span>
+                <h1 class="text-3xl md:text-5xl font-crest text-deep mb-2">
+                    Dashboard <span class="font-serif italic text-gold">Overview</span>
                 </h1>
-                <p class="text-muted text-lg">
-                    Selamat datang kembali, <span class="font-bold text-white"><%= currentUser.Nama %></span>!
+                <p class="text-charcoal font-light italic font-serif text-lg">
+                    Sugeng Rawuh, <span class="font-bold not-italic text-deep border-b border-gold"><%= currentUser.Nama %></span>.
                 </p>
             </div>
-            <div class="text-sm text-muted bg-surface/50 px-4 py-2 rounded-lg border border-white/5">
+            <div class="text-xs font-bold tracking-widest uppercase text-deep/60 border border-deep/10 px-4 py-2 bg-linen/30">
                 <%= new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) %>
             </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
             
-            <div class="bg-surface border border-white/5 rounded-2xl p-6 shadow-lg hover:border-accent/30 transition-all duration-300 group">
-                <div class="flex items-center justify-between mb-4">
+            <div class="bg-white p-6 shadow-sm border border-deep/5 hover:border-gold/50 hover:shadow-xl transition-all duration-500 group relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-20 h-20 bg-linen rounded-bl-full -mr-10 -mt-10 transition-transform group-hover:scale-110"></div>
+                <div class="flex items-center justify-between mb-4 relative z-10">
                     <div>
-                        <p class="text-sm font-medium text-muted uppercase tracking-wider">Total Anggota</p>
-                        <p class="text-3xl font-bold text-white mt-1 group-hover:text-accent transition-colors"><%= stats.totalAnggota %></p>
+                        <p class="text-[9px] font-bold uppercase tracking-luxury text-charcoal/60">Total Anggota</p>
+                        <p class="text-4xl font-serif text-deep mt-2 group-hover:text-gold transition-colors"><%= stats.totalAnggota %></p>
                     </div>
-                    <div class="p-3 bg-blue-500/10 rounded-xl border border-blue-500/20">
-                        <svg class="w-8 h-8 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                    <div class="text-deep/20 group-hover:text-gold transition-colors">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
                     </div>
                 </div>
-                <a href="/user/anggota" class="text-sm text-muted hover:text-white flex items-center transition-colors">
-                    Lihat Direktori <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                <a href="/user/anggota" class="text-[10px] uppercase tracking-widest text-gold hover:text-deep transition-colors flex items-center gap-2 border-t border-deep/5 pt-3">
+                    Lihat Direktori <span class="text-lg leading-none">&rarr;</span>
                 </a>
             </div>
 
-            <div class="bg-surface border border-white/5 rounded-2xl p-6 shadow-lg hover:border-accent/30 transition-all duration-300 group">
-                <div class="flex items-center justify-between mb-4">
+            <div class="bg-white p-6 shadow-sm border border-deep/5 hover:border-gold/50 hover:shadow-xl transition-all duration-500 group relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-20 h-20 bg-linen rounded-bl-full -mr-10 -mt-10 transition-transform group-hover:scale-110"></div>
+                <div class="flex items-center justify-between mb-4 relative z-10">
                     <div>
-                        <p class="text-sm font-medium text-muted uppercase tracking-wider">Produk UMKM</p>
-                        <p class="text-3xl font-bold text-white mt-1 group-hover:text-accent transition-colors"><%= stats.totalProduk %></p>
+                        <p class="text-[9px] font-bold uppercase tracking-luxury text-charcoal/60">Produk UMKM</p>
+                        <p class="text-4xl font-serif text-deep mt-2 group-hover:text-gold transition-colors"><%= stats.totalProduk %></p>
                     </div>
-                    <div class="p-3 bg-accent/10 rounded-xl border border-accent/20">
-                        <svg class="w-8 h-8 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
+                    <div class="text-deep/20 group-hover:text-gold transition-colors">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
                     </div>
                 </div>
-                <a href="/user/produk" class="text-sm text-muted hover:text-white flex items-center transition-colors">
-                    Lihat Katalog <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                <a href="/user/produk" class="text-[10px] uppercase tracking-widest text-gold hover:text-deep transition-colors flex items-center gap-2 border-t border-deep/5 pt-3">
+                    Lihat Koleksi <span class="text-lg leading-none">&rarr;</span>
                 </a>
             </div>
 
-            <div class="bg-surface border border-white/5 rounded-2xl p-6 shadow-lg hover:border-accent/30 transition-all duration-300 group">
-                <div class="flex items-center justify-between mb-4">
+            <div class="bg-white p-6 shadow-sm border border-deep/5 hover:border-gold/50 hover:shadow-xl transition-all duration-500 group relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-20 h-20 bg-linen rounded-bl-full -mr-10 -mt-10 transition-transform group-hover:scale-110"></div>
+                <div class="flex items-center justify-between mb-4 relative z-10">
                     <div>
-                        <p class="text-sm font-medium text-muted uppercase tracking-wider">Kegiatan</p>
-                        <p class="text-3xl font-bold text-white mt-1 group-hover:text-accent transition-colors"><%= stats.totalKegiatan %></p>
+                        <p class="text-[9px] font-bold uppercase tracking-luxury text-charcoal/60">Agenda Kegiatan</p>
+                        <p class="text-4xl font-serif text-deep mt-2 group-hover:text-gold transition-colors"><%= stats.totalKegiatan %></p>
                     </div>
-                    <div class="p-3 bg-yellow-500/10 rounded-xl border border-yellow-500/20">
-                        <svg class="w-8 h-8 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                    <div class="text-deep/20 group-hover:text-gold transition-colors">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                     </div>
                 </div>
-                <a href="/user/kegiatan" class="text-sm text-muted hover:text-white flex items-center transition-colors">
-                    Lihat Agenda <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                <a href="/user/kegiatan" class="text-[10px] uppercase tracking-widest text-gold hover:text-deep transition-colors flex items-center gap-2 border-t border-deep/5 pt-3">
+                    Cek Jadwal <span class="text-lg leading-none">&rarr;</span>
                 </a>
             </div>
 
-            <div class="bg-surface border border-white/5 rounded-2xl p-6 shadow-lg hover:border-accent/30 transition-all duration-300 group">
-                <div class="flex items-center justify-between mb-4">
+            <div class="bg-white p-6 shadow-sm border border-deep/5 hover:border-gold/50 hover:shadow-xl transition-all duration-500 group relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-20 h-20 bg-linen rounded-bl-full -mr-10 -mt-10 transition-transform group-hover:scale-110"></div>
+                <div class="flex items-center justify-between mb-4 relative z-10">
                     <div>
-                        <p class="text-sm font-medium text-muted uppercase tracking-wider">Prestasi</p>
-                        <p class="text-3xl font-bold text-white mt-1 group-hover:text-accent transition-colors"><%= stats.totalPrestasi %></p>
+                        <p class="text-[9px] font-bold uppercase tracking-luxury text-charcoal/60">Prestasi Desa</p>
+                        <p class="text-4xl font-serif text-deep mt-2 group-hover:text-gold transition-colors"><%= stats.totalPrestasi %></p>
                     </div>
-                    <div class="p-3 bg-purple-500/10 rounded-xl border border-purple-500/20">
-                        <svg class="w-8 h-8 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path></svg>
+                    <div class="text-deep/20 group-hover:text-gold transition-colors">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138z"></path></svg>
                     </div>
                 </div>
-                <a href="/user/prestasi" class="text-sm text-muted hover:text-white flex items-center transition-colors">
-                    Lihat Pencapaian <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                <a href="/user/prestasi" class="text-[10px] uppercase tracking-widest text-gold hover:text-deep transition-colors flex items-center gap-2 border-t border-deep/5 pt-3">
+                    Lihat Honors <span class="text-lg leading-none">&rarr;</span>
                 </a>
             </div>
 
-            <div class="bg-surface border border-white/5 rounded-2xl p-6 shadow-lg hover:border-accent/30 transition-all duration-300 group">
-                <div class="flex items-center justify-between mb-4">
+            <div class="bg-white p-6 shadow-sm border border-deep/5 hover:border-gold/50 hover:shadow-xl transition-all duration-500 group relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-20 h-20 bg-linen rounded-bl-full -mr-10 -mt-10 transition-transform group-hover:scale-110"></div>
+                <div class="flex items-center justify-between mb-4 relative z-10">
                     <div>
-                        <p class="text-sm font-medium text-muted uppercase tracking-wider">Album Galeri</p>
-                        <p class="text-3xl font-bold text-white mt-1 group-hover:text-accent transition-colors"><%= stats.totalGaleri %></p>
+                        <p class="text-[9px] font-bold uppercase tracking-luxury text-charcoal/60">Album Foto</p>
+                        <p class="text-4xl font-serif text-deep mt-2 group-hover:text-gold transition-colors"><%= stats.totalGaleri %></p>
                     </div>
-                    <div class="p-3 bg-pink-500/10 rounded-xl border border-pink-500/20">
-                        <svg class="w-8 h-8 text-pink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                    <div class="text-deep/20 group-hover:text-gold transition-colors">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                     </div>
                 </div>
-                <a href="/user/galeri" class="text-sm text-muted hover:text-white flex items-center transition-colors">
-                    Lihat Foto <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                <a href="/user/galeri" class="text-[10px] uppercase tracking-widest text-gold hover:text-deep transition-colors flex items-center gap-2 border-t border-deep/5 pt-3">
+                    Visual Memory <span class="text-lg leading-none">&rarr;</span>
                 </a>
             </div>
 
-            <div class="bg-surface border border-white/5 rounded-2xl p-6 shadow-lg hover:border-accent/30 transition-all duration-300 group">
-                <div class="flex items-center justify-between mb-4">
+            <div class="bg-white p-6 shadow-sm border border-deep/5 hover:border-gold/50 hover:shadow-xl transition-all duration-500 group relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-20 h-20 bg-linen rounded-bl-full -mr-10 -mt-10 transition-transform group-hover:scale-110"></div>
+                <div class="flex items-center justify-between mb-4 relative z-10">
                     <div>
-                        <p class="text-sm font-medium text-muted uppercase tracking-wider">Testimoni Saya</p>
-                        <p class="text-3xl font-bold text-white mt-1 group-hover:text-accent transition-colors"><%= stats.totalTestimoniSaya %></p>
+                        <p class="text-[9px] font-bold uppercase tracking-luxury text-charcoal/60">Ulasan Saya</p>
+                        <p class="text-4xl font-serif text-deep mt-2 group-hover:text-gold transition-colors"><%= stats.totalTestimoniSaya %></p>
                     </div>
-                    <div class="p-3 bg-red-500/10 rounded-xl border border-red-500/20">
-                        <svg class="w-8 h-8 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg>
+                    <div class="text-deep/20 group-hover:text-gold transition-colors">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg>
                     </div>
                 </div>
-                <a href="/user/testimoni" class="text-sm text-muted hover:text-white flex items-center transition-colors">
-                    Kelola Ulasan <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                <a href="/user/testimoni" class="text-[10px] uppercase tracking-widest text-gold hover:text-deep transition-colors flex items-center gap-2 border-t border-deep/5 pt-3">
+                    Kelola <span class="text-lg leading-none">&rarr;</span>
                 </a>
             </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-10">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
             
-            <div class="bg-surface border border-white/5 rounded-2xl p-6 shadow-lg flex flex-col h-full">
-                <div class="flex items-center justify-between mb-6">
-                    <h2 class="text-xl font-bold text-pale flex items-center">
-                        <span class="w-2 h-6 bg-accent rounded-full mr-3"></span>
-                        Kegiatan Terbaru
+            <div class="bg-white border border-deep/5 p-8 shadow-sm relative h-full">
+                <div class="absolute top-4 left-4 right-4 h-[1px] bg-deep/5"></div>
+                <div class="flex items-center justify-between mb-8 relative">
+                    <h2 class="font-crest text-2xl text-deep">
+                        Jurnal <span class="text-gold">Kegiatan</span>
                     </h2>
-                    <a href="/user/kegiatan" class="text-xs font-bold text-accent hover:text-white transition-colors uppercase tracking-wider">Lihat Semua</a>
+                    <a href="/user/kegiatan" class="text-[9px] font-bold uppercase tracking-luxury text-charcoal/50 hover:text-deep transition-colors">Lihat Semua</a>
                 </div>
                 
                 <% if (kegiatanTerbaru && kegiatanTerbaru.length > 0) { %>
-                    <div class="space-y-3 flex-grow">
+                    <div class="space-y-6">
                         <% kegiatanTerbaru.forEach(kegiatan => { %>
-                            <div class="flex items-center justify-between p-4 bg-black/20 rounded-xl border border-white/5 hover:border-accent/30 transition-all">
-                                <div class="flex-1">
-                                    <a href="/user/kegiatan/<%= kegiatan.ID_Kegiatan %>" class="font-bold text-pale hover:text-accent transition-colors block mb-1">
+                            <div class="group flex items-start gap-4 pb-6 border-b border-dashed border-deep/10 last:border-0">
+                                <div class="flex-shrink-0 w-12 text-center">
+                                    <span class="block text-2xl font-serif text-gold leading-none"><%= new Date(kegiatan.Tanggal).getDate() %></span>
+                                    <span class="block text-[8px] uppercase tracking-widest text-deep"><%= new Date(kegiatan.Tanggal).toLocaleString('id-ID', { month: 'short' }) %></span>
+                                </div>
+                                <div class="flex-grow">
+                                    <a href="/user/kegiatan/<%= kegiatan.ID_Kegiatan %>" class="font-serif text-lg text-deep group-hover:text-gold transition-colors leading-tight block mb-1">
                                         <%= kegiatan.Judul %>
                                     </a>
-                                    <div class="flex items-center text-xs text-muted">
-                                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                                        <%= new Date(kegiatan.Tanggal).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) %>
-                                    </div>
+                                    <span class="inline-block px-2 py-1 text-[8px] font-bold uppercase tracking-widest border 
+                                        <%= kegiatan.Status === 'Upcoming' ? 'border-gold text-gold bg-gold/5' : 'border-charcoal/20 text-charcoal/60 bg-linen' %>">
+                                        <%= kegiatan.Status === 'Upcoming' ? 'Akan Datang' : 'Selesai' %>
+                                    </span>
                                 </div>
-                                <span class="ml-4 px-3 py-1 text-[10px] font-bold uppercase rounded-full border 
-                                    <%= kegiatan.Status === 'Upcoming' ? 'bg-accent/10 text-accent border-accent/20' : 'bg-white/5 text-muted border-white/10' %>">
-                                    <%= kegiatan.Status === 'Upcoming' ? 'Akan Datang' : 'Selesai' %>
-                                </span>
                             </div>
                         <% }) %>
                     </div>
                 <% } else { %>
-                    <div class="flex flex-col items-center justify-center h-48 border-2 border-dashed border-white/5 rounded-xl text-muted">
-                        <p>Belum ada kegiatan terbaru.</p>
+                    <div class="flex flex-col items-center justify-center h-48 border border-dashed border-deep/10 bg-linen/20">
+                        <p class="font-serif italic text-charcoal/40">Belum ada jurnal terbaru.</p>
                     </div>
                 <% } %>
             </div>
 
-            <div class="bg-surface border border-white/5 rounded-2xl p-6 shadow-lg flex flex-col h-full">
-                <div class="flex items-center justify-between mb-6">
-                    <h2 class="text-xl font-bold text-pale flex items-center">
-                        <span class="w-2 h-6 bg-blue-500 rounded-full mr-3"></span>
-                        Produk Terbaru
+            <div class="bg-white border border-deep/5 p-8 shadow-sm relative h-full">
+                <div class="absolute top-4 left-4 right-4 h-[1px] bg-deep/5"></div>
+                <div class="flex items-center justify-between mb-8 relative">
+                    <h2 class="font-crest text-2xl text-deep">
+                        Koleksi <span class="text-gold">Terbaru</span>
                     </h2>
-                    <a href="/user/produk" class="text-xs font-bold text-blue-400 hover:text-white transition-colors uppercase tracking-wider">Lihat Semua</a>
+                    <a href="/user/produk" class="text-[9px] font-bold uppercase tracking-luxury text-charcoal/50 hover:text-deep transition-colors">Lihat Semua</a>
                 </div>
                 
                 <% if (produkTerbaru && produkTerbaru.length > 0) { %>
-                    <div class="space-y-3 flex-grow">
+                    <div class="space-y-4">
                         <% produkTerbaru.forEach(produk => { %>
-                            <div class="flex items-center justify-between p-4 bg-black/20 rounded-xl border border-white/5 hover:border-blue-500/30 transition-all">
-                                <div class="flex-1">
-                                    <a href="/user/produk/<%= produk.ID_Product %>" class="font-bold text-pale hover:text-blue-400 transition-colors block mb-1">
+                            <div class="flex items-center justify-between p-4 bg-linen/20 border border-deep/5 hover:border-gold/30 transition-all group">
+                                <div>
+                                    <a href="/user/produk/<%= produk.ID_Product %>" class="font-serif text-lg text-deep group-hover:text-gold transition-colors block">
                                         <%= produk.Nama %>
                                     </a>
-                                    <p class="text-sm font-bold text-accent">
-                                        Rp <%= produk.Harga.toLocaleString('id-ID') %>
+                                    <p class="text-xs font-sans font-bold tracking-widest text-deep/60 mt-1">
+                                        IDR <%= produk.Harga.toLocaleString('id-ID') %>
                                     </p>
                                 </div>
-                                <div class="w-8 h-8 bg-blue-500/10 rounded-full flex items-center justify-center text-blue-400">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
+                                <div class="opacity-0 group-hover:opacity-100 transition-opacity -translate-x-2 group-hover:translate-x-0 duration-500">
+                                    <span class="text-gold text-xl">&rarr;</span>
                                 </div>
                             </div>
                         <% }) %>
                     </div>
                 <% } else { %>
-                    <div class="flex flex-col items-center justify-center h-48 border-2 border-dashed border-white/5 rounded-xl text-muted">
-                        <p>Belum ada produk terbaru.</p>
+                    <div class="flex flex-col items-center justify-center h-48 border border-dashed border-deep/10 bg-linen/20">
+                        <p class="font-serif italic text-charcoal/40">Koleksi belum tersedia.</p>
                     </div>
                 <% } %>
             </div>
         </div>
 
-        <div class="bg-surface border border-white/5 rounded-2xl p-6 shadow-lg mb-8">
-            <div class="flex items-center justify-between mb-6">
-                <h2 class="text-xl font-bold text-pale flex items-center">
-                    <span class="w-2 h-6 bg-red-500 rounded-full mr-3"></span>
-                    Testimoni Saya
-                </h2>
-                <a href="/user/testimoni/tambah" class="px-4 py-2 bg-accent text-main font-bold text-sm rounded-lg hover:bg-white transition-all shadow-lg hover:shadow-accent/20">
-                    + Tambah Testimoni
+        <div class="bg-deep text-paper p-8 md:p-10 relative overflow-hidden mb-8">
+            <div class="absolute top-0 right-0 p-10 opacity-5">
+                <svg class="w-64 h-64" fill="currentColor" viewBox="0 0 24 24"><path d="M14.017 21L14.017 18C14.017 16.8954 13.1216 16 12.017 16H9.01699V12.999L14.017 13V11C14.017 10.4477 14.4647 10 15.017 10H19.017V5H13.017C7.49415 5 3.01699 9.47715 3.01699 15V19C3.01699 20.1046 3.91243 21 5.01699 21H14.017ZM21.017 19V14C21.017 13.4477 20.5693 13 20.017 13H16.017V17H19.017C19.5693 17 20.017 17.4477 20.017 18V21H17.017V22H20.017C20.5693 22 21.017 21.5523 21.017 21Z"></path></svg>
+            </div>
+
+            <div class="flex flex-col md:flex-row items-end justify-between mb-8 relative z-10 border-b border-white/10 pb-6">
+                <div>
+                    <span class="text-[9px] font-bold uppercase tracking-luxury text-gold mb-1 block">Guest Book</span>
+                    <h2 class="font-crest text-3xl">Testimoni <span class="italic font-serif text-white/70">Saya</span></h2>
+                </div>
+                <a href="/user/testimoni/tambah" class="inline-block py-2 px-6 border border-gold text-[9px] font-bold uppercase tracking-luxury text-gold hover:bg-gold hover:text-deep transition-all duration-300 mt-4 md:mt-0">
+                    + Tulis Ulasan
                 </a>
             </div>
             
             <% if (testimoniSaya && testimoniSaya.length > 0) { %>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 relative z-10">
                     <% testimoniSaya.forEach(testimoni => { %>
-                        <div class="p-5 bg-black/20 rounded-xl border border-white/5 hover:border-white/20 transition-all group">
-                            <div class="flex items-center justify-between mb-3">
-                                <div class="flex gap-2">
+                        <div class="p-6 bg-white/5 border border-white/10 hover:border-gold/40 transition-all group backdrop-blur-sm">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center gap-3">
                                     <% if (testimoni.Rating) { %>
-                                        <span class="px-2 py-1 text-[10px] font-bold uppercase rounded-md bg-green-500/10 text-green-400 border border-green-500/20">
-                                            ✓ Positif
-                                        </span>
-                                    <% } else { %>
-                                        <span class="px-2 py-1 text-[10px] font-bold uppercase rounded-md bg-red-500/10 text-red-400 border border-red-500/20">
-                                            ✗ Negatif
-                                        </span>
+                                        <div class="flex text-gold text-[10px] gap-0.5">
+                                            <% for(let i=0; i<testimoni.Rating; i++) { %>★<% } %>
+                                        </div>
                                     <% } %>
-                                    
-                                    <span class="px-2 py-1 text-[10px] font-bold uppercase rounded-md border border-white/10 text-muted bg-white/5">
+                                    <span class="text-[9px] uppercase tracking-widest text-white/40 border-l border-white/20 pl-3">
                                         <%= testimoni.Kategori %>
                                     </span>
                                 </div>
                                 <div class="flex space-x-3 opacity-50 group-hover:opacity-100 transition-opacity">
-                                    <a href="/user/testimoni/edit/<%= testimoni.ID_Review %>" class="text-xs text-blue-400 hover:text-white">Edit</a>
+                                    <a href="/user/testimoni/edit/<%= testimoni.ID_Review %>" class="text-[9px] font-bold uppercase tracking-widest text-gold hover:text-white">Edit</a>
                                     <span class="text-white/10">|</span>
-                                    <a href="/user/testimoni" class="text-xs text-muted hover:text-white">Detail</a>
+                                    <a href="/user/testimoni" class="text-[9px] font-bold uppercase tracking-widest text-white/60 hover:text-white">Detail</a>
                                 </div>
                             </div>
                             
-                            <p class="text-muted text-sm italic leading-relaxed border-l-2 border-white/10 pl-3">
+                            <p class="font-serif text-white/80 italic leading-relaxed pl-4 border-l-2 border-gold/30">
                                 "<%= testimoni.Ulasan && testimoni.Ulasan.length > 100 ? testimoni.Ulasan.substring(0, 100) + '...' : (testimoni.Ulasan || 'Tidak ada ulasan') %>"
                             </p>
                         </div>
                     <% }) %>
                 </div>
             <% } else { %>
-                <div class="text-center py-10 border-2 border-dashed border-white/5 rounded-xl bg-white/5">
-                    <svg class="w-12 h-12 text-muted/30 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg>
-                    <p class="text-muted mb-4">Anda belum membagikan pengalaman Anda.</p>
-                    <a href="/user/testimoni/tambah" class="inline-block px-5 py-2.5 bg-white/10 border border-white/10 text-pale text-sm font-bold rounded-lg hover:bg-accent hover:text-main transition-all">
-                        Buat Testimoni Pertama
-                    </a>
+                <div class="text-center py-12 border border-dashed border-white/10 bg-white/5 relative z-10">
+                    <p class="font-serif italic text-white/40 mb-4">Anda belum membagikan pengalaman Anda.</p>
                 </div>
             <% } %>
         </div>
 
-        <div class="text-center pt-8 pb-4 text-xs text-muted/40 border-t border-white/5">
-            &copy; <%= new Date().getFullYear() %> Kampung Wisata Bausasran. All rights reserved.
+        <div class="text-center pt-8 pb-4 text-[9px] uppercase tracking-widest text-charcoal/40 border-t border-deep/10">
+            &copy; <%= new Date().getFullYear() %> Bausasran Heritage Estate.
         </div>
 
     </main>

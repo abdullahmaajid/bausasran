@@ -3,166 +3,187 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tambah Testimoni</title>
+    <title>Tulis Ulasan - Bausasran Heritage</title>
     
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Lato:wght@300;400;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        main: '#003024',    // Background Gelap
-                        surface: '#004030', // Warna Kartu
-                        accent: '#83C540',  // Hijau Neon
-                        pale: '#F5FEF9',    // Teks Putih
-                        muted: '#A3C2B8',   // Teks Pudar
-                        danger: '#EF4444',  // Merah Error
+                        paper: '#F9F7F2',       /* Cream Background */
+                        deep: '#0F1F18',        /* Dark Emerald Green */
+                        gold: '#C5B388',        /* Antique Gold */
+                        charcoal: '#4A4A4A',    /* Soft Black */
+                        linen: '#EBE9E4',       /* Light Gray/Beige */
+                        white: '#FFFFFF',
+                        danger: '#8B0000',      /* Dark Red for errors */
                     },
-                    fontFamily: { sans: ['Inter', 'sans-serif'] }
+                    fontFamily: {
+                        sans: ['Lato', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                        crest: ['Cinzel', 'serif'], 
+                    },
+                    boxShadow: {
+                        'elegant': '0 20px 50px -12px rgba(15, 31, 24, 0.1)',
+                        'paper': '2px 2px 10px rgba(0,0,0,0.05)',
+                    },
+                    letterSpacing: {
+                        'luxury': '0.2em',
+                    }
                 }
             }
         }
     </script>
     <style type="text/tailwindcss">
         @layer base { 
-            body { @apply bg-main text-pale font-sans antialiased; } 
-            
-            /* Custom Form Styles */
+            body { @apply bg-paper text-deep font-sans antialiased; } 
+            .custom-scroll::-webkit-scrollbar { width: 6px; }
+            .custom-scroll::-webkit-scrollbar-track { @apply bg-transparent; }
+            .custom-scroll::-webkit-scrollbar-thumb { @apply bg-gold/50 hover:bg-deep rounded-full transition-colors; }
+
+            /* Form Input Styles */
             .form-input {
-                @apply w-full px-4 py-3 bg-black/20 border border-white/10 rounded-xl focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all text-pale placeholder-white/30;
+                @apply w-full px-4 py-4 bg-paper border border-deep/20 text-deep font-serif focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold transition-all placeholder-charcoal/30;
             }
             
             .form-label {
-                @apply block text-sm font-bold text-muted mb-2 uppercase tracking-wider;
+                @apply block text-[10px] font-bold text-deep uppercase tracking-luxury mb-3;
             }
 
             /* Rating Logic Styles */
             .rating-box {
-                @apply flex flex-col items-center justify-center p-6 border border-white/10 rounded-xl cursor-pointer transition-all duration-300 hover:border-accent/50 hover:bg-white/5 h-full;
+                @apply flex flex-col items-center justify-center p-6 border border-deep/10 bg-paper cursor-pointer transition-all duration-300 hover:border-gold/50 hover:shadow-md h-full;
             }
             .rating-input:checked + .rating-box {
-                @apply border-accent bg-accent/20 shadow-[0_0_15px_rgba(131,197,64,0.3)];
+                @apply border-deep bg-deep text-gold shadow-lg transform -translate-y-1;
             }
             .rating-input:checked + .rating-box svg {
-                @apply text-accent fill-accent;
+                @apply text-gold fill-gold;
             }
             .rating-input:checked + .rating-box span {
-                @apply text-accent font-bold;
+                @apply font-bold;
             }
+        }
+
+        /* Texture Grain Overlay */
+        .noise-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.04'/%3E%3C/svg%3E");
+            pointer-events: none; z-index: 0; mix-blend-mode: multiply;
         }
     </style>
 </head>
-<body class="flex h-screen overflow-hidden">
+<body class="flex h-screen overflow-hidden relative">
+
+    <div class="noise-overlay"></div>
 
     <%- include('../../partials/user_sidebar.ejs') %>
 
-    <main class="flex-1 overflow-y-auto custom-scroll p-6 md:p-10 relative">
+    <main class="flex-1 overflow-y-auto custom-scroll p-8 md:p-12 relative z-10">
         
-        <div class="fixed top-0 right-0 w-[500px] h-[500px] bg-accent/5 rounded-full blur-[100px] pointer-events-none -z-10"></div>
-
         <%- include('../../partials/flash.ejs') %>
 
-        <div class="max-w-6xl mx-auto">
+        <div class="mb-8 border-b border-deep/10 pb-4">
+            <a href="/user/testimoni" class="inline-flex items-center text-[10px] uppercase tracking-luxury font-bold text-deep/60 hover:text-gold transition-colors duration-300 group">
+                <svg class="w-3 h-3 mr-2 transform group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                </svg>
+                Kembali ke Daftar Ulasan
+            </a>
+        </div>
+
+        <div class="max-w-7xl mx-auto">
             
-            <div class="mb-8">
-                <a href="/user/testimoni" class="flex items-center w-full p-6 bg-surface border border-white/5 rounded-2xl hover:border-accent/50 hover:bg-white/5 transition-all duration-300 group shadow-lg">
-                    <div class="w-14 h-14 rounded-xl bg-black/20 flex items-center justify-center mr-6 group-hover:bg-accent group-hover:text-main transition-all border border-white/5 group-hover:scale-110">
-                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
-                        </svg>
-                    </div>
-                    <div class="flex-1">
-                        <p class="text-sm text-muted uppercase tracking-wider mb-1">Navigasi</p>
-                        <h3 class="text-xl font-bold text-pale group-hover:text-accent transition-colors">Kembali ke Daftar Testimoni</h3>
-                    </div>
-                    <div class="text-white/10 group-hover:text-accent transform translate-x-0 group-hover:translate-x-1 transition-all">
-                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
-                    </div>
-                </a>
-            </div>
-
-            <div class="bg-surface border border-white/5 rounded-t-3xl p-10 relative overflow-hidden">
-                <div class="absolute top-0 right-0 p-8 opacity-5 pointer-events-none">
-                    <svg class="w-48 h-48 text-accent" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg>
+            <div class="mb-10">
+                <h1 class="text-3xl md:text-5xl font-crest text-deep mb-3">Formulir Ulasan</h1>
+                <div class="flex items-center gap-4 mb-4">
+                    <div class="h-px w-24 bg-gold"></div>
+                    <span class="text-charcoal font-serif italic text-lg">Bagikan pengalaman berharga Anda</span>
                 </div>
-                <h1 class="text-4xl font-bold text-pale relative z-10">Tulis Pengalaman Anda</h1>
-                <p class="text-lg text-muted mt-2 relative z-10">Bagikan ulasan jujur mengenai produk atau kegiatan kami.</p>
             </div>
 
-            <div class="bg-black/20 border-x border-b border-white/5 rounded-b-3xl p-8 md:p-12 backdrop-blur-sm">
+            <div class="bg-white shadow-elegant border border-deep/5 relative p-8 md:p-12">
                 
-                <form action="/user/testimoni/tambah" method="POST" class="space-y-10">
+                <div class="absolute top-0 right-0 w-32 h-32 border-t-4 border-r-4 border-gold/20 rounded-tr-3xl m-6 pointer-events-none"></div>
+                <div class="absolute bottom-0 left-0 w-32 h-32 border-b-4 border-l-4 border-gold/20 rounded-bl-3xl m-6 pointer-events-none"></div>
+
+                <form action="/user/testimoni/tambah" method="POST" class="space-y-12 relative z-10">
                     
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
                         
                         <div class="md:col-span-2">
                             <label for="kategori" class="form-label">
-                                Kategori Testimoni <span class="text-danger">*</span>
+                                Kategori Ulasan <span class="text-danger">*</span>
                             </label>
-                            <div class="relative">
+                            <div class="relative group">
                                 <select name="Kategori" id="kategori" class="form-input appearance-none cursor-pointer" required onchange="toggleKategori()">
-                                    <option value="" class="bg-main text-muted">-- Pilih Kategori --</option>
-                                    <option value="Product" class="bg-main text-pale">📦 Produk</option>
-                                    <option value="Kegiatan" class="bg-main text-pale">📅 Kegiatan</option>
+                                    <option value="" class="text-charcoal/50">-- Pilih Jenis Ulasan --</option>
+                                    <option value="Product" class="text-deep">📦 Produk & Hasil Panen</option>
+                                    <option value="Kegiatan" class="text-deep">📅 Kegiatan & Acara</option>
                                 </select>
-                                <div class="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-muted">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                <div class="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-gold group-hover:text-deep transition-colors">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 9l-7 7-7-7"></path></svg>
                                 </div>
                             </div>
                         </div>
 
-                        <div id="produkSection" class="md:col-span-2 hidden animate-fade-in-down">
+                        <div id="produkSection" class="md:col-span-2 hidden animate-fade-in">
                             <label for="produk" class="form-label">
                                 Pilih Produk <span class="text-danger">*</span>
                             </label>
-                            <div class="relative">
+                            <div class="relative group">
                                 <select name="ID_Product" id="produk" class="form-input appearance-none cursor-pointer">
-                                    <option value="" class="bg-main text-muted">-- Pilih Produk yang Diulas --</option>
+                                    <option value="" class="text-charcoal/50">-- Pilih Produk --</option>
                                     <% if (produkList && produkList.length > 0) { %>
                                         <% for(let produk of produkList) { %>
-                                            <option value="<%= produk.ID_Product %>" class="bg-main text-pale"><%= produk.Nama %></option>
+                                            <option value="<%= produk.ID_Product %>"><%= produk.Nama %></option>
                                         <% } %>
                                     <% } %>
                                 </select>
-                                <div class="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-muted">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                <div class="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-gold">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 9l-7 7-7-7"></path></svg>
                                 </div>
                             </div>
                         </div>
 
-                        <div id="kegiatanSection" class="md:col-span-2 hidden animate-fade-in-down">
+                        <div id="kegiatanSection" class="md:col-span-2 hidden animate-fade-in">
                             <label for="kegiatan" class="form-label">
                                 Pilih Kegiatan <span class="text-danger">*</span>
                             </label>
-                            <div class="relative">
+                            <div class="relative group">
                                 <select name="ID_Kegiatan" id="kegiatan" class="form-input appearance-none cursor-pointer">
-                                    <option value="" class="bg-main text-muted">-- Pilih Kegiatan yang Diikuti --</option>
+                                    <option value="" class="text-charcoal/50">-- Pilih Kegiatan --</option>
                                     <% if (kegiatanList && kegiatanList.length > 0) { %>
                                         <% for(let kegiatan of kegiatanList) { %>
-                                            <option value="<%= kegiatan.ID_Kegiatan %>" class="bg-main text-pale"><%= kegiatan.Judul %></option>
+                                            <option value="<%= kegiatan.ID_Kegiatan %>"><%= kegiatan.Judul %></option>
                                         <% } %>
                                     <% } %>
                                 </select>
-                                <div class="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-muted">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                <div class="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-gold">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 9l-7 7-7-7"></path></svg>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div>
-                        <label class="form-label mb-4">
-                            Rating Kepuasan <span class="text-danger">*</span>
+                    <div class="py-8 border-y border-deep/5">
+                        <label class="form-label mb-6 text-center">
+                            Tingkat Kepuasan <span class="text-danger">*</span>
                         </label>
-                        <div class="grid grid-cols-5 gap-4 md:gap-6">
+                        <div class="grid grid-cols-5 gap-4 md:gap-8">
                             <% for(let i = 1; i <= 5; i++) { %>
                                 <label class="relative group h-24 md:h-32">
                                     <input type="radio" name="Rating" value="<%= i %>" required class="hidden rating-input">
                                     <div class="rating-box">
-                                        <svg class="w-10 h-10 md:w-12 md:h-12 mb-3 text-muted transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <svg class="w-8 h-8 md:w-12 md:h-12 mb-3 text-deep/20 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path>
                                         </svg>
-                                        <span class="text-sm md:text-base text-muted transition-colors"><%= i %></span>
+                                        <span class="text-sm font-crest transition-colors text-charcoal/50"><%= i %></span>
                                     </div>
                                 </label>
                             <% } %>
@@ -171,31 +192,30 @@
 
                     <div>
                         <label for="ulasan" class="form-label">
-                            Ulasan Lengkap <span class="text-danger">*</span>
+                            Ulasan Tertulis <span class="text-danger">*</span>
                         </label>
                         <textarea 
                             name="Ulasan" 
                             id="ulasan" 
                             rows="6"
-                            class="form-input resize-y text-lg"
-                            placeholder="Ceritakan detail pengalaman Anda disini..."
+                            class="form-input resize-y italic leading-loose text-lg"
+                            placeholder="Tuliskan pendapat Anda dengan jujur di sini..."
                             required></textarea>
-                        <div class="flex justify-between mt-2">
-                            <p class="text-sm text-muted">Minimal 10 karakter</p>
-                            <p class="text-sm text-muted italic">Ulasan yang jujur sangat kami hargai</p>
-                        </div>
                     </div>
 
-                    <div class="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-6 pt-8 border-t border-white/5">
-                        <button type="submit" class="flex-1 bg-accent hover:bg-accent/90 text-main font-bold py-4 px-8 rounded-xl transition-all transform hover:scale-[1.01] shadow-[0_0_20px_rgba(131,197,64,0.3)] flex items-center justify-center text-lg">
-                            <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                            Kirim Testimoni
+                    <div class="flex flex-col md:flex-row gap-6 pt-6">
+                        <button type="submit" class="flex-1 bg-deep text-gold font-bold py-5 px-8 uppercase tracking-widest text-xs hover:bg-gold hover:text-deep transition-all duration-300 border border-deep shadow-lg">
+                            Kirim Ulasan
                         </button>
-                        <a href="/user/testimoni" class="flex-1 text-center bg-transparent border border-white/10 hover:bg-white/5 text-muted hover:text-white font-semibold py-4 px-8 rounded-xl transition-all text-lg flex items-center justify-center">
-                            Batal
+                        <a href="/user/testimoni" class="flex-1 text-center bg-transparent border border-deep/20 text-deep/70 font-bold py-5 px-8 uppercase tracking-widest text-xs hover:bg-linen hover:text-deep transition-all duration-300">
+                            Batalkan
                         </a>
                     </div>
                 </form>
+            </div>
+            
+            <div class="mt-8 text-center opacity-40">
+                <p class="font-crest text-[10px] uppercase tracking-widest text-deep">Bausasran Heritage Estate</p>
             </div>
         </div>
     </main>
@@ -208,13 +228,13 @@
             const produkSelect = document.getElementById('produk');
             const kegiatanSelect = document.getElementById('kegiatan');
             
-            // Reset dulu semuanya
+            // Reset
             produkSection.classList.add('hidden');
             kegiatanSection.classList.add('hidden');
             produkSelect.required = false;
             kegiatanSelect.required = false;
 
-            // Logika Tampil
+            // Logic
             if (kategori === 'Product') {
                 produkSection.classList.remove('hidden');
                 produkSelect.required = true;
@@ -233,12 +253,12 @@
     </script>
     
     <style>
-        @keyframes fadeInDown {
-            from { opacity: 0; transform: translateY(-10px); }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-5px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        .animate-fade-in-down {
-            animation: fadeInDown 0.3s ease-out forwards;
+        .animate-fade-in {
+            animation: fadeIn 0.4s ease-out forwards;
         }
     </style>
 </body>

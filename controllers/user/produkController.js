@@ -114,13 +114,40 @@ module.exports.renderDetailProduk = async (req, res) => {
 // ==================================================================
 module.exports.renderPencocokanProduk = async (req, res) => {
     try {
-        // Ambil semua produk untuk pencocokan
-        const produkList = await db.product.findAll({
-            order: [['Nama', 'ASC']]
+        // Ambil data produk, parameter, dan foto untuk logika pencocokan satelit (mirip Admin)
+        const products = await db.product.findAll({ order: [['Nama', 'ASC']] });
+        const groupParams = await db.groupparameter.findAll();
+        const groupParamMap = new Map();
+        groupParams.forEach(gp => groupParamMap.set(gp.ID_GroupParameter, gp));
+        const parameters = await db.parameter.findAll({ order: [['ID_GroupParameter', 'ASC'],['Nama', 'ASC']] });
+        const allPhotos = await db.foto.findAll({ order: [['ID_GroupFoto', 'ASC'], ['ID_Foto', 'ASC']] });
+        const photosByGroupMap = new Map();
+        allPhotos.forEach(photo => {
+            const groupId = photo.ID_GroupFoto;
+            if (!photosByGroupMap.has(groupId)) {
+                photosByGroupMap.set(groupId, []);
+            }
+            photosByGroupMap.get(groupId).push({ ID_Foto: photo.ID_Foto, Foto: photo.Foto });
         });
+        
+        const productsFullData = products.map(product => {
+            const productData = product.toJSON();
+            const groupParam = groupParamMap.get(productData.ID_GroupParameter);
+            productData.groupparameter = groupParam ? groupParam.toJSON() : null;
+            if (productData.groupparameter) {
+                productData.groupparameter.parameters = parameters
+                    .filter(p => p.ID_GroupParameter === productData.ID_GroupParameter)
+                    .map(p => p.toJSON());
+            } else { productData.groupparameter = { parameters: [] }; }
+            productData.photos = photosByGroupMap.get(productData.ID_GroupFoto) || [];
+            return productData;
+        }).filter(p => p !== null);
+
+        const categories = await db.product.findAll({ attributes: ['Kategori'], group: ['Kategori'], order: [['Kategori', 'ASC']] });
 
         res.render('user/produk/pencocokan', {
-            produkList
+            productsWithParams: productsFullData,
+            categories: categories.map(c => c.Kategori).filter(Boolean)
         });
 
     } catch (error) {

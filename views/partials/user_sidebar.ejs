@@ -1,84 +1,97 @@
-<aside class="w-64 h-screen bg-surface border-r border-white/5 text-pale flex flex-col sticky top-0 shadow-2xl z-40">
+<aside class="w-72 bg-[#0F1F18] border-r border-[#C5B388]/20 flex flex-col h-screen sticky top-0 shrink-0 z-40 transition-all duration-300 relative overflow-hidden">
     
-    <div class="p-6 border-b border-white/5">
-        <h2 class="text-2xl font-bold tracking-tight">
-            User <span class="text-accent">Panel</span>
-        </h2>
-        <p class="text-xs text-muted mt-1">Kampung Wisata Bausasran</p>
+    <div class="absolute top-0 left-0 w-full h-full opacity-5 pointer-events-none" 
+         style="background-image: url('data:image/svg+xml,%3Csvg viewBox=\'0 0 200 200\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'noiseFilter\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.8\' numOctaves=\'3\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23noiseFilter)\' opacity=\'1\'/%3E%3C/svg%3E'); mix-blend-mode: overlay;">
     </div>
 
-    <nav class="flex-1 overflow-y-auto py-4 px-3 custom-scrollbar">
-        <ul class="space-y-1">
-            
-            <li>
-                <a href="/user/dashboard" class="sidebar-link group flex items-center px-3 py-2.5 rounded-lg transition-all duration-300 hover:bg-white/5 hover:translate-x-1">
-                    <svg class="w-5 h-5 mr-3 text-muted group-hover:text-accent transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
-                    <span class="font-medium">Dashboard</span>
-                </a>
-            </li>
-            
-            <li class="mt-6 mb-2 px-3">
-                <span class="text-[10px] font-bold text-muted/50 uppercase tracking-widest">Jelajahi Konten</span>
-            </li>
+    <div class="h-24 flex items-center px-8 border-b border-[#C5B388]/10 relative z-10">
+        <div class="flex items-center gap-4">
+            <div class="w-10 h-10 rounded-sm border border-[#C5B388]/30 flex items-center justify-center bg-[#0F1F18] shadow-[0_0_15px_rgba(197,179,136,0.1)]">
+                <span class="text-[#C5B388] text-xl font-serif">✦</span>
+            </div>
+            <div>
+                <h2 class="text-lg font-[Cinzel] text-[#F9F7F2] font-bold tracking-widest leading-none">
+                    BAUSASRAN
+                </h2>
+                <span class="text-[9px] text-[#C5B388] uppercase tracking-[0.2em]">Panel Warga</span>
+            </div>
+        </div>
+    </div>
 
-            <li>
-                <a href="/user/anggota" class="sidebar-link group flex items-center px-3 py-2.5 rounded-lg transition-all duration-300 hover:bg-white/5 hover:translate-x-1">
-                    <svg class="w-5 h-5 mr-3 text-muted group-hover:text-accent transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-                    <span class="font-medium">Anggota</span>
-                </a>
-            </li>
-            <li>
-                <a href="/user/produk" class="sidebar-link group flex items-center px-3 py-2.5 rounded-lg transition-all duration-300 hover:bg-white/5 hover:translate-x-1">
-                    <svg class="w-5 h-5 mr-3 text-muted group-hover:text-accent transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
-                    <span class="font-medium">Produk UMKM</span>
-                </a>
-            </li>
-            <li>
-                <a href="/user/kegiatan" class="sidebar-link group flex items-center px-3 py-2.5 rounded-lg transition-all duration-300 hover:bg-white/5 hover:translate-x-1">
-                    <svg class="w-5 h-5 mr-3 text-muted group-hover:text-accent transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                    <span class="font-medium">Kegiatan</span>
-                </a>
-            </li>
-            <li>
-                <a href="/user/prestasi" class="sidebar-link group flex items-center px-3 py-2.5 rounded-lg transition-all duration-300 hover:bg-white/5 hover:translate-x-1">
-                    <svg class="w-5 h-5 mr-3 text-muted group-hover:text-accent transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path></svg>
-                    <span class="font-medium">Prestasi</span>
-                </a>
-            </li>
-            <li>
-                <a href="/user/galeri" class="sidebar-link group flex items-center px-3 py-2.5 rounded-lg transition-all duration-300 hover:bg-white/5 hover:translate-x-1">
-                    <svg class="w-5 h-5 mr-3 text-muted group-hover:text-accent transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                    <span class="font-medium">Galeri Foto</span>
-                </a>
-            </li>
+    <nav class="flex-1 overflow-y-auto py-8 px-4 space-y-1 relative z-10 custom-scrollbar">
+        
+        <a href="/user/dashboard" 
+           class="sidebar-link flex items-center px-4 py-3.5 mb-6 rounded-sm transition-all group border border-transparent hover:border-[#C5B388]/20 hover:bg-white/5">
+            <svg class="w-5 h-5 mr-3 text-[#C5B388]/60 group-hover:text-[#C5B388] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+            </svg>
+            <span class="text-[11px] font-bold uppercase tracking-widest text-[#F9F7F2]/80 group-hover:text-[#F9F7F2]">Dashboard</span>
+        </a>
 
-            <li class="mt-6 mb-2 px-3">
-                <span class="text-[10px] font-bold text-muted/50 uppercase tracking-widest">Fitur Interaktif</span>
-            </li>
-            <li>
-                <a href="/user/testimoni" class="sidebar-link group flex items-center px-3 py-2.5 rounded-lg transition-all duration-300 hover:bg-white/5 hover:translate-x-1">
-                    <svg class="w-5 h-5 mr-3 text-muted group-hover:text-accent transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg>
-                    <span class="font-medium">Testimoni Saya</span>
-                </a>
-            </li>
-            <li>
-                <a href="/user/produk/pencocokan" class="sidebar-link group flex items-center px-3 py-2.5 rounded-lg transition-all duration-300 hover:bg-white/5 hover:translate-x-1">
-                    <svg class="w-5 h-5 mr-3 text-muted group-hover:text-accent transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
-                    <span class="font-medium">Pencocokan Produk</span>
-                </a>
-            </li>
-        </ul>
+        <div class="px-4 mb-3 mt-8 flex items-center gap-3">
+            <span class="h-[1px] w-6 bg-[#C5B388]/30"></span>
+            <span class="text-[9px] font-[Cinzel] font-bold text-[#C5B388] uppercase tracking-widest">Eksplorasi</span>
+        </div>
+
+        <% const exploreItems = [
+            { href: '/user/anggota', label: 'Data Anggota', icon: 'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z' },
+            { href: '/user/produk', label: 'Produk UMKM', icon: 'M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z' },
+            { href: '/user/kegiatan', label: 'Agenda Kegiatan', icon: 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z' },
+            { href: '/user/prestasi', label: 'Prestasi Warga', icon: 'M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138z' },
+            { href: '/user/galeri', label: 'Galeri Foto', icon: 'M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z' }
+        ] %>
+
+        <% exploreItems.forEach(item => { %>
+            <a href="<%= item.href %>" 
+               class="sidebar-link flex items-center px-4 py-3 rounded-sm text-[#A3C2B8] hover:text-[#F9F7F2] transition-all group relative overflow-hidden mb-1">
+                
+                <div class="absolute left-0 top-0 bottom-0 w-[2px] bg-[#C5B388] transform -translate-x-full group-hover:translate-x-0 transition-transform duration-300"></div>
+                
+                <svg class="w-4 h-4 mr-4 text-[#C5B388]/40 group-hover:text-[#C5B388] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="<%= item.icon %>"></path>
+                </svg>
+                <span class="text-[11px] font-medium uppercase tracking-wider opacity-70 group-hover:opacity-100 transition-opacity">
+                    <%= item.label %>
+                </span>
+            </a>
+        <% }) %>
+
+        <div class="px-4 mb-3 mt-8 flex items-center gap-3">
+            <span class="h-[1px] w-6 bg-[#C5B388]/30"></span>
+            <span class="text-[9px] font-[Cinzel] font-bold text-[#C5B388] uppercase tracking-widest">Interaktif</span>
+        </div>
+
+        <% const featureItems = [
+            { href: '/user/testimoni', label: 'Ulasan Saya', icon: 'M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z' },
+            { href: '/user/produk/pencocokan', label: 'Rekomendasi Produk', icon: 'M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z' }
+        ] %>
+
+        <% featureItems.forEach(item => { %>
+            <a href="<%= item.href %>" 
+               class="sidebar-link flex items-center px-4 py-3 rounded-sm text-[#A3C2B8] hover:text-[#F9F7F2] transition-all group relative overflow-hidden mb-1">
+                <div class="absolute left-0 top-0 bottom-0 w-[2px] bg-[#C5B388] transform -translate-x-full group-hover:translate-x-0 transition-transform duration-300"></div>
+                <svg class="w-4 h-4 mr-4 text-[#C5B388]/40 group-hover:text-[#C5B388] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="<%= item.icon %>"></path>
+                </svg>
+                <span class="text-[11px] font-medium uppercase tracking-wider opacity-70 group-hover:opacity-100 transition-opacity">
+                    <%= item.label %>
+                </span>
+            </a>
+        <% }) %>
+
     </nav>
 
-    <div class="p-4 border-t border-white/5 space-y-2">
-        <a href="/" class="flex items-center justify-center w-full px-4 py-2 text-sm text-muted bg-white/5 hover:bg-white/10 rounded-lg transition-colors">
-            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+    <div class="p-6 border-t border-[#C5B388]/10 bg-[#0A1611] relative z-10">
+        <a href="/" target="_blank" class="flex items-center justify-center w-full px-4 py-3 mb-4 text-[10px] font-bold uppercase tracking-widest text-[#C5B388] border border-[#C5B388]/20 hover:bg-[#C5B388] hover:text-[#0F1F18] transition-all duration-300">
             Situs Publik
+            <svg class="w-3 h-3 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
         </a>
         
-        <a href="/logout" class="flex items-center justify-center w-full px-4 py-2 text-sm font-bold text-red-400 bg-red-400/10 border border-red-400/20 hover:bg-red-400 hover:text-white rounded-lg transition-all duration-300">
-            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
-            Logout
+        <a href="/logout" class="flex items-center justify-center text-[#F9F7F2]/40 hover:text-red-400 transition-colors group text-xs">
+            <svg class="w-4 h-4 mr-2 transition-transform group-hover:-translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+            </svg>
+            <span class="tracking-widest uppercase">Keluar Sesi</span>
         </a>
     </div>
 
@@ -91,11 +104,9 @@
 
         links.forEach(link => {
             const href = link.getAttribute('href');
-            
-            // Logika Active: Jika path sama persis atau dimulai dengan href (untuk sub-halaman)
-            // Kecuali dashboard, harus exact match agar tidak aktif di semua halaman /user/
             let isActive = false;
 
+            // Logic untuk active state
             if (href === '/user/dashboard') {
                 isActive = (currentPath === href);
             } else {
@@ -103,15 +114,27 @@
             }
 
             if (isActive) {
-                // Style untuk link yang aktif
-                link.classList.remove('text-pale', 'hover:bg-white/5');
-                link.classList.add('bg-accent', 'text-main', 'shadow-lg', 'shadow-accent/20');
+                // Style Active: Background transparan putih, text emas
+                link.classList.remove('text-[#A3C2B8]', 'border-transparent');
+                link.classList.add('bg-white/5', 'text-[#F9F7F2]');
                 
-                // Ubah warna icon di dalamnya
+                // Khusus Dashboard yang punya border
+                if(href === '/user/dashboard') {
+                    link.classList.add('border-[#C5B388]/20');
+                }
+
+                // Ubah warna icon
                 const icon = link.querySelector('svg');
                 if(icon) {
-                    icon.classList.remove('text-muted', 'group-hover:text-accent');
-                    icon.classList.add('text-main');
+                    icon.classList.remove('text-[#C5B388]/40', 'text-[#C5B388]/60');
+                    icon.classList.add('text-[#C5B388]');
+                }
+
+                // Tampilkan garis emas (untuk menu selain dashboard)
+                const indicator = link.querySelector('div.absolute');
+                if(indicator) {
+                    indicator.classList.remove('-translate-x-full');
+                    indicator.classList.add('translate-x-0');
                 }
             }
         });
