@@ -73,7 +73,7 @@
         /* PARALLAX UTILS */
         .parallax-container { @apply overflow-hidden relative; }
         .parallax-img { 
-            @apply h-[130%] w-full object-cover absolute top-0 left-0 will-change-transform grayscale group-hover:grayscale-0 transition-all duration-1000;
+            @apply h-[130%] w-full object-cover absolute top-0 left-0 will-change-transform  group-hover:grayscale-0 transition-all duration-1000;
             top: -15%;
         }
 
@@ -94,7 +94,7 @@
         <div class="absolute inset-0 z-0">
             <img src="/images/hero.png" 
                  alt="Bausasran Ambience" 
-                 class="w-full h-full object-cover grayscale opacity-30 mix-blend-multiply"
+                 class="w-full h-full object-cover opacity-30 mix-blend-multiply"
                  data-speed="0.5"> 
             
             <div class="absolute inset-0 bg-gradient-to-b from-paper/90 via-paper/60 to-paper"></div>
@@ -168,46 +168,7 @@
             </div>
         </section>
 
-        <section id="produk" class="py-32 bg-linen scroll-mt-12">
-            <div class="max-w-7xl mx-auto px-6">
-                <div class="flex flex-col md:flex-row justify-between items-end mb-24 reveal-text">
-                    <div>
-                        <span class="font-serif italic text-gold text-lg mb-2 block">The Atelier</span>
-                        <h2 class="font-crest text-4xl md:text-5xl text-deep">Produk Unggulan</h2>
-                    </div>
-                    <a href="/produk" class="btn-luxury mt-6 md:mt-0 group bg-paper">View Collection</a>
-                </div>
-                
-                <% if(produk && produk.length > 0) { %>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-y-20 gap-x-10">
-                        <% for(let item of produk) { %>
-                            <div class="group cursor-pointer reveal-text">
-                                <div class="bg-paper p-8 shadow-sm transition-all duration-700 hover:shadow-2xl hover:-translate-y-2 relative border border-deep/5">
-                                    <div class="aspect-[3/4] parallax-container curtain-wrapper mb-6 bg-linen/30">
-                                        <div class="curtain-panel"></div>
-                                        <img src="<%= (item.photos && item.photos.length > 0) ? '/images/produk/' + item.photos[0].Foto : 'https://via.placeholder.com/400x600?text=' + encodeURIComponent(item.Nama) %>" 
-                                             alt="<%= item.Nama %>" 
-                                             class="parallax-img mix-blend-multiply opacity-90 group-hover:opacity-100"
-                                             data-parallax-img>
-                                        <span class="absolute top-0 right-0 bg-deep text-paper text-[8px] uppercase tracking-widest px-3 py-2 z-10">
-                                            <%= item.Kategori || 'Collection' %>
-                                        </span>
-                                    </div>
-                                    <div class="text-center relative z-10">
-                                        <h3 class="font-serif text-2xl text-deep mb-2"><%= item.Nama %></h3>
-                                        <div class="w-8 h-[1px] bg-gold mx-auto mb-3 group-hover:w-16 transition-all duration-500"></div>
-                                        <p class="font-sans text-xs font-bold tracking-widest text-deep/60">
-                                            IDR <%= new Intl.NumberFormat('id-ID').format(item.Harga) %>
-                                        </p>
-                                    </div>
-                                    <a href="/produk/<%= item.ID_Product %>" class="absolute inset-0 z-20"></a>
-                                </div>
-                            </div>
-                        <% } %>
-                    </div>
-                <% } %>
-            </div>
-        </section>
+        
 
         <section id="prestasi" class="py-32 bg-deep text-paper scroll-mt-12 relative overflow-hidden">
             <div class="absolute top-0 left-12 w-[1px] h-64 bg-gold/20" data-speed="0.7"></div>
@@ -229,7 +190,7 @@
                                 <div class="relative aspect-[4/3] parallax-container border border-gold/10 hover:border-gold transition-colors duration-700 curtain-wrapper mb-6">
                                     <div class="curtain-panel bg-paper"></div> <img src="<%= (item.photos && item.photos.length > 0) ? '/images/' + (item.folder || 'prestasi') + '/' + item.photos[0].Foto : 'https://via.placeholder.com/400x300?text=Prestasi' %>" 
                                          alt="<%= item.Judul %>" 
-                                         class="parallax-img opacity-80 group-hover:opacity-100 grayscale group-hover:grayscale-0 transition-all duration-1000"
+                                         class="parallax-img opacity-80 group-hover:opacity-100  group-hover:grayscale-0 transition-all duration-1000"
                                          data-parallax-img>
                                     <div class="absolute top-4 left-4 bg-gold text-deep text-xs font-serif italic px-3 py-1 z-10">
                                         <%= new Date(item.Tanggal).getFullYear() %>
@@ -245,74 +206,11 @@
             </div>
         </section>
 
-        <section id="galeri" class="py-32 bg-paper scroll-mt-12">
-            <div class="max-w-7xl mx-auto px-6">
-                <div class="flex flex-col md:flex-row justify-between items-end mb-16 reveal-text">
-                    <h2 class="font-crest text-3xl md:text-4xl text-deep">Visual Memory</h2>
-                    <a href="/galeri" class="text-[10px] uppercase tracking-widest text-charcoal/50 hover:text-deep transition-colors">Enter Gallery</a>
-                </div>
-                <% if(galeri && galeri.length > 0) { %>
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
-                        <% for(let item of galeri) { %>
-                            <div class="group relative aspect-square overflow-hidden bg-linen cursor-crosshair curtain-wrapper">
-                                <div class="curtain-panel"></div>
-                                <img src="/images/<%= item.folder || 'galeri' %>/<%= item.Foto %>" 
-                                     alt="Galeri" 
-                                     class="w-full h-full object-cover transition-transform duration-[2000ms] group-hover:scale-110 filter sepia-[0.3] group-hover:sepia-0">
-                            </div>
-                        <% } %>
-                    </div>
-                <% } %>
-            </div>
-        </section>
+        
 
-        <section id="anggota" class="py-32 bg-linen scroll-mt-12">
-            <div class="max-w-7xl mx-auto px-6">
-                <div class="text-center mb-24 reveal-text">
-                    <span class="font-sans text-[10px] uppercase tracking-widest text-gold mb-4 block">Community Pillars</span>
-                    <h2 class="font-crest text-4xl md:text-5xl text-deep">Tim & Anggota</h2>
-                </div>
-                <% if(anggota && anggota.length > 0) { %>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-16">
-                        <% for(let item of anggota) { %>
-                            <div class="flex flex-col items-center group text-center reveal-text">
-                                <div class="w-32 h-32 md:w-40 md:h-40 rounded-full p-1 border border-deep/10 group-hover:border-gold transition-colors duration-700 mb-6 relative bg-paper">
-                                    <img src="<%= item.fotoFile ? '/images/' + (item.folder || 'anggota') + '/' + item.fotoFile : 'https://ui-avatars.com/api/?name=' + encodeURIComponent(item.Nama) + '&background=0F1F18&color=F9F7F2' %>" 
-                                         alt="<%= item.Nama %>" 
-                                         class="w-full h-full rounded-full object-cover grayscale group-hover:grayscale-0 transition-all duration-1000">
-                                </div>
-                                <h3 class="font-serif text-2xl text-deep mb-1"><%= item.Nama %></h3>
-                                <p class="font-sans text-[9px] uppercase tracking-widest text-gold mb-4"><%= item.Jabatan || 'Member' %></p>
-                            </div>
-                        <% } %>
-                    </div>
-                <% } %>
-            </div>
-        </section>
+        
 
-        <section id="testimoni" class="py-32 bg-paper border-t border-deep/5 scroll-mt-12">
-            <div class="max-w-7xl mx-auto px-6">
-                <div class="flex flex-col md:flex-row justify-between items-end mb-24 reveal-text">
-                    <div>
-                        <span class="font-serif italic text-gold text-lg mb-2 block">Guest Book</span>
-                        <h2 class="font-crest text-4xl text-deep">Apa Kata Mereka?</h2>
-                    </div>
-                </div>
-                <% if(testimoni && testimoni.length > 0) { %>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
-                        <% for(let item of testimoni) { %>
-                            <div class="bg-linen p-10 relative group hover:shadow-lg transition-all duration-700 reveal-text border border-deep/5 hover:border-gold/30">
-                                <p class="font-serif text-deep/80 text-lg italic leading-relaxed relative z-10">"<%= item.Ulasan %>"</p>
-                                <div class="mt-6 flex items-center gap-3">
-                                     <div class="w-8 h-[1px] bg-deep/20"></div>
-                                     <span class="text-[9px] uppercase tracking-widest text-deep/60"><%= item.pengguna ? item.pengguna.Nama : 'Visitor' %></span>
-                                </div>
-                            </div>
-                        <% } %>
-                    </div>
-                <% } %>
-            </div>
-        </section>
+        
 
     </main>
 

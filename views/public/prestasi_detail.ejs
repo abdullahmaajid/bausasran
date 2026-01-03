@@ -115,7 +115,7 @@
                             <% if (fotoFiles && fotoFiles.length > 0) { %>
                                 <img src="/images/<%= folder || 'prestasi' %>/<%= fotoFiles[0] %>" 
                                      alt="<%= prestasi.Judul %>" 
-                                     class="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105 filter grayscale contrast-[1.1] group-hover:grayscale-0 transition-all"
+                                     class="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105 filter  contrast-[1.1] group-hover:-0 transition-all"
                                      onerror="this.onerror=null;this.src='https://via.placeholder.com/800x600?text=Bausasran+Heritage'">
                             <% } else { %>
                                 <div class="w-full h-full flex items-center justify-center bg-sand/10 text-deep/20">
@@ -148,7 +148,7 @@
                                             <div class="w-full h-full overflow-hidden relative">
                                                 <img src="/images/<%= folder || 'prestasi' %>/<%= foto %>" 
                                                      alt="Galeri <%= index %>" 
-                                                     class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 filter grayscale group-hover:grayscale-0 transition-all">
+                                                     class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 filter  group-hover:-0 transition-all">
                                                 <div class="absolute inset-0 bg-deep/0 group-hover:bg-deep/10 transition-colors duration-500"></div>
                                             </div>
                                         </div>

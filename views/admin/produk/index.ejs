@@ -113,7 +113,7 @@
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-10 h-[500px] lg:h-[480px]">
                     
                     <div class="lg:col-span-2 relative bg-white p-1 shadow-elegant border border-deep/5 group">
-                        <div id="map" class="h-full w-full grayscale-[20%] hover:grayscale-0 transition-all duration-700"></div>
+                        <div id="map" class="h-full w-full -[20%] hover:-0 transition-all duration-700"></div>
                         
                         <div id="map-loading" class="absolute inset-0 bg-paper/90 backdrop-blur-sm z-[400] flex flex-col items-center justify-center hidden">
                             <div class="w-12 h-12 border-2 border-deep/10 border-t-gold rounded-full animate-spin mb-4"></div>
@@ -253,7 +253,7 @@
                 : null;
             
             const imgHTML = imgUrl 
-                ? `<img src="${imgUrl}" class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700">`
+                ? `<img src="${imgUrl}" class="w-full h-full object-cover  group-hover:-0 transition-all duration-700">`
                 : `<div class="w-full h-full bg-linen flex items-center justify-center text-deep/20 font-serif italic text-xs">Foto Tidak Tersedia</div>`;
 
             // Parameters List
